@@ -82,7 +82,10 @@ main { padding-top: var(--header-height); min-height: 80vh; }
 .sliderFeaturedPosts { width: 100%; }
 .slider-slide-link {
   display: block; height: 520px;
-  background-size: cover; background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #111;
   position: relative; text-decoration: none;
 }
 .slider-overlay {
