@@ -165,9 +165,11 @@
         wrapper.innerHTML = '<div class="swiper-slide"><div class="slider-empty"><i class="bi bi-images"></i><p>No featured posts</p></div></div>';
         return;
       }
-      wrapper.innerHTML = data.slides.map(s => `
-        <div class="swiper-slide">
-          <a href="${s.link}" class="slider-slide-link" style="background-image:url('/${s.image}')">
+wrapper.innerHTML = data.slides.map(s => `
+  <div class="swiper-slide">
+    <a href="${s.link}" class="slider-slide-link">
+      <div class="slider-bg-blur" style="background-image:url('/${s.image}')"></div>
+      <div class="slider-bg-main" style="background-image:url('/${s.image}')"></div>
             <div class="slider-overlay">
               <div class="slider-content">
                 <span class="slider-badge">Featured</span>

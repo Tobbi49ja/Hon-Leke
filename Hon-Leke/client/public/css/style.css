@@ -81,17 +81,38 @@ main { padding-top: var(--header-height); min-height: 80vh; }
 .hero-slider-section { background: #111; }
 .sliderFeaturedPosts { width: 100%; }
 .slider-slide-link {
-  display: block; height: 520px;
+  display: block;
+  height: 520px;
+  position: relative;
+  text-decoration: none;
+  overflow: hidden;
+}
+.slider-bg-blur {
+  position: absolute;
+  inset: -20px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(18px) brightness(0.5) saturate(1.2);
+  transform: scale(1.1);
+  z-index: 0;
+}
+.slider-bg-main {
+  position: absolute;
+  inset: 0;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  background-color: #111;
-  position: relative; text-decoration: none;
+  z-index: 1;
 }
+
 .slider-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(0deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
-  display: flex; align-items: flex-end; padding: 48px;
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.15) 60%, transparent 100%);
+  display: flex;
+  align-items: flex-end;
+  padding: 48px;
+  z-index: 2;
 }
 .slider-content { color: white; max-width: 700px; }
 .slider-badge {
