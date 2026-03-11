@@ -13,7 +13,7 @@ const adminRouter   = require('./routes/admin');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// ── Middleware ─────────────────────────────────────────
+//Middleware 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
@@ -23,11 +23,11 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// ── Static Files ───────────────────────────────────────
+//Static Files
 app.use(express.static(path.join(__dirname, '..', 'client', 'public')));
 app.use('/admin/assets', express.static(path.join(__dirname, '..', 'admin', 'public')));
 
-// ── API Routes ─────────────────────────────────────────
+// API Routes
 app.use('/api', apiLimiter);
 app.use('/api/posts', postsRouter);
 app.use('/api/contact', contactLimiter, contactRouter);
@@ -37,7 +37,7 @@ app.use('/api/subscribe', (req, res, next) => {
 });
 app.use('/api/admin', adminRouter);
 
-// ── Client Pages ───────────────────────────────────────
+//Client Pages
 const clientPages = path.join(__dirname, '..', 'client', 'pages');
 
 app.get('/', (req, res) => res.sendFile(path.join(clientPages, 'home', 'index.html')));
@@ -45,7 +45,7 @@ app.get('/about', (req, res) => res.sendFile(path.join(clientPages, 'about', 'in
 app.get('/contact', (req, res) => res.sendFile(path.join(clientPages, 'contact', 'index.html')));
 app.get('/post/:id', (req, res) => res.sendFile(path.join(clientPages, 'post', 'index.html')));
 
-// ── Admin Pages ────────────────────────────────────────
+//Admin Pages 
 const adminPages = path.join(__dirname, '..', 'admin', 'pages');
 
 app.get('/admin', (req, res) => res.redirect('/admin/login'));
@@ -59,14 +59,14 @@ app.get('/admin/messages', requireAdmin, (req, res) => res.sendFile(path.join(ad
 app.get('/admin/subscribers', requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'subscribers.html')));
 app.get('/admin/settings', requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'settings.html')));
 
-// ── 404 ────────────────────────────────────────────────
+// 404 page
 app.use((req, res) => {
   res.status(404).sendFile(path.join(clientPages, '404', 'index.html'));
 });
 
-// ── Start ──────────────────────────────────────────────
+//Start
 app.listen(PORT, () => {
   console.log(`\n✅  Hon. Leke Abejide Blog`);
   console.log(`🌐  Site:  http://localhost:${PORT}`);
-  console.log(`🔐  Admin: http://localhost:${PORT}/admin/login`);
+  console.log(`🔐  Admin: http://localhost:${PORT}/admin`);
 });

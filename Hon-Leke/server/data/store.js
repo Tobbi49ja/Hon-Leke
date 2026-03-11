@@ -135,7 +135,7 @@ let siteSettings = {
 // Admin credentials — loaded from .env (never hardcode these in production)
 const adminUser = {
   username: process.env.ADMIN_USERNAME || 'admin',
-  password: process.env.ADMIN_PASSWORD ,
+  password: process.env.ADMIN_PASSWORD || 'changeme',
   name:     process.env.ADMIN_NAME     || 'Site Administrator'
 };
 

@@ -7,30 +7,66 @@ const fs = require('fs');
 const store = require('../data/store');
 const { requireAdmin } = require('../middleware/auth');
 
-// ── Multer setup ───────────────────────────────────────
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '..', '..', 'client', 'public', 'image');
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1e6);
-    cb(null, unique + path.extname(file.originalname));
+// ── Cloudinary setup ───────────────────────────────────────────────────────────
+let uploadToCloud = null;
+
+if (process.env.CLOUDINARY_CLOUD_NAME) {
+  try {
+    const cloudinary = require('cloudinary').v2;
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key:    process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+    uploadToCloud = async (filePath) => {
+      const result = await cloudinary.uploader.upload(filePath, {
+        folder: 'hon-leke-blog',
+        transformation: [{ width: 1200, crop: 'limit', quality: 'auto', fetch_format: 'auto' }]
+      });
+      try { fs.unlinkSync(filePath); } catch(e) {}
+      return result.secure_url;
+    };
+    console.log('✅ Cloudinary configured — images stored in the cloud.');
+  } catch(e) {
+    console.warn('⚠️  Cloudinary package not found. Run: npm install cloudinary');
   }
-});
+} else {
+  console.log('ℹ️  No Cloudinary config — images saved to local disk.');
+}
+
+// ── Multer ─────────────────────────────────────────────────────────────────────
+const tempDir = path.join(__dirname, '..', '..', 'client', 'public', 'image');
+if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+
 const upload = multer({
-  storage,
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, tempDir),
+    filename:    (req, file, cb) => {
+      cb(null, Date.now() + '-' + Math.round(Math.random() * 1e6) + path.extname(file.originalname));
+    }
+  }),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowed = /jpeg|jpg|png|gif|webp/;
-    cb(null, allowed.test(path.extname(file.originalname).toLowerCase()));
+    cb(null, /jpeg|jpg|png|gif|webp/.test(path.extname(file.originalname).toLowerCase()));
   }
 });
 
-// ── Auth ───────────────────────────────────────────────
+// ── Image resolver ─────────────────────────────────────────────────────────────
+async function resolveImage(file, imagePath, fallback) {
+  if (file) {
+    if (uploadToCloud) {
+      try { return await uploadToCloud(file.path); } catch(e) {
+        console.error('Cloudinary upload failed:', e.message);
+        return 'image/' + file.filename;
+      }
+    }
+    return 'image/' + file.filename;
+  }
+  if (imagePath !== undefined && imagePath !== '') return imagePath;
+  return fallback || '';
+}
 
-// POST /api/admin/login
+// ── Auth ───────────────────────────────────────────────────────────────────────
 router.post('/login', (req, res) => {
   const { username, password } = req.body;
   const admin = store.adminUser;
@@ -42,83 +78,57 @@ router.post('/login', (req, res) => {
   res.status(401).json({ success: false, message: 'Invalid credentials.' });
 });
 
-// POST /api/admin/logout
 router.post('/logout', (req, res) => {
   req.session.destroy();
   res.json({ success: true, message: 'Logged out.' });
 });
 
-// GET /api/admin/me
 router.get('/me', requireAdmin, (req, res) => {
   res.json({ success: true, name: req.session.adminName || 'Admin' });
 });
 
-// ── Stats ──────────────────────────────────────────────
+// ── Stats ──────────────────────────────────────────────────────────────────────
 router.get('/stats', requireAdmin, (req, res) => {
   res.json({ success: true, stats: store.getStats() });
 });
 
-// ── Posts ──────────────────────────────────────────────
-
-// GET /api/admin/posts
+// ── Posts ──────────────────────────────────────────────────────────────────────
 router.get('/posts', requireAdmin, (req, res) => {
   res.json({ success: true, posts: store.getAllPosts() });
 });
 
-// POST /api/admin/posts
-router.post('/posts', requireAdmin, upload.single('image'), (req, res) => {
+router.post('/posts', requireAdmin, upload.single('image'), async (req, res) => {
   const { title, excerpt, content, category, date, featured, hasVideo, videoSrc, imagePath } = req.body;
-
-  if (!title || !excerpt || !content || !category) {
+  if (!title || !excerpt || !content || !category)
     return res.status(400).json({ success: false, message: 'Title, excerpt, content and category are required.' });
-  }
-
-  let image = '';
-  if (req.file) {
-    image = 'image/' + req.file.filename;
-  } else if (imagePath) {
-    image = imagePath;
-  }
-
-  const post = store.createPost({ title, excerpt, content, category, date, featured, hasVideo, videoSrc, image });
+  const image = await resolveImage(req.file, imagePath, '');
+  const post  = store.createPost({ title, excerpt, content, category, date, featured, hasVideo, videoSrc, image });
   res.json({ success: true, message: 'Post created successfully!', post });
 });
 
-// PUT /api/admin/posts/:id
-router.put('/posts/:id', requireAdmin, upload.single('image'), (req, res) => {
+router.put('/posts/:id', requireAdmin, upload.single('image'), async (req, res) => {
   const id = parseInt(req.params.id);
   const { title, excerpt, content, category, date, featured, hasVideo, videoSrc, imagePath } = req.body;
-
   const existing = store.getPostById(id);
   if (!existing) return res.status(404).json({ success: false, message: 'Post not found.' });
-
-  let image = existing.image;
-  if (req.file) {
-    image = 'image/' + req.file.filename;
-  } else if (imagePath !== undefined) {
-    image = imagePath || existing.image;
-  }
-
-  const post = store.updatePost(id, { title, excerpt, content, category, date, featured, hasVideo, videoSrc, image });
+  const image = await resolveImage(req.file, imagePath, existing.image);
+  const post  = store.updatePost(id, { title, excerpt, content, category, date, featured, hasVideo, videoSrc, image });
   res.json({ success: true, message: 'Post updated successfully!', post });
 });
 
-// DELETE /api/admin/posts/:id
 router.delete('/posts/:id', requireAdmin, (req, res) => {
   const ok = store.deletePost(parseInt(req.params.id));
   if (!ok) return res.status(404).json({ success: false, message: 'Post not found.' });
   res.json({ success: true, message: 'Post deleted.' });
 });
 
-// PATCH /api/admin/posts/:id/featured
 router.patch('/posts/:id/featured', requireAdmin, (req, res) => {
   const post = store.toggleFeatured(parseInt(req.params.id));
   if (!post) return res.status(404).json({ success: false, message: 'Post not found.' });
   res.json({ success: true, message: post.featured ? 'Added to slider.' : 'Removed from slider.', featured: post.featured });
 });
 
-// ── Comments ───────────────────────────────────────────
-
+// ── Comments ───────────────────────────────────────────────────────────────────
 router.get('/comments', requireAdmin, (req, res) => {
   res.json({ success: true, comments: store.getAllComments() });
 });
@@ -129,8 +139,7 @@ router.delete('/comments/:id', requireAdmin, (req, res) => {
   res.json({ success: true, message: 'Comment deleted.' });
 });
 
-// ── Messages ───────────────────────────────────────────
-
+// ── Messages ───────────────────────────────────────────────────────────────────
 router.get('/messages', requireAdmin, (req, res) => {
   res.json({ success: true, messages: store.getAllMessages() });
 });
@@ -147,8 +156,7 @@ router.delete('/messages/:id', requireAdmin, (req, res) => {
   res.json({ success: true, message: 'Message deleted.' });
 });
 
-// ── Subscribers ────────────────────────────────────────
-
+// ── Subscribers ────────────────────────────────────────────────────────────────
 router.get('/subscribers', requireAdmin, (req, res) => {
   res.json({ success: true, subscribers: store.getAllSubscribers() });
 });
@@ -159,8 +167,7 @@ router.delete('/subscribers/:id', requireAdmin, (req, res) => {
   res.json({ success: true, message: 'Subscriber removed.' });
 });
 
-// ── Settings ───────────────────────────────────────────
-
+// ── Settings ───────────────────────────────────────────────────────────────────
 router.get('/settings', requireAdmin, (req, res) => {
   res.json({ success: true, settings: store.getSettings() });
 });
