@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — Hon. Leke Abejide</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/admin/assets/css/admin.css" rel="stylesheet">
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <i class="bi bi-shield-lock-fill" style="font-size:2rem;color:var(--sidebar)"></i>
+      <div>
+        <h1>Admin Panel</h1>
+        <p style="margin:0;font-size:0.78rem;color:var(--muted)">Hon. Leke Abejide</p>
+      </div>
+    </div>
+    <p>Sign in to access the admin dashboard.</p>
+
+    <div class="alert alert-danger" id="login-error"></div>
+
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input type="text" class="form-control" id="username" placeholder="Enter username" autofocus>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-control" id="password" placeholder="Enter password">
+    </div>
+
+    <button class="btn btn-primary" id="login-btn" style="width:100%;justify-content:center;padding:12px;margin-top:8px">
+      <i class="bi bi-box-arrow-in-right"></i> Sign In
+    </button>
+  </div>
+</div>
+<script>
+async function doLogin() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const errorEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+
+  if (!username || !password) {
+    errorEl.textContent = 'Please enter both username and password.';
+    errorEl.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in…';
+
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      window.location.href = '/admin/dashboard';
+    } else {
+      errorEl.textContent = data.message || 'Invalid credentials.';
+      errorEl.classList.add('show');
+    }
+  } catch(e) {
+    errorEl.textContent = 'Network error. Please try again.';
+    errorEl.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Sign In';
+  }
+}
+
+document.getElementById('login-btn').addEventListener('click', doLogin);
+document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+</body>
+</html>

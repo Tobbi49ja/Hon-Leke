@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hon. Leke Abejide — Official Blog</title>
+  <meta name="description" content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives, Yagba Federal Constituency.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Header -->
+<header id="header">
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <i class="bi bi-flag-fill" style="font-size:1.5rem;color:var(--accent)"></i>
+      <span id="site-logo-text">Hon. Leke Abejide</span>
+    </a>
+    <nav class="navbar" id="navbar">
+      <ul id="nav-links">
+        <li><a href="/" class="active">Blog</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <div class="header-social" id="header-social">
+        <a href="#" target="_blank" id="hdr-fb"><i class="bi bi-facebook"></i></a>
+        <a href="#" target="_blank" id="hdr-ig"><i class="bi bi-instagram"></i></a>
+        <a href="#" target="_blank" id="hdr-tw"><i class="bi bi-twitter-x"></i></a>
+      </div>
+      <button class="search-toggle"><i class="bi bi-search"></i></button>
+      <button class="mobile-nav-toggle"><i class="bi bi-list"></i></button>
+    </div>
+  </div>
+</header>
+
+<div class="search-overlay">
+  <form id="search-form">
+    <input type="text" id="search-input" placeholder="Search posts…" autocomplete="off">
+    <button type="submit">Search</button>
+    <button type="button" class="search-close"><i class="bi bi-x"></i></button>
+  </form>
+</div>
+
+<main id="main">
+  <!-- Hero Slider -->
+  <section class="hero-slider-section">
+    <div class="container-fluid px-0">
+      <div class="swiper sliderFeaturedPosts">
+        <div class="swiper-wrapper" id="slider-wrapper">
+          <div class="swiper-slide">
+            <div class="slider-placeholder">
+              <div class="spinner-lg"></div>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Posts Section -->
+  <section class="blog-section">
+    <div class="container">
+
+      <!-- Category Filter -->
+      <div class="category-filter-bar" id="category-filters">
+        <button class="cat-btn active" data-cat="all">All Posts</button>
+      </div>
+
+      <!-- Posts Grid -->
+      <div class="blog-grid" id="posts-grid">
+        <div class="loading-posts">
+          <div class="spinner-lg"></div>
+          <p>Loading posts…</p>
+        </div>
+      </div>
+
+      <!-- No posts message -->
+      <div id="no-posts" class="no-posts" style="display:none">
+        <i class="bi bi-newspaper"></i>
+        <p>No posts found.</p>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer id="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <h3 id="footer-site-name">Hon. Leke Abejide</h3>
+        <p id="footer-about">Rt. Hon. Elder Leke Joseph Abejide — Member, House of Representatives, Yagba Federal Constituency, Kogi State.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul id="footer-links">
+          <li><a href="/">Blog</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Recent Posts</h4>
+        <ul class="footer-recent" id="footer-recent-posts"></ul>
+      </div>
+      <div class="footer-col">
+        <h4>Newsletter</h4>
+        <p style="font-size:0.85rem;opacity:.8;margin-bottom:12px">Stay updated with the latest news.</p>
+        <form id="newsletter-form" class="newsletter-footer-form">
+          <input type="email" placeholder="Your email address" required>
+          <button type="submit">Subscribe</button>
+        </form>
+        <div id="newsletter-msg" style="font-size:0.82rem;margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span id="footer-copy">© 2024 Hon. Leke Abejide. All Rights Reserved.</span>
+      <div class="footer-social">
+        <a href="#" target="_blank" id="ft-fb"><i class="bi bi-facebook"></i></a>
+        <a href="#" target="_blank" id="ft-ig"><i class="bi bi-instagram"></i></a>
+        <a href="#" target="_blank" id="ft-tw"><i class="bi bi-twitter-x"></i></a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<a href="#" class="scroll-top"><i class="bi bi-arrow-up"></i></a>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="/js/app.js"></script>
+<script>
+(async function init() {
+  // Load site settings
+  try {
+    const s = await API.get('/api/admin/settings');
+    if (s.success) applySettings(s.settings);
+  } catch(e) {}
+
+  function applySettings(settings) {
+    document.getElementById('site-logo-text').textContent = settings.heroTitle || 'Hon. Leke Abejide';
+    document.getElementById('footer-site-name').textContent = settings.heroTitle || 'Hon. Leke Abejide';
+    document.getElementById('footer-about').textContent = settings.footerAbout || '';
+    if (settings.facebookUrl) { document.getElementById('hdr-fb').href = settings.facebookUrl; document.getElementById('ft-fb').href = settings.facebookUrl; }
+    if (settings.instagramUrl) { document.getElementById('hdr-ig').href = settings.instagramUrl; document.getElementById('ft-ig').href = settings.instagramUrl; }
+    if (settings.twitterUrl) { document.getElementById('hdr-tw').href = settings.twitterUrl; document.getElementById('ft-tw').href = settings.twitterUrl; }
+  }
+
+  // Load slider
+  async function loadSlider() {
+    try {
+      const data = await API.get('/api/posts/slider');
+      const wrapper = document.getElementById('slider-wrapper');
+      if (!data.slides.length) {
+        wrapper.innerHTML = '<div class="swiper-slide"><div class="slider-empty"><i class="bi bi-images"></i><p>No featured posts</p></div></div>';
+        return;
+      }
+      wrapper.innerHTML = data.slides.map(s => `
+        <div class="swiper-slide">
+          <a href="${s.link}" class="slider-slide-link" style="background-image:url('/${s.image}')">
+            <div class="slider-overlay">
+              <div class="slider-content">
+                <span class="slider-badge">Featured</span>
+                <h2>${s.title}</h2>
+                <span class="slider-read">Read Story <i class="bi bi-arrow-right"></i></span>
+              </div>
+            </div>
+          </a>
+        </div>
+      `).join('');
+      new Swiper('.sliderFeaturedPosts', {
+        loop: data.slides.length > 1,
+        autoplay: { delay: 5000, disableOnInteraction: false },
+        pagination: { el: '.swiper-pagination', clickable: true },
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+        effect: 'fade',
+        fadeEffect: { crossFade: true }
+      });
+    } catch(e) {
+      document.getElementById('slider-wrapper').innerHTML = '';
+    }
+  }
+
+  // Load categories
+  async function loadCategories() {
+    try {
+      const data = await API.get('/api/posts/categories');
+      const bar = document.getElementById('category-filters');
+      data.categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'cat-btn';
+        btn.dataset.cat = cat.toLowerCase();
+        btn.textContent = cat;
+        bar.appendChild(btn);
+      });
+      bar.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          bar.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          loadPosts(btn.dataset.cat);
+        });
+      });
+    } catch(e) {}
+  }
+
+  // Load posts
+  async function loadPosts(cat = 'all', search = '') {
+    const grid = document.getElementById('posts-grid');
+    const noPosts = document.getElementById('no-posts');
+    grid.innerHTML = '<div class="loading-posts"><div class="spinner-lg"></div><p>Loading…</p></div>';
+    noPosts.style.display = 'none';
+
+    try {
+      let url = '/api/posts';
+      const params = [];
+      if (cat !== 'all') params.push(`category=${encodeURIComponent(cat)}`);
+      if (search) params.push(`search=${encodeURIComponent(search)}`);
+      if (params.length) url += '?' + params.join('&');
+
+      const data = await API.get(url);
+      const posts = data.posts;
+
+      if (!posts.length) {
+        grid.innerHTML = '';
+        noPosts.style.display = 'flex';
+        return;
+      }
+
+      grid.innerHTML = posts.map(p => `
+        <article class="post-card" onclick="window.location.href='/post/${p.id}'">
+          <div class="post-card-media">
+            ${p.hasVideo && p.videoSrc
+              ? `<video class="post-card-video" muted loop playsinline preload="metadata" onmouseover="this.play()" onmouseout="this.pause()"><source src="/${p.videoSrc}" type="video/mp4"></video>`
+              : p.image
+                ? `<img src="/${p.image}" alt="${p.title}" class="post-card-img" loading="lazy" onerror="this.parentElement.innerHTML='<div class=post-card-img-placeholder><i class=bi bi-newspaper></i></div>'">`
+                : `<div class="post-card-img-placeholder"><i class="bi bi-newspaper"></i></div>`
+            }
+            ${p.featured ? '<span class="featured-badge"><i class="bi bi-star-fill"></i> Featured</span>' : ''}
+          </div>
+          <div class="post-card-body">
+            <span class="post-cat-badge">${p.category}</span>
+            <h3>${p.title}</h3>
+            <p>${p.excerpt}</p>
+            <div class="post-meta-row">
+              <span><i class="bi bi-calendar3"></i> ${p.date}</span>
+              <span class="read-more">Read More <i class="bi bi-arrow-right"></i></span>
+            </div>
+          </div>
+        </article>
+      `).join('');
+
+      // Footer recent posts
+      const footerRecent = document.getElementById('footer-recent-posts');
+      if (footerRecent) {
+        footerRecent.innerHTML = posts.slice(0, 3).map(p => `
+          <li>
+            <a href="/post/${p.id}" class="footer-recent-item">
+              ${p.image ? `<img src="/${p.image}" alt="${p.title}" onerror="this.style.display='none'">` : ''}
+              <div>
+                <span class="footer-post-date">${p.date}</span>
+                <span class="footer-post-title">${p.title.substring(0, 55)}…</span>
+              </div>
+            </a>
+          </li>
+        `).join('');
+      }
+    } catch(e) {
+      grid.innerHTML = '<div class="no-posts"><i class="bi bi-exclamation-circle"></i><p>Failed to load posts.</p></div>';
+    }
+  }
+
+  // Search
+  document.getElementById('search-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const q = document.getElementById('search-input').value.trim();
+    if (q) {
+      document.querySelector('.search-overlay').classList.remove('open');
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.cat-btn[data-cat="all"]').classList.add('active');
+      loadPosts('all', q);
+    }
+  });
+
+  // Newsletter footer
+  document.getElementById('newsletter-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = e.target.querySelector('input').value.trim();
+    const msg = document.getElementById('newsletter-msg');
+    try {
+      const res = await API.post('/api/subscribe', { email });
+      msg.textContent = res.message;
+      msg.style.color = res.success ? '#90ee90' : '#ff6b6b';
+      if (res.success) e.target.querySelector('input').value = '';
+    } catch(err) {
+      msg.textContent = 'Something went wrong.';
+      msg.style.color = '#ff6b6b';
+    }
+  });
+
+  await Promise.all([loadSlider(), loadCategories()]);
+  await loadPosts();
+})();
+</script>
+</body>
+</html>

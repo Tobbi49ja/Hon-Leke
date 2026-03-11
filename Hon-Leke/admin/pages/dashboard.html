@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/admin/assets/css/admin.css" rel="stylesheet">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand"><h2>Hon. Leke Abejide</h2><p>Admin Panel</p></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <a href="/admin/dashboard" class="nav-link" data-page="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <div class="nav-section">Content</div>
+    <a href="/admin/posts" class="nav-link" data-page="posts"><i class="bi bi-newspaper"></i> Blog Posts</a>
+    <a href="/admin/posts/new" class="nav-link" data-page="new-post"><i class="bi bi-plus-circle"></i> New Post</a>
+    <div class="nav-section">Engagement</div>
+    <a href="/admin/comments" class="nav-link" data-page="comments"><i class="bi bi-chat-left-text"></i> Comments</a>
+    <a href="/admin/messages" class="nav-link" data-page="messages"><i class="bi bi-envelope"></i> Messages</a>
+    <a href="/admin/subscribers" class="nav-link" data-page="subscribers"><i class="bi bi-people"></i> Subscribers</a>
+    <div class="nav-section">Site</div>
+    <a href="/admin/settings" class="nav-link" data-page="settings"><i class="bi bi-gear"></i> Settings</a>
+    <a href="/" target="_blank" class="nav-link"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
+  </nav>
+  <div class="sidebar-footer"><span id="admin-name">Admin</span> &nbsp;·&nbsp; <a href="#" id="logout-btn">Logout</a></div>
+</aside>
+
+<div class="main-content">
+  <div class="topbar">
+    <h1 id="page-title">Dashboard</h1>
+    <div class="topbar-actions">
+      <a href="/admin/posts/new" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> New Post</a>
+      <div class="admin-avatar" id="admin-avatar">A</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="stat-cards" id="stat-cards">
+      <div class="stat-card"><div class="stat-icon" style="background:#e8f0f8"><i class="bi bi-newspaper" style="color:#1a3c5e"></i></div><div class="stat-number" id="stat-posts">—</div><div class="stat-label">Total Posts</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#e8f8ec"><i class="bi bi-star-fill" style="color:#28a745"></i></div><div class="stat-number" id="stat-featured">—</div><div class="stat-label">Featured (Slider)</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#fff3e0"><i class="bi bi-chat-left-text" style="color:#c8971f"></i></div><div class="stat-number" id="stat-comments">—</div><div class="stat-label">Comments</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#fde8e8"><i class="bi bi-envelope" style="color:#dc3545"></i></div><div class="stat-number" id="stat-messages">—</div><div class="stat-label">Messages</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#e8f8f5"><i class="bi bi-people" style="color:#17a2b8"></i></div><div class="stat-number" id="stat-subscribers">—</div><div class="stat-label">Subscribers</div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:#f0e8f8"><i class="bi bi-tags" style="color:#6f42c1"></i></div><div class="stat-number" id="stat-categories">—</div><div class="stat-label">Categories</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="bi bi-newspaper"></i> Recent Posts</h3>
+        <a href="/admin/posts" class="btn btn-outline btn-sm">View All</a>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table class="admin-table">
+          <thead><tr><th>Image</th><th>Title</th><th>Category</th><th>Date</th><th>Featured</th><th>Actions</th></tr></thead>
+          <tbody id="recent-posts-table">
+            <tr><td colspan="6" style="text-align:center;padding:24px;color:#718096">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/admin/assets/js/layout.js"></script>
+<script>
+initAdminLayout('Dashboard', 'dashboard');
+
+async function loadDashboard() {
+  const [statsRes, postsRes] = await Promise.all([
+    adminAPI.get('/api/admin/stats'),
+    adminAPI.get('/api/admin/posts')
+  ]);
+  if (!statsRes || !postsRes) return;
+
+  const s = statsRes.stats;
+  document.getElementById('stat-posts').textContent = s.totalPosts;
+  document.getElementById('stat-featured').textContent = s.featuredPosts;
+  document.getElementById('stat-comments').textContent = s.totalComments;
+  document.getElementById('stat-messages').textContent = s.totalMessages;
+  document.getElementById('stat-subscribers').textContent = s.totalSubscribers;
+  document.getElementById('stat-categories').textContent = s.categories;
+
+  const tbody = document.getElementById('recent-posts-table');
+  const posts = postsRes.posts.slice(0, 8);
+  if (!posts.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#718096">No posts yet. <a href="/admin/posts/new">Create your first post</a></td></tr>';
+    return;
+  }
+  tbody.innerHTML = posts.map(p => `
+    <tr>
+      <td>${p.image ? `<img src="/${p.image}" class="post-thumb" onerror="this.style.display='none'">` : '<div style="width:52px;height:40px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center"><i class="bi bi-image text-muted"></i></div>'}</td>
+      <td style="max-width:260px"><span style="font-weight:500;font-size:0.875rem">${p.title.substring(0,65)}${p.title.length>65?'…':''}</span></td>
+      <td><span class="badge badge-info">${p.category}</span></td>
+      <td style="color:#718096;font-size:0.8rem;white-space:nowrap">${p.date}</td>
+      <td>
+        <label class="toggle">
+          <input type="checkbox" ${p.featured ? 'checked' : ''} onchange="toggleFeatured(${p.id}, this)">
+          <span class="toggle-slider"></span>
+        </label>
+      </td>
+      <td>
+        <a href="/admin/posts/edit/${p.id}" class="btn btn-outline btn-sm btn-icon" title="Edit"><i class="bi bi-pencil"></i></a>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deletePost(${p.id})" title="Delete"><i class="bi bi-trash"></i></button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function toggleFeatured(id, checkbox) {
+  const data = await adminAPI.patch(`/api/admin/posts/${id}/featured`);
+  if (data) showToast(data.message, data.success ? 'success' : 'error');
+  if (!data || !data.success) checkbox.checked = !checkbox.checked;
+}
+
+async function deletePost(id) {
+  confirmDelete('Delete this post permanently?', async () => {
+    const data = await adminAPI.delete(`/api/admin/posts/${id}`);
+    if (data) showToast(data.message, data.success ? 'success' : 'error');
+    if (data && data.success) loadDashboard();
+  });
+}
+
+loadDashboard();
+</script>
+</body>
+</html>

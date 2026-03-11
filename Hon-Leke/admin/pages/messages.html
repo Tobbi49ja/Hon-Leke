@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages — Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/admin/assets/css/admin.css" rel="stylesheet">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand"><h2>Hon. Leke Abejide</h2><p>Admin Panel</p></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <a href="/admin/dashboard" class="nav-link" data-page="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <div class="nav-section">Content</div>
+    <a href="/admin/posts" class="nav-link" data-page="posts"><i class="bi bi-newspaper"></i> Blog Posts</a>
+    <a href="/admin/posts/new" class="nav-link" data-page="new-post"><i class="bi bi-plus-circle"></i> New Post</a>
+    <div class="nav-section">Engagement</div>
+    <a href="/admin/comments" class="nav-link" data-page="comments"><i class="bi bi-chat-left-text"></i> Comments</a>
+    <a href="/admin/messages" class="nav-link" data-page="messages"><i class="bi bi-envelope"></i> Messages</a>
+    <a href="/admin/subscribers" class="nav-link" data-page="subscribers"><i class="bi bi-people"></i> Subscribers</a>
+    <div class="nav-section">Site</div>
+    <a href="/admin/settings" class="nav-link" data-page="settings"><i class="bi bi-gear"></i> Settings</a>
+    <a href="/" target="_blank" class="nav-link"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
+  </nav>
+  <div class="sidebar-footer"><span id="admin-name">Admin</span> &nbsp;·&nbsp; <a href="#" id="logout-btn">Logout</a></div>
+</aside>
+
+<div class="main-content">
+  <div class="topbar">
+    <h1 id="page-title">Messages</h1>
+    <div class="topbar-actions">
+      <div class="admin-avatar" id="admin-avatar">A</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div id="messages-list">
+      <div style="text-align:center;padding:40px;color:#718096">Loading messages…</div>
+    </div>
+  </div>
+</div>
+
+<script src="/admin/assets/js/layout.js"></script>
+<script>
+initAdminLayout('Messages', 'messages');
+
+async function loadMessages() {
+  const data = await adminAPI.get('/api/admin/messages');
+  if (!data) return;
+
+  const messages = data.messages;
+  const container = document.getElementById('messages-list');
+
+  if (!messages.length) {
+    container.innerHTML = '<div class="empty-state"><i class="bi bi-envelope-open"></i><p>No messages yet.</p></div>';
+    return;
+  }
+
+  container.innerHTML = messages.slice().reverse().map(m => `
+    <div class="message-card ${!m.read ? 'unread' : ''}" id="msg-${m.id}">
+      <div class="message-header">
+        <div>
+          <div class="message-from">
+            <i class="bi bi-person-circle"></i> ${m.name}
+            ${!m.read ? '<span class="badge badge-warning" style="margin-left:8px">New</span>' : ''}
+          </div>
+          <div class="message-meta" style="margin-top:4px">
+            <i class="bi bi-envelope"></i> <a href="mailto:${m.email}" style="color:var(--sidebar)">${m.email}</a>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:0.78rem;color:#718096">${m.date}</span>
+          ${!m.read ? `<button class="btn btn-outline btn-sm" onclick="markRead(${m.id})"><i class="bi bi-check2"></i> Mark Read</button>` : ''}
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteMessage(${m.id})" title="Delete"><i class="bi bi-trash"></i></button>
+        </div>
+      </div>
+      <div class="message-subject"><strong>Subject:</strong> ${m.subject}</div>
+      <div class="message-body" style="margin-top:10px;padding:12px;background:#f8fafc;border-radius:8px">${m.message.replace(/\n/g, '<br>')}</div>
+    </div>
+  `).join('');
+}
+
+async function markRead(id) {
+  const data = await adminAPI.patch(`/api/admin/messages/${id}/read`);
+  if (data && data.success) loadMessages();
+}
+
+async function deleteMessage(id) {
+  confirmDelete('Delete this message?', async () => {
+    const data = await adminAPI.delete(`/api/admin/messages/${id}`);
+    if (data) showToast(data.message, data.success ? 'success' : 'error');
+    if (data && data.success) loadMessages();
+  });
+}
+
+loadMessages();
+</script>
+</body>
+</html>
