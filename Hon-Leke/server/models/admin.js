@@ -76,10 +76,7 @@ const upload = multer({
 
 function runUpload(req, res) {
   return new Promise((resolve, reject) => {
-    upload(req, res, (err) => {
-      if (err) reject(err);
-      else resolve();
-    });
+    upload(req, res, (err) => { if (err) reject(err); else resolve(); });
   });
 }
 
@@ -102,12 +99,8 @@ async function resolveImages(req, existingImage, existingImages) {
   const resolvedPaths = await Promise.all(
     imageFiles.map(async (file) => {
       if (uploadToCloud) {
-        try {
-          return await uploadToCloud(file.path, 'image');
-        } catch(e) {
-          console.error('Cloudinary image upload failed:', e.message);
-          return 'image/' + file.filename;
-        }
+        try { return await uploadToCloud(file.path, 'image'); }
+        catch(e) { console.error('Cloudinary image upload failed:', e.message); return 'image/' + file.filename; }
       }
       return 'image/' + file.filename;
     })
@@ -115,7 +108,6 @@ async function resolveImages(req, existingImage, existingImages) {
 
   const safeIdx    = Math.min(coverIdx, resolvedPaths.length - 1);
   const coverImage = resolvedPaths[safeIdx];
-
   return { coverImage, allImages: resolvedPaths };
 }
 
@@ -135,12 +127,8 @@ async function resolveVideo(req, existingVideoSrc) {
   if (videoFile) {
     let src;
     if (uploadToCloud) {
-      try {
-        src = await uploadToCloud(videoFile.path, 'video');
-      } catch(e) {
-        console.error('Cloudinary video upload failed:', e.message);
-        src = 'video/' + videoFile.filename;
-      }
+      try { src = await uploadToCloud(videoFile.path, 'video'); }
+      catch(e) { console.error('Cloudinary video upload failed:', e.message); src = 'video/' + videoFile.filename; }
     } else {
       src = 'video/' + videoFile.filename;
     }
@@ -178,28 +166,26 @@ router.get('/me', requireAdmin, (req, res) => {
 // ── Stats ──────────────────────────────────────────────────────────────────────
 router.get('/stats', requireAdmin, async (req, res) => {
   try {
-    const stats = await store.getStats();
-    res.json({ success: true, stats });
+    res.json({ success: true, stats: await store.getStats() });
   } catch (err) {
-    console.error('GET /admin/stats error:', err);
-    res.status(500).json({ success: false, message: 'Failed to load stats.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
 // ── Posts ──────────────────────────────────────────────────────────────────────
 router.get('/posts', requireAdmin, async (req, res) => {
   try {
-    const posts = await store.getAllPosts();
-    res.json({ success: true, posts });
+    res.json({ success: true, posts: await store.getAllPosts() });
   } catch (err) {
-    console.error('GET /admin/posts error:', err);
-    res.status(500).json({ success: false, message: 'Failed to load posts.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
+// CREATE POST
 router.post('/posts', requireAdmin, async (req, res) => {
   try {
     await runUpload(req, res);
+
     const { title, excerpt, content, category, date, featured } = req.body;
     if (!title || !excerpt || !content || !category)
       return res.status(400).json({ success: false, message: 'Title, excerpt, content and category are required.' });
@@ -216,20 +202,23 @@ router.post('/posts', requireAdmin, async (req, res) => {
     });
 
     res.json({ success: true, message: 'Post created successfully!', post, postId: post.id });
-  } catch (err) {
-    console.error('POST /admin/posts error:', err);
+  } catch(err) {
+    console.error('POST /posts error:', err);
     res.status(500).json({ success: false, message: 'Server error creating post: ' + err.message });
   }
 });
 
+// UPDATE POST
 router.put('/posts/:id', requireAdmin, async (req, res) => {
   try {
     await runUpload(req, res);
+
     const id       = req.params.id;
     const existing = await store.getPostById(id);
     if (!existing) return res.status(404).json({ success: false, message: 'Post not found.' });
 
     const { title, excerpt, content, category, date, featured } = req.body;
+
     const { coverImage, allImages } = await resolveImages(req, existing.image, existing.images);
     const videoData = await resolveVideo(req, existing.videoSrc);
 
@@ -242,8 +231,8 @@ router.put('/posts/:id', requireAdmin, async (req, res) => {
     });
 
     res.json({ success: true, message: 'Post updated successfully!', post });
-  } catch (err) {
-    console.error('PUT /admin/posts/:id error:', err);
+  } catch(err) {
+    console.error('PUT /posts/:id error:', err);
     res.status(500).json({ success: false, message: 'Server error updating post: ' + err.message });
   }
 });
@@ -254,8 +243,7 @@ router.delete('/posts/:id', requireAdmin, async (req, res) => {
     if (!ok) return res.status(404).json({ success: false, message: 'Post not found.' });
     res.json({ success: true, message: 'Post deleted.' });
   } catch (err) {
-    console.error('DELETE /admin/posts/:id error:', err);
-    res.status(500).json({ success: false, message: 'Failed to delete post.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -265,19 +253,16 @@ router.patch('/posts/:id/featured', requireAdmin, async (req, res) => {
     if (!post) return res.status(404).json({ success: false, message: 'Post not found.' });
     res.json({ success: true, message: post.featured ? 'Added to slider.' : 'Removed from slider.', featured: post.featured });
   } catch (err) {
-    console.error('PATCH /admin/posts/:id/featured error:', err);
-    res.status(500).json({ success: false, message: 'Failed to toggle featured.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
 // ── Comments ───────────────────────────────────────────────────────────────────
 router.get('/comments', requireAdmin, async (req, res) => {
   try {
-    const comments = await store.getAllComments();
-    res.json({ success: true, comments });
+    res.json({ success: true, comments: await store.getAllComments() });
   } catch (err) {
-    console.error('GET /admin/comments error:', err);
-    res.status(500).json({ success: false, message: 'Failed to load comments.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -287,19 +272,16 @@ router.delete('/comments/:id', requireAdmin, async (req, res) => {
     if (!ok) return res.status(404).json({ success: false, message: 'Comment not found.' });
     res.json({ success: true, message: 'Comment deleted.' });
   } catch (err) {
-    console.error('DELETE /admin/comments/:id error:', err);
-    res.status(500).json({ success: false, message: 'Failed to delete comment.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
 // ── Messages ───────────────────────────────────────────────────────────────────
 router.get('/messages', requireAdmin, async (req, res) => {
   try {
-    const messages = await store.getAllMessages();
-    res.json({ success: true, messages });
+    res.json({ success: true, messages: await store.getAllMessages() });
   } catch (err) {
-    console.error('GET /admin/messages error:', err);
-    res.status(500).json({ success: false, message: 'Failed to load messages.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -309,8 +291,7 @@ router.patch('/messages/:id/read', requireAdmin, async (req, res) => {
     if (!msg) return res.status(404).json({ success: false, message: 'Message not found.' });
     res.json({ success: true, message: 'Marked as read.' });
   } catch (err) {
-    console.error('PATCH /admin/messages/:id/read error:', err);
-    res.status(500).json({ success: false, message: 'Failed to mark message as read.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -320,19 +301,16 @@ router.delete('/messages/:id', requireAdmin, async (req, res) => {
     if (!ok) return res.status(404).json({ success: false, message: 'Message not found.' });
     res.json({ success: true, message: 'Message deleted.' });
   } catch (err) {
-    console.error('DELETE /admin/messages/:id error:', err);
-    res.status(500).json({ success: false, message: 'Failed to delete message.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
 // ── Subscribers ────────────────────────────────────────────────────────────────
 router.get('/subscribers', requireAdmin, async (req, res) => {
   try {
-    const subscribers = await store.getAllSubscribers();
-    res.json({ success: true, subscribers });
+    res.json({ success: true, subscribers: await store.getAllSubscribers() });
   } catch (err) {
-    console.error('GET /admin/subscribers error:', err);
-    res.status(500).json({ success: false, message: 'Failed to load subscribers.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -342,19 +320,16 @@ router.delete('/subscribers/:id', requireAdmin, async (req, res) => {
     if (!ok) return res.status(404).json({ success: false, message: 'Subscriber not found.' });
     res.json({ success: true, message: 'Subscriber removed.' });
   } catch (err) {
-    console.error('DELETE /admin/subscribers/:id error:', err);
-    res.status(500).json({ success: false, message: 'Failed to remove subscriber.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
 // ── Settings ───────────────────────────────────────────────────────────────────
 router.get('/settings', requireAdmin, async (req, res) => {
   try {
-    const settings = await store.getSettings();
-    res.json({ success: true, settings });
+    res.json({ success: true, settings: await store.getSettings() });
   } catch (err) {
-    console.error('GET /admin/settings error:', err);
-    res.status(500).json({ success: false, message: 'Failed to load settings.' });
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -363,8 +338,69 @@ router.put('/settings', requireAdmin, async (req, res) => {
     const settings = await store.updateSettings(req.body);
     res.json({ success: true, message: 'Settings updated.', settings });
   } catch (err) {
-    console.error('PUT /admin/settings error:', err);
-    res.status(500).json({ success: false, message: 'Failed to update settings.' });
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+// ── About Page ─────────────────────────────────────────────────────────────────
+const aboutUpload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 }
+}).fields([
+  { name: 'lekeImage',   maxCount: 1 },
+  { name: 'spouseImage', maxCount: 1 },
+  // team images: teamImage_0, teamImage_1, … up to 20
+  ...Array.from({ length: 20 }, (_, i) => ({ name: 'teamImage_' + i, maxCount: 1 }))
+]);
+
+function runAboutUpload(req, res) {
+  return new Promise((resolve, reject) => {
+    aboutUpload(req, res, err => err ? reject(err) : resolve());
+  });
+}
+
+router.post('/about', requireAdmin, async (req, res) => {
+  try {
+    await runAboutUpload(req, res);
+    const files    = req.files || {};
+    const aboutData = JSON.parse(req.body.aboutData || '{}');
+
+    // Upload leke profile image
+    if (files['lekeImage'] && files['lekeImage'][0]) {
+      const f = files['lekeImage'][0];
+      aboutData.lekeImage = uploadToCloud
+        ? await uploadToCloud(f.path, 'image').catch(() => 'image/' + f.filename)
+        : 'image/' + f.filename;
+    }
+
+    // Upload spouse image
+    if (files['spouseImage'] && files['spouseImage'][0]) {
+      const f = files['spouseImage'][0];
+      aboutData.spouseImage = uploadToCloud
+        ? await uploadToCloud(f.path, 'image').catch(() => 'image/' + f.filename)
+        : 'image/' + f.filename;
+    }
+
+    // Upload team images
+    if (aboutData.team) {
+      for (let i = 0; i < aboutData.team.length; i++) {
+        const key = 'teamImage_' + i;
+        if (files[key] && files[key][0]) {
+          const f = files[key][0];
+          aboutData.team[i].image = uploadToCloud
+            ? await uploadToCloud(f.path, 'image').catch(() => 'image/' + f.filename)
+            : 'image/' + f.filename;
+        }
+      }
+    }
+
+    // Merge into settings under 'about' key
+    const current  = await store.getSettings();
+    const settings = await store.updateSettings({ ...current, about: aboutData });
+    res.json({ success: true, message: 'About page updated.', settings });
+  } catch (err) {
+    console.error('POST /admin/about error:', err);
+    res.status(500).json({ success: false, message: 'Failed to save about page: ' + err.message });
   }
 });
 
