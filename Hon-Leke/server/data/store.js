@@ -2,7 +2,7 @@
 // MongoDB-backed data store
 require('dotenv').config();
 
-const Post       = require('../models/Post');
+const Post       = require('../models/post');
 const Comment    = require('../models/Comment');
 const Subscriber = require('../models/Subscriber');
 const Message    = require('../models/Message');
