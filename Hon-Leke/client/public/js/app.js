@@ -3,6 +3,13 @@
    Global utilities: API, mobile nav, sticky header, scroll top
    ============================================================ */
 
+/* ── Theme: apply before paint to avoid flash of wrong theme ── */
+(function() {
+  var saved = localStorage.getItem('theme') ||
+    (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', saved);
+})();
+
 /* ── API Helper ── */
 const API = {
   async get(url) {
@@ -37,6 +44,23 @@ document.addEventListener('DOMContentLoaded', function () {
   const searchClose   = document.querySelector('.search-close');
   const scrollTopBtn  = document.querySelector('.scroll-top');
   const header        = document.getElementById('header');
+
+  /* --- Dark Mode Toggle --- */
+  (function initTheme() {
+    const saved = localStorage.getItem('theme') ||
+      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', saved);
+  })();
+
+  const themeToggle = document.querySelector('.theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function () {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next    = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+  }
 
   /* --- Nav open/close --- */
   function openNav() {
