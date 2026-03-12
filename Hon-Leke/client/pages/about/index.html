@@ -260,7 +260,7 @@
 
   // ── Load dynamic about content ───────────────────────────────
   try {
-    const data = await API.get('/api/admin/settings');
+    const data = await API.get('/api/posts/site-settings');
     if (!data || !data.success) return;
     const s = data.settings;
     const a = s.about || {};

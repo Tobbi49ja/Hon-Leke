@@ -417,7 +417,7 @@ async function saveAbout() {
   formData.append('aboutData', JSON.stringify(aboutData));
 
   try {
-    const res  = await fetch('/api/admin/about', { method: 'POST', body: formData });
+    const res = await fetch('/api/admin/about', { method: 'POST', body: formData, credentials: 'include' });
     const data = await res.json();
     if (data.success) {
       showToast('About page saved!', 'success');
