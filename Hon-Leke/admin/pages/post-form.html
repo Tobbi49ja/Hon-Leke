@@ -6,8 +6,123 @@
   <title>Post Form — Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="/admin/assets/css/admin.css" rel="stylesheet">
+  <style>
+    /* ── Extra styles for media upload (extends admin.css) ── */
+
+    /* Media type pill tabs */
+    .media-pills {
+      display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap;
+    }
+    .media-pill {
+      padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: var(--admin-bg); font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; color: var(--muted); display: inline-flex; align-items: center;
+      gap: 6px; transition: all 0.2s;
+    }
+    .media-pill.active {
+      background: var(--sidebar); border-color: var(--sidebar); color: white;
+    }
+    .media-panel { display: none; }
+    .media-panel.active { display: block; }
+
+    /* Sub tabs (upload vs youtube) */
+    .sub-tabs {
+      display: flex; border: 1px solid var(--border); border-radius: 8px;
+      overflow: hidden; margin-bottom: 16px;
+    }
+    .sub-tab {
+      flex: 1; padding: 8px 12px; text-align: center; background: white;
+      border: none; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      color: var(--muted); border-right: 1px solid var(--border); transition: all 0.2s;
+    }
+    .sub-tab:last-child { border-right: none; }
+    .sub-tab.active { background: var(--sidebar); color: white; }
+    .sub-panel { display: none; }
+    .sub-panel.active { display: block; }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 2px dashed var(--border); border-radius: 10px;
+      padding: 28px 16px; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s; position: relative;
+      background: #fafbfc;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--sidebar); background: #eef3f9;
+    }
+    .drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+      width: 100%; height: 100%;
+    }
+    .drop-zone i { font-size: 2rem; color: var(--muted); display: block; margin-bottom: 8px; }
+    .drop-zone p { font-size: 0.85rem; color: var(--text); margin-bottom: 4px; }
+    .drop-zone span { font-size: 0.75rem; color: var(--muted); }
+
+    /* Image gallery grid */
+    .img-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px; margin-top: 14px;
+    }
+    .img-thumb {
+      position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden;
+      border: 2px solid var(--border); background: var(--admin-bg);
+    }
+    .img-thumb.is-cover { border-color: var(--accent); }
+    .img-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .img-thumb-actions {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.52);
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; opacity: 0; transition: opacity 0.2s;
+    }
+    .img-thumb:hover .img-thumb-actions { opacity: 1; }
+    .img-thumb-actions button {
+      width: 28px; height: 28px; border-radius: 50%; border: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+    }
+    .btn-set-cover  { background: var(--accent);   color: white; }
+    .btn-remove-img { background: var(--danger);    color: white; }
+    .cover-tag {
+      position: absolute; bottom: 5px; left: 5px;
+      background: var(--accent); color: white;
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 8px; pointer-events: none;
+    }
+
+    /* Video preview */
+    .video-preview-wrap { display: none; margin-top: 12px; border-radius: 8px; overflow: hidden; background: #000; }
+    .video-preview-wrap.show { display: block; }
+    .video-preview-wrap video { width: 100%; max-height: 240px; display: block; }
+    .video-preview-meta {
+      background: #111; padding: 8px 12px;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .video-preview-meta span { font-size: 0.78rem; color: #aaa; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* YouTube preview */
+    .yt-preview { display: none; margin-top: 12px; border-radius: 8px; overflow: hidden; aspect-ratio: 16/9; }
+    .yt-preview.show { display: block; }
+    .yt-preview iframe { width: 100%; height: 100%; border: none; display: block; }
+
+    /* Count badge on gallery */
+    .gallery-label {
+      font-size: 0.78rem; color: var(--muted); margin-top: 10px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .gallery-label strong { color: var(--sidebar); }
+
+    /* Help tip */
+    .help-tip {
+      font-size: 0.75rem; color: var(--muted); margin-top: 5px;
+      display: flex; align-items: flex-start; gap: 5px;
+    }
+    .help-tip i { margin-top: 1px; flex-shrink: 0; }
+  </style>
 </head>
 <body>
+
+<!-- Sidebar -->
 <aside class="sidebar">
   <div class="sidebar-brand"><h2>Hon. Leke Abejide</h2><p>Admin Panel</p></div>
   <nav class="sidebar-nav">
@@ -27,10 +142,13 @@
   <div class="sidebar-footer"><span id="admin-name">Admin</span> &nbsp;·&nbsp; <a href="#" id="logout-btn">Logout</a></div>
 </aside>
 
+<!-- Main -->
 <div class="main-content">
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:12px">
-      <a href="/admin/posts" style="color:#718096;text-decoration:none;display:flex;align-items:center;gap:4px"><i class="bi bi-arrow-left"></i></a>
+      <a href="/admin/posts" style="color:#718096;text-decoration:none;display:flex;align-items:center;gap:4px">
+        <i class="bi bi-arrow-left"></i>
+      </a>
       <h1 id="page-title">New Post</h1>
     </div>
     <div class="topbar-actions">
@@ -39,102 +157,251 @@
   </div>
 
   <div class="page-body">
+
     <div class="alert alert-danger" id="form-error"></div>
     <div class="alert alert-success" id="form-success"></div>
 
     <div style="display:grid;grid-template-columns:1fr 330px;gap:24px;align-items:start">
 
-      <!-- Main -->
+      <!-- ══════════ LEFT COLUMN ══════════ -->
       <div>
+
+        <!-- Post Content -->
         <div class="card">
           <div class="card-header"><h3><i class="bi bi-file-text"></i> Post Content</h3></div>
           <div class="card-body">
             <div class="form-group">
-              <label class="form-label">Title *</label>
+              <label class="form-label">Title <span style="color:#dc3545">*</span></label>
               <input type="text" class="form-control" id="post-title" placeholder="Enter post title…">
             </div>
             <div class="form-group">
-              <label class="form-label">Excerpt / Summary *</label>
+              <label class="form-label">Excerpt / Summary <span style="color:#dc3545">*</span></label>
               <textarea class="form-control" id="post-excerpt" rows="3" placeholder="Brief summary shown on blog cards…"></textarea>
             </div>
             <div class="form-group">
-              <label class="form-label">Full Content *</label>
-              <textarea class="form-control" id="post-content" rows="16" placeholder="Full article content…&#10;&#10;Separate paragraphs with a blank line." style="min-height:320px"></textarea>
-              <div style="font-size:0.75rem;color:#718096;margin-top:4px">Tip: Separate paragraphs with a blank line for proper formatting.</div>
+              <label class="form-label">Full Content <span style="color:#dc3545">*</span></label>
+              <textarea class="form-control" id="post-content" rows="16"
+                placeholder="Full article content…&#10;&#10;Separate paragraphs with a blank line."
+                style="min-height:320px;font-family:Georgia,serif;font-size:0.95rem;line-height:1.75"></textarea>
+              <div class="help-tip"><i class="bi bi-info-circle"></i> Separate paragraphs with a blank line for proper formatting.</div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Sidebar Settings -->
+        <!-- ══ MEDIA CARD ══ -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="bi bi-images"></i> Media</h3>
+            <span style="font-size:0.78rem;color:var(--muted)">Images &amp; / or Video</span>
+          </div>
+          <div class="card-body">
+
+            <!-- Media type selector -->
+            <div class="media-pills">
+              <button class="media-pill active" onclick="switchMedia(this,'panel-images')" type="button">
+                <i class="bi bi-images"></i> Images Only
+              </button>
+              <button class="media-pill" onclick="switchMedia(this,'panel-video')" type="button">
+                <i class="bi bi-play-circle"></i> Video Only
+              </button>
+              <button class="media-pill" onclick="switchMedia(this,'panel-both')" type="button">
+                <i class="bi bi-collection-play"></i> Images + Video
+              </button>
+            </div>
+
+            <!-- ── PANEL: Images Only ── -->
+            <div class="media-panel active" id="panel-images">
+              <div class="help-tip" style="margin-bottom:12px">
+                <i class="bi bi-info-circle"></i>
+                Upload one or more photos. Star the one you want as the <strong>cover thumbnail</strong>.
+              </div>
+              <div class="drop-zone" id="dz-images">
+                <input type="file" id="input-images" accept="image/*" multiple onchange="handleImages(this.files,'main')">
+                <i class="bi bi-cloud-upload"></i>
+                <p><strong>Drag &amp; drop images or click to browse</strong></p>
+                <span>JPG · PNG · WebP · GIF — max 5 MB each</span>
+              </div>
+              <div id="gallery-images" class="img-gallery"></div>
+              <div class="gallery-label" id="gallery-images-label" style="display:none">
+                <span><strong id="gallery-images-count">0</strong> image(s) uploaded</span>
+                <button type="button" onclick="clearImages('main')" class="btn btn-sm"
+                  style="background:none;border:none;color:var(--danger);cursor:pointer;padding:0;font-size:0.78rem">
+                  <i class="bi bi-x-circle"></i> Clear all
+                </button>
+              </div>
+            </div>
+
+            <!-- ── PANEL: Video Only ── -->
+            <div class="media-panel" id="panel-video">
+              <div class="sub-tabs">
+                <button type="button" class="sub-tab active" onclick="switchSub(this,'svid-upload')">
+                  <i class="bi bi-upload"></i> Upload File
+                </button>
+                <button type="button" class="sub-tab" onclick="switchSub(this,'svid-youtube')">
+                  <i class="bi bi-youtube"></i> YouTube / Embed
+                </button>
+              </div>
+
+              <!-- Upload -->
+              <div class="sub-panel active" id="svid-upload">
+                <div class="drop-zone" id="dz-video">
+                  <input type="file" id="input-video" accept="video/*" onchange="handleVideo(this.files[0])">
+                  <i class="bi bi-film"></i>
+                  <p><strong>Drag &amp; drop a video or click to browse</strong></p>
+                  <span>MP4 · WebM · MOV — max 200 MB</span>
+                </div>
+                <div class="video-preview-wrap" id="vid-preview-wrap">
+                  <video id="vid-preview" controls></video>
+                  <div class="video-preview-meta">
+                    <span id="vid-filename">—</span>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="clearVideo()">
+                      <i class="bi bi-x"></i> Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- YouTube -->
+              <div class="sub-panel" id="svid-youtube">
+                <div class="form-group">
+                  <label class="form-label">YouTube / Vimeo URL</label>
+                  <input type="url" class="form-control" id="input-yt-url"
+                    placeholder="https://www.youtube.com/watch?v=…"
+                    oninput="previewYT(this.value)">
+                </div>
+                <div class="yt-preview" id="yt-preview">
+                  <iframe id="yt-iframe" allowfullscreen></iframe>
+                </div>
+                <div class="help-tip"><i class="bi bi-info-circle"></i> YouTube and Vimeo URLs are auto-converted to embed format.</div>
+              </div>
+            </div>
+
+            <!-- ── PANEL: Images + Video ── -->
+            <div class="media-panel" id="panel-both">
+
+              <!-- Images part -->
+              <p style="font-size:0.82rem;font-weight:600;color:var(--text);margin-bottom:10px">
+                <i class="bi bi-images" style="color:var(--sidebar)"></i> &nbsp;Photos
+              </p>
+              <div class="drop-zone" id="dz-both-images">
+                <input type="file" id="input-both-images" accept="image/*" multiple onchange="handleImages(this.files,'both')">
+                <i class="bi bi-cloud-upload"></i>
+                <p><strong>Drag &amp; drop images or click to browse</strong></p>
+                <span>Multiple images supported</span>
+              </div>
+              <div id="gallery-both" class="img-gallery"></div>
+              <div class="gallery-label" id="gallery-both-label" style="display:none;margin-bottom:20px">
+                <span><strong id="gallery-both-count">0</strong> image(s)</span>
+                <button type="button" onclick="clearImages('both')" class="btn btn-sm"
+                  style="background:none;border:none;color:var(--danger);cursor:pointer;padding:0;font-size:0.78rem">
+                  <i class="bi bi-x-circle"></i> Clear all
+                </button>
+              </div>
+
+              <hr style="border:none;border-top:1px solid var(--border);margin:18px 0">
+
+              <!-- Video part -->
+              <p style="font-size:0.82rem;font-weight:600;color:var(--text);margin-bottom:10px">
+                <i class="bi bi-play-circle" style="color:var(--sidebar)"></i> &nbsp;Video
+              </p>
+              <div class="sub-tabs">
+                <button type="button" class="sub-tab active" onclick="switchSub(this,'sboth-upload')">
+                  <i class="bi bi-upload"></i> Upload File
+                </button>
+                <button type="button" class="sub-tab" onclick="switchSub(this,'sboth-youtube')">
+                  <i class="bi bi-youtube"></i> YouTube / Embed
+                </button>
+              </div>
+              <div class="sub-panel active" id="sboth-upload">
+                <div class="drop-zone">
+                  <input type="file" id="input-both-video" accept="video/*" onchange="handleVideo(this.files[0],'both')">
+                  <i class="bi bi-film"></i>
+                  <p><strong>Drag &amp; drop a video or click to browse</strong></p>
+                  <span>MP4 · WebM · MOV</span>
+                </div>
+                <div class="video-preview-wrap" id="both-vid-preview-wrap">
+                  <video id="both-vid-preview" controls></video>
+                  <div class="video-preview-meta">
+                    <span id="both-vid-filename">—</span>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="clearVideo('both')">
+                      <i class="bi bi-x"></i> Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="sub-panel" id="sboth-youtube">
+                <div class="form-group">
+                  <label class="form-label">YouTube / Vimeo URL</label>
+                  <input type="url" class="form-control" id="input-both-yt"
+                    placeholder="https://www.youtube.com/watch?v=…"
+                    oninput="previewYT(this.value,'both-yt-preview','both-yt-iframe')">
+                </div>
+                <div class="yt-preview" id="both-yt-preview">
+                  <iframe id="both-yt-iframe" allowfullscreen></iframe>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <!-- end media card -->
+
+      </div>
+      <!-- end left col -->
+
+      <!-- ══════════ RIGHT COLUMN ══════════ -->
       <div>
+
+        <!-- Post Settings -->
         <div class="card">
           <div class="card-header"><h3><i class="bi bi-gear"></i> Post Settings</h3></div>
           <div class="card-body">
             <div class="form-group">
-              <label class="form-label">Category *</label>
-              <input type="text" class="form-control" id="post-category" placeholder="e.g. News, Community, Foundation…" list="category-list">
+              <label class="form-label">Category <span style="color:#dc3545">*</span></label>
+              <input type="text" class="form-control" id="post-category"
+                placeholder="e.g. News, Community, Foundation…" list="category-list">
               <datalist id="category-list"></datalist>
             </div>
             <div class="form-group">
               <label class="form-label">Date</label>
               <input type="text" class="form-control" id="post-date" placeholder="e.g. July 31st '24">
-              <div style="font-size:0.75rem;color:#718096;margin-top:4px">Leave blank to use today's date.</div>
+              <div class="help-tip"><i class="bi bi-info-circle"></i> Leave blank to use today's date.</div>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom:0">
               <label class="form-check">
                 <input type="checkbox" id="post-featured">
                 <span style="font-size:0.875rem">Add to Hero Slider</span>
               </label>
-              <div style="font-size:0.75rem;color:#718096;margin-top:6px">Featured posts appear in the homepage slider.</div>
+              <div class="help-tip" style="margin-top:6px"><i class="bi bi-info-circle"></i> Featured posts appear in the homepage hero slider.</div>
             </div>
           </div>
         </div>
 
+        <!-- Save / Actions -->
         <div class="card">
-          <div class="card-header"><h3><i class="bi bi-image"></i> Featured Image</h3></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label class="form-label">Upload Image</label>
-              <input type="file" class="form-control" id="post-image" accept="image/*" onchange="previewImage(this)">
-              <img id="image-preview" class="img-preview" alt="Preview">
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn btn-primary" id="save-btn"
+              style="width:100%;justify-content:center;padding:12px">
+              <i class="bi bi-check-lg"></i>
+              <span id="save-btn-text">Save Post</span>
+            </button>
+            <div id="edit-view-link" style="display:none">
+              <a href="#" id="view-post-link" target="_blank" class="btn btn-outline"
+                style="width:100%;justify-content:center">
+                <i class="bi bi-eye"></i> View Post
+              </a>
             </div>
-            <div class="form-group">
-              <label class="form-label">— or enter image path</label>
-              <input type="text" class="form-control" id="post-image-path" placeholder="image/filename.jpg">
-              <div style="font-size:0.75rem;color:#718096;margin-top:4px">Path relative to <code>client/public/</code></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header"><h3><i class="bi bi-camera-video"></i> Video (Optional)</h3></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label class="form-check">
-                <input type="checkbox" id="post-has-video" onchange="toggleVideoField()">
-                <span style="font-size:0.875rem">This post has a video</span>
-              </label>
-            </div>
-            <div id="video-src-group" style="display:none">
-              <div class="form-group">
-                <label class="form-label">Video File Path</label>
-                <input type="text" class="form-control" id="post-video-src" placeholder="video/filename.mp4">
-              </div>
+            <div id="delete-wrap" style="display:none">
+              <button type="button" class="btn btn-danger"
+                style="width:100%;justify-content:center" onclick="deletePost()">
+                <i class="bi bi-trash"></i> Delete Post
+              </button>
             </div>
           </div>
         </div>
 
-        <button class="btn btn-primary" id="save-btn" style="width:100%;justify-content:center;padding:12px">
-          <i class="bi bi-check-lg"></i> <span id="save-btn-text">Save Post</span>
-        </button>
-
-        <div id="edit-view-link" style="display:none;margin-top:12px;text-align:center">
-          <a href="#" id="view-post-link" target="_blank" class="btn btn-outline" style="width:100%;justify-content:center">
-            <i class="bi bi-eye"></i> View Post
-          </a>
-        </div>
       </div>
+      <!-- end right col -->
 
     </div>
   </div>
@@ -142,156 +409,348 @@
 
 <script src="/admin/assets/js/layout.js"></script>
 <script>
-const pathParts = window.location.pathname.split('/');
-const editId = pathParts[pathParts.length - 1];
-const isEdit = pathParts.includes('edit') && !isNaN(editId);
+/* ============================================================
+   Post Form — extended with multi-image + video support
+   Uses existing adminAPI, showToast, confirmDelete from layout.js
+   ============================================================ */
 
-initAdminLayout(isEdit ? 'Edit Post' : 'New Post', isEdit ? 'posts' : 'new-post');
+  const pathParts = window.location.pathname.split('/');
+  const editId    = pathParts[pathParts.length - 1];
+  const isEdit    = pathParts.includes('edit') && !isNaN(editId);
 
-function toggleVideoField() {
-  const checked = document.getElementById('post-has-video').checked;
-  document.getElementById('video-src-group').style.display = checked ? 'block' : 'none';
-}
+  initAdminLayout(isEdit ? 'Edit Post' : 'New Post', isEdit ? 'posts' : 'new-post');
 
-async function loadCategories() {
-  const data = await adminAPI.get('/api/posts/categories');
-  if (!data) return;
-  const dl = document.getElementById('category-list');
-  data.categories.forEach(c => {
-    const o = document.createElement('option');
-    o.value = c;
-    dl.appendChild(o);
-  });
-}
+  /* ── State ── */
+  const images = {
+    main: [],   // { file, url, iscover }
+    both: []
+  };
+  let videoFile   = null;   // File object
+  let videoType   = 'none'; // 'upload' | 'youtube' | 'none'
+  let videoUrl    = '';     // embed url if youtube
 
-async function loadPost() {
-  if (!isEdit) return;
-  document.getElementById('page-title').textContent = 'Edit Post';
-  document.getElementById('save-btn-text').textContent = 'Update Post';
-
-  const data = await adminAPI.get(`/api/admin/posts`);
-  if (!data) return;
-  const post = data.posts.find(p => p.id === parseInt(editId));
-  if (!post) { showToast('Post not found', 'error'); return; }
-
-  document.getElementById('post-title').value = post.title;
-  document.getElementById('post-excerpt').value = post.excerpt;
-  document.getElementById('post-content').value = post.content;
-  document.getElementById('post-category').value = post.category;
-  document.getElementById('post-date').value = post.date;
-  document.getElementById('post-featured').checked = post.featured;
-  document.getElementById('post-image-path').value = post.image || '';
-
-  if (post.image) {
-    const img = document.getElementById('image-preview');
-    img.src = `/${post.image}`;
-    img.style.display = 'block';
-  }
-  if (post.hasVideo) {
-    document.getElementById('post-has-video').checked = true;
-    toggleVideoField();
-    document.getElementById('post-video-src').value = post.videoSrc || '';
+  /* ════════════════════════════════
+     MEDIA PANEL SWITCHING
+  ════════════════════════════════ */
+  function switchMedia(btn, panelId) {
+    document.querySelectorAll('.media-pill').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.media-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
   }
 
-  // Show view link
-  document.getElementById('edit-view-link').style.display = 'block';
-  document.getElementById('view-post-link').href = `/post/${editId}`;
-}
-
-function previewImage(input) {
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = document.getElementById('image-preview');
-      img.src = e.target.result;
-      img.style.display = 'block';
-    };
-    reader.readAsDataURL(input.files[0]);
-  }
-}
-
-document.getElementById('post-image-path').addEventListener('blur', function() {
-  const val = this.value.trim();
-  if (val) {
-    const img = document.getElementById('image-preview');
-    img.src = `/${val}`;
-    img.style.display = 'block';
-  }
-});
-
-async function savePost() {
-  const errorEl = document.getElementById('form-error');
-  const successEl = document.getElementById('form-success');
-  errorEl.classList.remove('show');
-  successEl.classList.remove('show');
-
-  const title    = document.getElementById('post-title').value.trim();
-  const excerpt  = document.getElementById('post-excerpt').value.trim();
-  const content  = document.getElementById('post-content').value.trim();
-  const category = document.getElementById('post-category').value.trim();
-
-  if (!title || !excerpt || !content || !category) {
-    errorEl.textContent = 'Please fill in all required fields (Title, Category, Excerpt, Content).';
-    errorEl.classList.add('show');
-    errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
+  function switchSub(btn, panelId) {
+    const parent = btn.closest('.card-body, .media-panel, .sub-panel');
+    const container = btn.closest('.media-panel, .card-body');
+    container.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+    container.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
   }
 
-  const btn = document.getElementById('save-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Saving…';
-
-  const formData = new FormData();
-  formData.append('title', title);
-  formData.append('excerpt', excerpt);
-  formData.append('content', content);
-  formData.append('category', category);
-  formData.append('date', document.getElementById('post-date').value.trim());
-  formData.append('featured', document.getElementById('post-featured').checked);
-  formData.append('hasVideo', document.getElementById('post-has-video').checked);
-  formData.append('videoSrc', document.getElementById('post-video-src').value.trim());
-
-  const fileInput = document.getElementById('post-image');
-  const imagePath = document.getElementById('post-image-path').value.trim();
-  if (fileInput.files[0]) {
-    formData.append('image', fileInput.files[0]);
-  } else if (imagePath) {
-    formData.append('imagePath', imagePath);
-  }
-
-  try {
-    const url = isEdit ? `/api/admin/posts/${editId}` : '/api/admin/posts';
-    const method = isEdit ? 'PUT' : 'POST';
-    const res = await fetch(url, { method, body: formData });
-    const data = await res.json();
-
-    if (data.success) {
-      successEl.textContent = data.message;
-      successEl.classList.add('show');
-      showToast(data.message, 'success');
-      if (!isEdit) {
-        setTimeout(() => window.location.href = '/admin/posts', 1500);
-      } else {
-        document.getElementById('edit-view-link').style.display = 'block';
-        document.getElementById('view-post-link').href = `/post/${editId}`;
+  /* ════════════════════════════════
+     IMAGE HANDLING
+  ════════════════════════════════ */
+  function handleImages(files, ctx) {
+    ctx = ctx || 'main';
+    Array.from(files).forEach(function(file) {
+      if (!file.type.startsWith('image/')) return;
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('"' + file.name + '" is too large (max 5 MB)', 'error'); return;
       }
-    } else {
-      errorEl.textContent = data.message;
-      errorEl.classList.add('show');
-    }
-  } catch(e) {
-    errorEl.textContent = 'Network error. Please try again.';
-    errorEl.classList.add('show');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = `<i class="bi bi-check-lg"></i> <span id="save-btn-text">${isEdit ? 'Update Post' : 'Save Post'}</span>`;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const arr = images[ctx];
+        arr.push({ file: file, url: e.target.result, iscover: arr.length === 0 });
+        renderGallery(ctx);
+      };
+      reader.readAsDataURL(file);
+    });
   }
-}
 
-document.getElementById('save-btn').addEventListener('click', savePost);
+  function renderGallery(ctx) {
+    const galleryId = ctx === 'both' ? 'gallery-both' : 'gallery-images';
+    const labelId   = ctx === 'both' ? 'gallery-both-label' : 'gallery-images-label';
+    const countId   = ctx === 'both' ? 'gallery-both-count' : 'gallery-images-count';
+    const gallery   = document.getElementById(galleryId);
+    const label     = document.getElementById(labelId);
+    const arr       = images[ctx];
 
-loadCategories();
-loadPost();
+    if (!arr.length) {
+      gallery.innerHTML = '';
+      label.style.display = 'none';
+      return;
+    }
+
+    label.style.display = 'flex';
+    document.getElementById(countId).textContent = arr.length;
+
+    gallery.innerHTML = arr.map(function(img, i) {
+      return '<div class="img-thumb' + (img.iscover ? ' is-cover' : '') + '">' +
+        (img.iscover ? '<span class="cover-tag">Cover</span>' : '') +
+        '<img src="' + img.url + '" alt="img ' + (i+1) + '">' +
+        '<div class="img-thumb-actions">' +
+          '<button type="button" class="btn-set-cover" title="Set as cover" onclick="setCover(\'' + ctx + '\',' + i + ')"><i class="bi bi-star-fill"></i></button>' +
+          '<button type="button" class="btn-remove-img" title="Remove" onclick="removeImage(\'' + ctx + '\',' + i + ')"><i class="bi bi-trash"></i></button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function setCover(ctx, idx) {
+    images[ctx].forEach(function(img, i) { img.iscover = i === idx; });
+    renderGallery(ctx);
+  }
+
+  function removeImage(ctx, idx) {
+    images[ctx].splice(idx, 1);
+    if (images[ctx].length && !images[ctx].some(function(i) { return i.iscover; })) {
+      images[ctx][0].iscover = true;
+    }
+    renderGallery(ctx);
+  }
+
+  function clearImages(ctx) {
+    images[ctx] = [];
+    renderGallery(ctx);
+  }
+
+  /* Drag-and-drop for image zones */
+  ['dz-images','dz-both-images'].forEach(function(id) {
+    const zone = document.getElementById(id);
+    if (!zone) return;
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+    zone.addEventListener('drop', function(e) {
+      e.preventDefault(); zone.classList.remove('dragover');
+      handleImages(e.dataTransfer.files, id === 'dz-both-images' ? 'both' : 'main');
+    });
+  });
+
+  /* ════════════════════════════════
+     VIDEO HANDLING
+  ════════════════════════════════ */
+  function handleVideo(file, ctx) {
+    if (!file) return;
+    ctx = ctx || 'main';
+    videoFile = file;
+    videoType = 'upload';
+
+    const wrapId   = ctx === 'both' ? 'both-vid-preview-wrap' : 'vid-preview-wrap';
+    const previewId = ctx === 'both' ? 'both-vid-preview' : 'vid-preview';
+    const nameId    = ctx === 'both' ? 'both-vid-filename' : 'vid-filename';
+
+    const wrap    = document.getElementById(wrapId);
+    const preview = document.getElementById(previewId);
+    const nameEl  = document.getElementById(nameId);
+
+    preview.src = URL.createObjectURL(file);
+    if (nameEl) nameEl.textContent = file.name;
+    wrap.classList.add('show');
+  }
+
+  function clearVideo(ctx) {
+    ctx = ctx || 'main';
+    videoFile = null; videoType = 'none'; videoUrl = '';
+    const wrapId = ctx === 'both' ? 'both-vid-preview-wrap' : 'vid-preview-wrap';
+    const previewId = ctx === 'both' ? 'both-vid-preview' : 'vid-preview';
+    const inputId   = ctx === 'both' ? 'input-both-video' : 'input-video';
+    const wrap    = document.getElementById(wrapId);
+    const preview = document.getElementById(previewId);
+    const input   = document.getElementById(inputId);
+    if (preview) preview.src = '';
+    if (wrap)    wrap.classList.remove('show');
+    if (input)   input.value = '';
+  }
+
+  /* YouTube / Vimeo embed */
+  function previewYT(url, previewId, iframeId) {
+    previewId = previewId || 'yt-preview';
+    iframeId  = iframeId  || 'yt-iframe';
+    const preview = document.getElementById(previewId);
+    const iframe  = document.getElementById(iframeId);
+    if (!url || !preview || !iframe) return;
+
+    const embed = toEmbedUrl(url);
+    if (embed) {
+      iframe.src = embed;
+      preview.classList.add('show');
+      videoType = 'youtube';
+      videoUrl  = embed;
+    } else {
+      preview.classList.remove('show');
+    }
+  }
+
+  function toEmbedUrl(url) {
+    var yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    if (yt) return 'https://www.youtube.com/embed/' + yt[1] + '?rel=0';
+    var vm = url.match(/vimeo\.com\/(\d+)/);
+    if (vm) return 'https://player.vimeo.com/video/' + vm[1];
+    return null;
+  }
+
+  /* ════════════════════════════════
+     LOAD CATEGORIES
+  ════════════════════════════════ */
+  async function loadCategories() {
+    const data = await adminAPI.get('/api/posts/categories');
+    if (!data) return;
+    const dl = document.getElementById('category-list');
+    (data.categories || []).forEach(function(c) {
+      const o = document.createElement('option'); o.value = c; dl.appendChild(o);
+    });
+  }
+
+  /* ════════════════════════════════
+     LOAD POST FOR EDIT
+  ════════════════════════════════ */
+  async function loadPost() {
+    if (!isEdit) return;
+    document.getElementById('page-title').textContent = 'Edit Post';
+    document.getElementById('save-btn-text').textContent = 'Update Post';
+    document.getElementById('edit-view-link').style.display = 'block';
+    document.getElementById('delete-wrap').style.display = 'block';
+    document.getElementById('view-post-link').href = '/post/' + editId;
+
+    const data = await adminAPI.get('/api/admin/posts');
+    if (!data) return;
+    const post = data.posts.find(function(p) { return p.id === parseInt(editId); });
+    if (!post) { showToast('Post not found', 'error'); return; }
+
+    document.getElementById('post-title').value    = post.title    || '';
+    document.getElementById('post-excerpt').value  = post.excerpt  || '';
+    document.getElementById('post-content').value  = post.content  || '';
+    document.getElementById('post-category').value = post.category || '';
+    document.getElementById('post-date').value     = post.date     || '';
+    document.getElementById('post-featured').checked = !!post.featured;
+
+    /* Load existing images into gallery */
+    if (post.images && post.images.length) {
+      post.images.forEach(function(src, idx) {
+        images.main.push({ file: null, url: '/' + src, iscover: idx === 0 });
+      });
+      renderGallery('main');
+    } else if (post.image) {
+      images.main.push({ file: null, url: '/' + post.image, iscover: true });
+      renderGallery('main');
+    }
+
+    /* Load existing video */
+    if (post.videoType === 'youtube' && post.videoUrl) {
+      document.getElementById('input-yt-url').value = post.videoUrl;
+      previewYT(post.videoUrl);
+      // Switch to video panel + youtube sub
+      const vidPill = document.querySelector('.media-pill:nth-child(2)');
+      if (vidPill) switchMedia(vidPill, 'panel-video');
+      const ytTab = document.querySelector('#panel-video .sub-tab:nth-child(2)');
+      if (ytTab) switchSub(ytTab, 'svid-youtube');
+    }
+  }
+
+  /* ════════════════════════════════
+     SAVE POST
+  ════════════════════════════════ */
+  async function savePost() {
+    const errorEl   = document.getElementById('form-error');
+    const successEl = document.getElementById('form-success');
+    errorEl.classList.remove('show');
+    successEl.classList.remove('show');
+
+    const title    = document.getElementById('post-title').value.trim();
+    const excerpt  = document.getElementById('post-excerpt').value.trim();
+    const content  = document.getElementById('post-content').value.trim();
+    const category = document.getElementById('post-category').value.trim();
+
+    if (!title || !excerpt || !content || !category) {
+      errorEl.textContent = 'Please fill in all required fields (Title, Category, Excerpt, Content).';
+      errorEl.classList.add('show');
+      errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Saving…';
+
+    /* Determine active image context */
+    const activePill  = document.querySelector('.media-pill.active');
+    const pillText    = activePill ? activePill.textContent.trim() : '';
+    const imgCtx      = pillText.includes('Both') ? 'both' : 'main';
+    const activeImgs  = images[imgCtx];
+
+    const formData = new FormData();
+    formData.append('title',    title);
+    formData.append('excerpt',  excerpt);
+    formData.append('content',  content);
+    formData.append('category', category);
+    formData.append('date',     document.getElementById('post-date').value.trim());
+    formData.append('featured', document.getElementById('post-featured').checked);
+    formData.append('hasVideo', videoType !== 'none');
+    formData.append('videoType', videoType);
+    formData.append('videoUrl',  videoUrl);
+
+    /* Attach images */
+    var coverIndex = 0;
+    activeImgs.forEach(function(img, idx) {
+      if (img.file) formData.append('images', img.file);
+      if (img.iscover) coverIndex = idx;
+    });
+    formData.append('coverIndex', coverIndex);
+
+    /* Attach video file */
+    if (videoFile && videoType === 'upload') {
+      formData.append('video', videoFile);
+    }
+
+    try {
+      const url    = isEdit ? '/api/admin/posts/' + editId : '/api/admin/posts';
+      const method = isEdit ? 'PUT' : 'POST';
+      const res    = await fetch(url, { method: method, body: formData });
+      const data   = await res.json();
+
+      if (data.success) {
+        showToast(data.message || (isEdit ? 'Post updated!' : 'Post saved!'), 'success');
+        successEl.textContent = data.message || 'Saved successfully.';
+        successEl.classList.add('show');
+        if (!isEdit) {
+          setTimeout(function() { window.location.href = '/admin/posts'; }, 1400);
+        } else {
+          document.getElementById('edit-view-link').style.display = 'block';
+          document.getElementById('view-post-link').href = '/post/' + editId;
+        }
+      } else {
+        errorEl.textContent = data.message || 'Something went wrong.';
+        errorEl.classList.add('show');
+        errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } catch(e) {
+      errorEl.textContent = 'Network error. Please try again.';
+      errorEl.classList.add('show');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-check-lg"></i> <span id="save-btn-text">' + (isEdit ? 'Update Post' : 'Save Post') + '</span>';
+    }
+  }
+
+  /* ════════════════════════════════
+     DELETE POST
+  ════════════════════════════════ */
+  async function deletePost() {
+    confirmDelete('Delete this post permanently? This cannot be undone.', async function() {
+      const data = await adminAPI.delete('/api/admin/posts/' + editId);
+      if (data) showToast(data.message, data.success ? 'success' : 'error');
+      if (data && data.success) window.location.href = '/admin/posts';
+    });
+  }
+
+  /* ════════════════════════════════
+     INIT
+  ════════════════════════════════ */
+  document.getElementById('save-btn').addEventListener('click', savePost);
+
+  loadCategories();
+  loadPost();
 </script>
 </body>
 </html>

@@ -4,23 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>About — Hon. Leke Abejide</title>
-  <meta name="description" content="Learn about Rt. Hon. Elder Leke Joseph Abejide, Member House of Representatives, Yagba Federal Constituency.">
+  <meta name="description" content="Learn about Rt. Hon. Elder Leke Joseph Abejide, Member House of Representatives, Yagba Federal Constituency, Kogi State.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/favicon.png">
 </head>
 <body>
 
+<!-- Mobile Nav Overlay -->
+<div class="nav-overlay" id="nav-overlay"></div>
+
+<!-- Header -->
 <header id="header">
   <div class="header-inner">
     <a href="/" class="logo">
-      <i class="bi bi-flag-fill" style="font-size:1.5rem;color:var(--accent)"></i>
-      <span>Hon. Leke Abejide</span>
+      <img src="/favicon.png" alt="Hon. Leke Abejide" 
+           style="height:48px;width:auto;object-fit:contain;display:block;">
+      <span id="site-logo-text">Hon. Leke Abejide</span>
     </a>
     <nav class="navbar" id="navbar">
-      <ul>
+      <ul id="nav-links">
         <li><a href="/">Blog</a></li>
         <li><a href="/about" class="active">About</a></li>
         <li><a href="/contact">Contact</a></li>
@@ -28,80 +34,99 @@
     </nav>
     <div class="header-actions">
       <div class="header-social">
-        <a href="#" target="_blank" id="hdr-fb"><i class="bi bi-facebook"></i></a>
-        <a href="#" target="_blank" id="hdr-ig"><i class="bi bi-instagram"></i></a>
+        <a href="https://www.facebook.com/profile.php?id=100051326707777" target="_blank"><i class="bi bi-facebook"></i></a>
+        <a href="https://www.instagram.com/hon.lekeabejide" target="_blank"><i class="bi bi-instagram"></i></a>
+        <a href="#" target="_blank"><i class="bi bi-twitter-x"></i></a>
       </div>
-      <button class="search-toggle"><i class="bi bi-search"></i></button>
-      <button class="mobile-nav-toggle"><i class="bi bi-list"></i></button>
+      <button class="mobile-nav-toggle" aria-label="Toggle menu"><i class="bi bi-list"></i></button>
     </div>
   </div>
 </header>
 
-<div class="search-overlay">
-  <form id="search-form">
-    <input type="text" id="search-input" placeholder="Search posts…" autocomplete="off">
-    <button type="submit">Search</button>
-    <button type="button" class="search-close"><i class="bi bi-x"></i></button>
-  </form>
-</div>
-
 <main id="main">
+
+  <!-- About Hero -->
   <section class="about-hero">
     <div class="container">
-      <h1>About Rt. Hon. Leke Abejide</h1>
-      <p>Member, House of Representatives · Yagba Federal Constituency · Chairman, House Committee on Customs & Excise</p>
+      <h1>About Hon. Leke Abejide</h1>
+      <p>Member, House of Representatives — Yagba Federal Constituency, Kogi State. Chairman, House Committee on Customs and Excise.</p>
     </div>
   </section>
 
+  <!-- Profile — Hon. Leke -->
   <section class="profile-section">
     <div class="container">
       <div class="profile-grid page-fade">
         <div>
-          <img src="/image/leke abejide.jpg" alt="Hon. Leke Abejide" class="profile-img"
-            onerror="this.style.background='var(--border)';this.style.minHeight='400px'">
+          <img src="/image/leke abejide.jpg" alt="Rt. Hon. Leke Abejide" class="profile-img"
+            onerror="this.style.background='var(--border)';this.style.minHeight='380px'">
         </div>
         <div class="profile-content">
           <h2>Rt. Hon. Elder Leke Joseph Abejide</h2>
-          <span class="title-badge">ADC · Member, House of Representatives</span>
-          <p>Rt. Hon. Elder Leke Joseph Abejide was born on 8th of May, 1975, to his parents from Alu, Yagba East Local Government Area of Kogi State. He grew up in ALU community, where his leadership traits were discovered early in life.</p>
-          <p>He obtained his primary school leaving certificate at LSMB Primary School, Alu-Igbagun, and later attended ALU Community Secondary School in 1991 — where his exceptional performance led to his appointment as Assistant Senior Prefect.</p>
-          <p>He proceeded to the prestigious Ahmadu Bello University Zaria, where he bagged his BSc. Economics from the Department of Economics, Faculty of Social Sciences. He further obtained a Masters Degree in Economics from Bayero University (BUK) Kano.</p>
-          <p>After his academic pursuits, he built a formidable career starting with DIVA-ITH-TIC-LTD-STI, Turkey (2004–2007). He is the Chairman of ABYEM INT'L LTD, a private clearing company, and an active member and patron of the Association of Clearing and Forwarding Agents.</p>
-          <p>Out of his demanding schedule, he founded the <strong>Leke Abejide Foundation</strong> — a nonpartisan NGO serving as an intervention agency for the less privileged, widows, aged people, and indigent students.</p>
-          <p>Hon. Leke Abejide contested and won his first election under the African Democratic Congress (ADC) in February 2019, and was re-elected for a second term in February 2023. He currently serves as <strong>Chairman, House Committee on Customs and Excise</strong>.</p>
+          <span class="title-badge">Member, House of Representatives</span>
+          <p>Rt. Hon. Elder Leke Joseph Abejide, ADC Governorship Candidate 2023, Member House of Representatives Yagba Federal Constituency, Chairman House Committee on Customs and Excise, was born on 8th of May, 1975 to his parents from Alu, Yagba East Local Government Area of Kogi State.</p>
+          <p>He obtained his primary school leaving certificate at LSMB Primary School, Alu-Igbagun, before proceeding to Alu Community Secondary School in 1991 where he served as Assistant Senior Prefect — an early display of leadership and humility.</p>
+          <p>He graduated from the prestigious Ahmadu Bello University Zaria with a BSc. in Economics, completed his NYSC, and later earned a Masters Degree in Economics from Bayero University (BUK) Kano.</p>
+          <p>Hon. Leke Abejide is the Chairman of ABYEM INT'L LTD, a leading private clearing company and the preferred choice for importers and exporters across Nigeria. He is also the founder of Leke Abejide Foundation, a non-partisan NGO serving widows, the aged, and indigent students.</p>
+          <p>He won his first election under the ADC in February 2019 and was re-elected in February 2023, serving as Chairman of the House Committee on Customs and Excise in both tenures. He is a businessman, philanthropist, community builder, and a God-fearing Elder in the Church.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <section style="padding:0 0 64px">
+  <!-- Achievements -->
+  <section class="achievements-section">
     <div class="container">
       <div class="section-header">
-        <h2>Key Achievements & Projects</h2>
-        <p>A record of service, community development, and people-centered leadership in Yagba Federal Constituency.</p>
+        <div class="section-tag">Track Record</div>
+        <h2>Key Achievements</h2>
+        <p>A legacy of service, community development, and legislative excellence across Yagba Federal Constituency.</p>
       </div>
       <div class="achievements-grid page-fade">
-        <div class="achievement-card"><div class="achievement-icon">🎓</div><h4>WAEC Fees Payment</h4><p>Paid WAEC fees for all students in public schools across Yagba Federal Constituency, amounting to over ₦43 Million Naira.</p></div>
-        <div class="achievement-card"><div class="achievement-icon">🏥</div><h4>Health Center Renovation</h4><p>Renovated health centers in collaboration with prominent indigenes, improving healthcare access for the community.</p></div>
-        <div class="achievement-card"><div class="achievement-icon">👮</div><h4>Police Station Construction</h4><p>Constructed a "C" Division police station in Alu, equipped with motorized borehole, generator, and fence.</p></div>
-        <div class="achievement-card"><div class="achievement-icon">💡</div><h4>Rural Electrification</h4><p>Donated poles for the rural electrification of the Igbo-Ero electricity project, bringing light to communities.</p></div>
-        <div class="achievement-card"><div class="achievement-icon">👩‍👩‍👧</div><h4>Widow Empowerment</h4><p>Continuous empowerment of widows since 2014, providing financial support and improving livelihoods.</p></div>
-        <div class="achievement-card"><div class="achievement-icon">💼</div><h4>Youth Employment</h4><p>Employed over 200 Yagba indigenes directly in his personal company ABYEM INT'L LTD.</p></div>
-        <div class="achievement-card"><div class="achievement-icon">📚</div><h4>School Fees Support</h4><p>Paying school fees from JSS to SSS for students in Alu colleges since 2014.</p></div>
-        <div class="achievement-card"><div class="achievement-icon">🏛️</div><h4>Legislative Leadership</h4><p>Serving as Chairman, House Committee on Customs and Excise — advocating for better trade policy in Nigeria.</p></div>
+        <div class="achievement-card">
+          <div class="achievement-icon">🎓</div>
+          <h4>WAEC Fees for All Students</h4>
+          <p>Paid WAEC exam fees for all students in public schools across Yagba Federal Constituency, amounting to over ₦43 Million Naira.</p>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-icon">👩‍👧</div>
+          <h4>Widow Empowerment</h4>
+          <p>Six consecutive years of dedicated empowerment programs for widows across Yagbaland — financial support and life skills training.</p>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-icon">🏥</div>
+          <h4>Healthcare Infrastructure</h4>
+          <p>Renovation of health centres and provision of motorised boreholes for clean water access across communities.</p>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-icon">🚔</div>
+          <h4>Police Station Construction</h4>
+          <p>Constructed a "C" Division police station in Alu community, fully equipped with a borehole, generator, and perimeter fencing.</p>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-icon">💡</div>
+          <h4>Rural Electrification</h4>
+          <p>Donated poles and supported the Igbo-Ero rural electrification project, bringing power to previously underserved communities.</p>
+        </div>
+        <div class="achievement-card">
+          <div class="achievement-icon">💼</div>
+          <h4>Employment Creation</h4>
+          <p>Employed over 200 Yagba indigenes directly in ABYEM INT'L LTD, supporting local livelihoods and economic growth.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <section style="background:var(--light-bg);padding:64px 0">
+  <!-- Profile — Chief Mrs. Abejide -->
+  <section style="background:var(--light-bg);padding:72px 0">
     <div class="container">
       <div class="profile-grid page-fade" style="grid-template-columns:1fr 340px">
         <div class="profile-content">
           <h2>Chief Mrs. Esther Modupe Abejide</h2>
-          <span class="title-badge" style="background:var(--green)">Beloved Wife & Philanthropist</span>
-          <p>Chief Mrs. Abejide is a loving wife and mother, a pillar of strength and support for her husband and family, and an inspiration to women and girls across Nigeria.</p>
-          <p>Her six years of dedication to the empowerment of widows in Yagba Federal Constituency have undoubtedly changed the lives of countless women. She has also worked to improve access to quality education, provided health facilities, and built boreholes across Yagbaland.</p>
-          <p>Chief Mrs. Abejide has been dedicated to providing financial support to the less privileged and to students who need help with their education.</p>
+          <span class="title-badge" style="background:var(--green)">Beloved Wife &amp; Philanthropist</span>
+          <p>Chief Mrs. Abejide is a loving wife and mother, a pillar of strength and unwavering support for her husband and family, and a source of inspiration to women and girls across Nigeria.</p>
+          <p>Her six years of dedication to the empowerment of widows in Yagba Federal Constituency have undoubtedly transformed the lives of countless women. She has championed access to quality education, provided health facilities, and built boreholes across Yagbaland.</p>
+          <p>Chief Mrs. Abejide continues to provide financial support to the less privileged and to students who need assistance with their education, embodying the spirit of selfless service.</p>
         </div>
         <div>
           <img src="/image/her ex.jpg" alt="Chief Mrs. Esther Modupe Abejide" class="profile-img"
@@ -111,53 +136,105 @@
     </div>
   </section>
 
+  <!-- Team Section -->
   <section class="team-section">
     <div class="container">
       <div class="section-header">
+        <div class="section-tag">Our People</div>
         <h2>Our Team</h2>
         <p>Beyond the confines of legislative offices, this team serves as a vital bridge between constituents and their representative.</p>
       </div>
       <div class="team-grid page-fade">
-        <div class="team-card"><img src="/image/image3.jpg" alt="Team Member" class="team-img" onerror="this.src='https://ui-avatars.com/api/?name=Team&background=1a3c5e&color=fff&size=120'"><h5>Team Member</h5><span>Position TBA</span></div>
-        <div class="team-card"><img src="/image/image1.jpg" alt="Team Member" class="team-img" onerror="this.src='https://ui-avatars.com/api/?name=Staff&background=1a3c5e&color=fff&size=120'"><h5>Team Member</h5><span>Position TBA</span></div>
-        <div class="team-card"><img src="/image/image5.jpg" alt="Team Member" class="team-img" onerror="this.src='https://ui-avatars.com/api/?name=Staff&background=1a3c5e&color=fff&size=120'"><h5>Team Member</h5><span>Position TBA</span></div>
-        <div class="team-card"><img src="/image/image6.jpg" alt="Team Member" class="team-img" onerror="this.src='https://ui-avatars.com/api/?name=Staff&background=1a3c5e&color=fff&size=120'"><h5>Team Member</h5><span>Position TBA</span></div>
+
+        <div class="team-card">
+          <div class="team-img-wrap">
+            <img src="/image/image3.jpg" alt="Team Member" class="team-img"
+              onerror="this.src='https://images.sh.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face'">
+          </div>
+          <h5>Team Member</h5>
+          <span>Media Aids</span>
+        </div>
+
+        <div class="team-card">
+          <div class="team-img-wrap">
+            <img src="/image/image1.jpg" alt="Team Member" class="team-img"
+              onerror="this.src='https://images.u.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop&crop=face'">
+          </div>
+          <h5>Team Member</h5>
+          <span>Media Aids</span>
+        </div>
+
+        <div class="team-card">
+          <div class="team-img-wrap">
+            <img src="/image/image5.jpg" alt="Team Member" class="team-img"
+              onerror="this.src='https://images.uh.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop&crop=face'">
+          </div>
+          <h5>Team Member</h5>
+          <span>Media Aids</span>
+        </div>
+
+        <div class="team-card">
+          <div class="team-img-wrap">
+            <img src="/image/image6.jpg" alt="Team Member" class="team-img"
+              onerror="this.src='https://imagh.com/photo-1573497019940-1c28c88b4f3e?w=300&h=300&fit=crop&crop=face'">
+          </div>
+          <h5>Team Member</h5>
+          <span>Media Aids</span>
+        </div>
+
       </div>
     </div>
   </section>
+
 </main>
 
-<footer>
+<!-- Footer -->
+<footer id="site-footer">
   <div class="container">
     <div class="footer-inner">
       <div class="footer-brand">
         <h3>Hon. Leke Abejide</h3>
         <p>Rt. Hon. Elder Leke Joseph Abejide — Member, House of Representatives, Yagba Federal Constituency, Kogi State.</p>
       </div>
-      <div class="footer-col"><h4>Quick Links</h4><ul><li><a href="/">Blog</a></li><li><a href="/about">About</a></li><li><a href="/contact">Contact</a></li></ul></div>
-      <div class="footer-col"><h4>Connect</h4><ul><li><a href="#" target="_blank" id="ft-fb">Facebook</a></li><li><a href="#" target="_blank" id="ft-ig">Instagram</a></li></ul></div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="/">Blog</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="https://www.facebook.com/profile.php?id=100051326707777" target="_blank"><i class="bi bi-facebook"></i> Facebook</a></li>
+          <li><a href="https://www.instagram.com/hon.lekeabejide" target="_blank"><i class="bi bi-instagram"></i> Instagram</a></li>
+          <li><a href="#" target="_blank"><i class="bi bi-twitter-x"></i> Twitter / X</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Newsletter</h4>
+        <p style="font-size:0.85rem;opacity:.8;margin-bottom:12px">Stay updated with the latest news.</p>
+        <form class="newsletter-footer-form">
+          <input type="email" placeholder="Your email address" required>
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
     </div>
-    <div class="footer-bottom"><span>© 2024 Hon. Leke Abejide. All Rights Reserved.</span></div>
+    <div class="footer-bottom">
+      <span>2024 Hon. Leke Abejide. All Rights Reserved.</span>
+      <div class="footer-social">
+        <a href="https://www.facebook.com/profile.php?id=100051326707777" target="_blank"><i class="bi bi-facebook"></i></a>
+        <a href="https://www.instagram.com/hon.lekeabejide" target="_blank"><i class="bi bi-instagram"></i></a>
+        <a href="#" target="_blank"><i class="bi bi-twitter-x"></i></a>
+      </div>
+    </div>
   </div>
 </footer>
 
 <a href="#" class="scroll-top"><i class="bi bi-arrow-up"></i></a>
+
+<!-- app.js handles ALL nav/scroll logic via DOMContentLoaded -->
 <script src="/js/app.js"></script>
-<script>
-(async function() {
-  try {
-    const s = await API.get('/api/admin/settings');
-    if (s.success) {
-      if (s.settings.facebookUrl) { document.getElementById('hdr-fb').href = s.settings.facebookUrl; document.getElementById('ft-fb').href = s.settings.facebookUrl; }
-      if (s.settings.instagramUrl) { document.getElementById('hdr-ig').href = s.settings.instagramUrl; document.getElementById('ft-ig').href = s.settings.instagramUrl; }
-    }
-  } catch(e) {}
-  document.getElementById('search-form').addEventListener('submit', e => {
-    e.preventDefault();
-    const q = document.getElementById('search-input').value.trim();
-    if (q) window.location.href = `/?search=${encodeURIComponent(q)}`;
-  });
-})();
-</script>
 </body>
 </html>

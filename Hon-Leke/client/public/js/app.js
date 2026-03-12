@@ -1,119 +1,116 @@
-// client/public/js/app.js — Shared utilities
+/* ============================================================
+   app.js — Hon. Leke Abejide Blog
+   Global utilities: API, mobile nav, sticky header, scroll top
+   ============================================================ */
 
+/* ── API Helper ── */
 const API = {
   async get(url) {
-    const res = await fetch(url);
+    const res = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   },
-  async post(url, data) {
+  async post(url, body) {
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(body)
     });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  },
+  async postForm(url, formData) {
+    const res = await fetch(url, { method: 'POST', body: formData });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   }
 };
 
+/* ── Global Mobile Nav (works on ALL pages) ── */
 document.addEventListener('DOMContentLoaded', function () {
 
-  // Sticky header
-  (function initHeader() {
-    const header = document.getElementById('header');
-    if (!header) return;
-    window.addEventListener('scroll', () =>
-      header.classList.toggle('sticked', window.scrollY > 80)
-    );
-  })();
+  const navbar    = document.getElementById('navbar');
+  const overlay   = document.getElementById('nav-overlay');
+  const toggleBtn = document.querySelector('.mobile-nav-toggle');
+  const searchToggle = document.querySelector('.search-toggle');
+  const searchOverlay = document.querySelector('.search-overlay');
+  const searchClose   = document.querySelector('.search-close');
+  const scrollTopBtn  = document.querySelector('.scroll-top');
+  const header        = document.getElementById('header');
 
-  // Mobile nav drawer
-  (function initMobileNav() {
-    const toggle = document.querySelector('.mobile-nav-toggle');
-    const nav    = document.querySelector('.navbar');
-    if (!toggle || !nav) return;
+  /* --- Nav open/close --- */
+  function openNav() {
+    if (!navbar || !overlay || !toggleBtn) return;
+    navbar.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    toggleBtn.innerHTML = '<i class="bi bi-x"></i>';
+  }
 
-    let overlay = document.getElementById('nav-overlay');
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.id = 'nav-overlay';
-      overlay.className = 'nav-overlay';
-      document.body.appendChild(overlay);
-    }
+  function closeNav() {
+    if (!navbar || !overlay || !toggleBtn) return;
+    navbar.classList.remove('open');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    toggleBtn.innerHTML = '<i class="bi bi-list"></i>';
+  }
 
-    function injectNavSocial() {
-      if (nav.querySelector('.nav-social')) return;
-      const headerSocial = document.querySelector('.header-social');
-      if (!headerSocial) return;
-      const socialDiv = document.createElement('div');
-      socialDiv.className = 'nav-social';
-      socialDiv.innerHTML = headerSocial.innerHTML;
-      nav.appendChild(socialDiv);
-    }
-
-    function openNav() {
-      nav.classList.add('open');
-      overlay.classList.add('open');
-      toggle.innerHTML = '<i class="bi bi-x-lg"></i>';
-      document.body.style.overflow = 'hidden';
-      injectNavSocial();
-      // bind close to any links injected after open
-      nav.querySelectorAll('a').forEach(a => {
-        a.removeEventListener('click', closeNav);
-        a.addEventListener('click', closeNav);
-      });
-    }
-
-    function closeNav() {
-      nav.classList.remove('open');
-      overlay.classList.remove('open');
-      toggle.innerHTML = '<i class="bi bi-list"></i>';
-      document.body.style.overflow = '';
-    }
-
-    toggle.addEventListener('click', (e) => {
-      e.stopPropagation(); // prevent event bubbling to document
-      nav.classList.contains('open') ? closeNav() : openNav();
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      navbar && navbar.classList.contains('open') ? closeNav() : openNav();
     });
+  }
 
+  if (overlay) {
     overlay.addEventListener('click', closeNav);
+  }
 
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') closeNav();
+  /* Close nav when a link is clicked inside drawer */
+  document.querySelectorAll('#nav-links a').forEach(function (a) {
+    a.addEventListener('click', closeNav);
+  });
+
+  /* Close nav on Escape key */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeNav();
+      if (searchOverlay) searchOverlay.classList.remove('open');
+    }
+  });
+
+  /* --- Search overlay --- */
+  if (searchToggle && searchOverlay) {
+    searchToggle.addEventListener('click', function () {
+      searchOverlay.classList.toggle('open');
+      if (searchOverlay.classList.contains('open')) {
+        var inp = searchOverlay.querySelector('input');
+        if (inp) inp.focus();
+      }
     });
-  })();
-
-  // Search overlay
-  (function initSearch() {
-    const btn      = document.querySelector('.search-toggle');
-    const overlay  = document.querySelector('.search-overlay');
-    const closeBtn = document.querySelector('.search-close');
-    if (!btn || !overlay) return;
-    btn.addEventListener('click', () => overlay.classList.toggle('open'));
-    closeBtn?.addEventListener('click', () => overlay.classList.remove('open'));
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') overlay.classList.remove('open');
+  }
+  if (searchClose && searchOverlay) {
+    searchClose.addEventListener('click', function () {
+      searchOverlay.classList.remove('open');
     });
-  })();
+  }
 
-  // Scroll to top
-  (function initScrollTop() {
-    const btn = document.querySelector('.scroll-top');
-    if (!btn) return;
-    window.addEventListener('scroll', () =>
-      btn.classList.toggle('visible', window.scrollY > 300)
-    );
-    btn.addEventListener('click', e => {
+  /* --- Sticky header --- */
+  if (header) {
+    window.addEventListener('scroll', function () {
+      header.classList.toggle('sticked', window.scrollY > 80);
+    });
+  }
+
+  /* --- Scroll top button --- */
+  if (scrollTopBtn) {
+    window.addEventListener('scroll', function () {
+      scrollTopBtn.classList.toggle('visible', window.scrollY > 320);
+    });
+    scrollTopBtn.addEventListener('click', function (e) {
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-  })();
+  }
 
 });
-
-// Alert helper (global, outside DOMContentLoaded)
-function showAlert(el, type, msg) {
-  el.className = `alert alert-${type} show`;
-  el.textContent = msg;
-  setTimeout(() => el.classList.remove('show'), 6000);
-}
