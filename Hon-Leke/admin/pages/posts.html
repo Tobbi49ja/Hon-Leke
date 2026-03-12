@@ -14,6 +14,8 @@
     <div class="nav-section">Main</div>
     <a href="/admin/dashboard" class="nav-link" data-page="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
     <div class="nav-section">Content</div>
+    <div class="nav-section">Pages</div>
+<a href="/admin/about" class="nav-link" data-page="about"><i class="bi bi-person-lines-fill"></i> About Page</a>
     <a href="/admin/posts" class="nav-link" data-page="posts"><i class="bi bi-newspaper"></i> Blog Posts</a>
     <a href="/admin/posts/new" class="nav-link" data-page="new-post"><i class="bi bi-plus-circle"></i> New Post</a>
     <div class="nav-section">Engagement</div>
@@ -31,8 +33,10 @@
   <div class="topbar">
     <h1 id="page-title">Blog Posts</h1>
     <div class="topbar-actions">
-      <input type="text" id="search-posts" placeholder="Search posts…" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.85rem;width:200px;outline:none">
-      <select id="filter-category" style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.85rem;outline:none">
+      <input type="text" id="search-posts" placeholder="Search posts…"
+        style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.85rem;width:200px;outline:none">
+      <select id="filter-category"
+        style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.85rem;outline:none">
         <option value="">All Categories</option>
       </select>
       <a href="/admin/posts/new" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> New Post</a>
@@ -76,56 +80,73 @@ let allPosts = [];
 async function loadPosts() {
   const data = await adminAPI.get('/api/admin/posts');
   if (!data) return;
-  allPosts = data.posts;
+  if (!data.success) {
+    console.error('API error loading posts:', data.message);
+    return;
+  }
+  allPosts = Array.isArray(data.posts) ? data.posts : [];
+
   // Populate category filter
   const cats = [...new Set(allPosts.map(p => p.category))];
   const catSelect = document.getElementById('filter-category');
+  // Clear existing options except the first "All Categories"
+  while (catSelect.options.length > 1) catSelect.remove(1);
   cats.forEach(cat => {
     const opt = document.createElement('option');
     opt.value = cat;
     opt.textContent = cat;
     catSelect.appendChild(opt);
   });
+
   renderPosts(allPosts);
 }
 
 function renderPosts(posts) {
   const tbody = document.getElementById('posts-table');
   document.getElementById('posts-count').textContent = `(${posts.length})`;
+
   if (!posts.length) {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#718096">No posts found.</td></tr>';
     return;
   }
+
+  // ── KEY FIX: wrap p.id in quotes inside onclick so ObjectId strings are valid JS
   tbody.innerHTML = posts.map(p => `
     <tr>
-      <td>${p.image ? `<img src="/${p.image}" class="post-thumb" onerror="this.parentElement.innerHTML='<div style=width:52px;height:40px;background:#eee;border-radius:6px></div>'">` : '<div style="width:52px;height:40px;background:#eee;border-radius:6px"></div>'}</td>
+      <td>${p.image
+        ? `<img src="/${p.image}" class="post-thumb" onerror="this.parentElement.innerHTML='<div style=width:52px;height:40px;background:#eee;border-radius:6px></div>'">`
+        : '<div style="width:52px;height:40px;background:#eee;border-radius:6px"></div>'
+      }</td>
       <td style="max-width:280px">
         <span style="font-weight:500;font-size:0.875rem;display:block">${p.title.substring(0,70)}${p.title.length>70?'…':''}</span>
         <span style="font-size:0.75rem;color:#718096;display:block;margin-top:2px">${p.excerpt.substring(0,60)}…</span>
       </td>
       <td><span class="badge badge-info">${p.category}</span></td>
       <td style="color:#718096;font-size:0.8rem;white-space:nowrap">${p.date}</td>
-      <td>${p.hasVideo ? '<span class="badge badge-success"><i class="bi bi-camera-video"></i> Yes</span>' : '<span style="color:#ccc;font-size:0.75rem">—</span>'}</td>
+      <td>${p.hasVideo
+        ? '<span class="badge badge-success"><i class="bi bi-camera-video"></i> Yes</span>'
+        : '<span style="color:#ccc;font-size:0.75rem">—</span>'
+      }</td>
       <td>
         <label class="toggle">
-          <input type="checkbox" ${p.featured ? 'checked' : ''} onchange="toggleFeatured(${p.id}, this)">
+          <input type="checkbox" ${p.featured ? 'checked' : ''} onchange="toggleFeatured('${p.id}', this)">
           <span class="toggle-slider"></span>
         </label>
       </td>
       <td style="white-space:nowrap">
         <a href="/post/${p.id}" target="_blank" class="btn btn-outline btn-sm btn-icon" title="View"><i class="bi bi-eye"></i></a>
         <a href="/admin/posts/edit/${p.id}" class="btn btn-outline btn-sm btn-icon" title="Edit"><i class="bi bi-pencil"></i></a>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deletePost(${p.id})" title="Delete"><i class="bi bi-trash"></i></button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deletePost('${p.id}')" title="Delete"><i class="bi bi-trash"></i></button>
       </td>
     </tr>
   `).join('');
 }
 
 function filterPosts() {
-  const search = document.getElementById('search-posts').value.toLowerCase();
+  const search   = document.getElementById('search-posts').value.toLowerCase();
   const category = document.getElementById('filter-category').value;
-  let filtered = allPosts;
-  if (search) filtered = filtered.filter(p => p.title.toLowerCase().includes(search) || p.category.toLowerCase().includes(search));
+  let filtered   = allPosts;
+  if (search)   filtered = filtered.filter(p => p.title.toLowerCase().includes(search) || p.category.toLowerCase().includes(search));
   if (category) filtered = filtered.filter(p => p.category === category);
   renderPosts(filtered);
 }

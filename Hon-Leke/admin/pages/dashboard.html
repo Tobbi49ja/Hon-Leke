@@ -14,6 +14,8 @@
     <div class="nav-section">Main</div>
     <a href="/admin/dashboard" class="nav-link" data-page="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
     <div class="nav-section">Content</div>
+    <div class="nav-section">Pages</div>
+<a href="/admin/about" class="nav-link" data-page="about"><i class="bi bi-person-lines-fill"></i> About Page</a>
     <a href="/admin/posts" class="nav-link" data-page="posts"><i class="bi bi-newspaper"></i> Blog Posts</a>
     <a href="/admin/posts/new" class="nav-link" data-page="new-post"><i class="bi bi-plus-circle"></i> New Post</a>
     <div class="nav-section">Engagement</div>
@@ -73,36 +75,43 @@ async function loadDashboard() {
     adminAPI.get('/api/admin/posts')
   ]);
   if (!statsRes || !postsRes) return;
+  if (!postsRes.success) { console.error('API error:', postsRes.message); return; }
 
   const s = statsRes.stats;
-  document.getElementById('stat-posts').textContent = s.totalPosts;
-  document.getElementById('stat-featured').textContent = s.featuredPosts;
-  document.getElementById('stat-comments').textContent = s.totalComments;
-  document.getElementById('stat-messages').textContent = s.totalMessages;
+  document.getElementById('stat-posts').textContent       = s.totalPosts;
+  document.getElementById('stat-featured').textContent    = s.featuredPosts;
+  document.getElementById('stat-comments').textContent    = s.totalComments;
+  document.getElementById('stat-messages').textContent    = s.totalMessages;
   document.getElementById('stat-subscribers').textContent = s.totalSubscribers;
-  document.getElementById('stat-categories').textContent = s.categories;
+  document.getElementById('stat-categories').textContent  = s.categories;
 
   const tbody = document.getElementById('recent-posts-table');
-  const posts = postsRes.posts.slice(0, 8);
+  const posts = Array.isArray(postsRes.posts) ? postsRes.posts.slice(0, 8) : [];
+
   if (!posts.length) {
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:#718096">No posts yet. <a href="/admin/posts/new">Create your first post</a></td></tr>';
     return;
   }
+
+  // ── KEY FIX: quote '${p.id}' in onclick so ObjectId strings are valid JS
   tbody.innerHTML = posts.map(p => `
     <tr>
-      <td>${p.image ? `<img src="/${p.image}" class="post-thumb" onerror="this.style.display='none'">` : '<div style="width:52px;height:40px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center"><i class="bi bi-image text-muted"></i></div>'}</td>
+      <td>${p.image
+        ? `<img src="/${p.image}" class="post-thumb" onerror="this.style.display='none'">`
+        : '<div style="width:52px;height:40px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center"><i class="bi bi-image text-muted"></i></div>'
+      }</td>
       <td style="max-width:260px"><span style="font-weight:500;font-size:0.875rem">${p.title.substring(0,65)}${p.title.length>65?'…':''}</span></td>
       <td><span class="badge badge-info">${p.category}</span></td>
       <td style="color:#718096;font-size:0.8rem;white-space:nowrap">${p.date}</td>
       <td>
         <label class="toggle">
-          <input type="checkbox" ${p.featured ? 'checked' : ''} onchange="toggleFeatured(${p.id}, this)">
+          <input type="checkbox" ${p.featured ? 'checked' : ''} onchange="toggleFeatured('${p.id}', this)">
           <span class="toggle-slider"></span>
         </label>
       </td>
       <td>
         <a href="/admin/posts/edit/${p.id}" class="btn btn-outline btn-sm btn-icon" title="Edit"><i class="bi bi-pencil"></i></a>
-        <button class="btn btn-danger btn-sm btn-icon" onclick="deletePost(${p.id})" title="Delete"><i class="bi bi-trash"></i></button>
+        <button class="btn btn-danger btn-sm btn-icon" onclick="deletePost('${p.id}')" title="Delete"><i class="bi bi-trash"></i></button>
       </td>
     </tr>
   `).join('');

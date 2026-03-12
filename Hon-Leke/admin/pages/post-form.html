@@ -7,128 +7,57 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="/admin/assets/css/admin.css" rel="stylesheet">
   <style>
-    /* ── Extra styles for media upload (extends admin.css) ── */
-
-    /* Media type pill tabs */
-    .media-pills {
-      display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap;
-    }
-    .media-pill {
-      padding: 7px 16px; border-radius: 20px; border: 1.5px solid var(--border);
-      background: var(--admin-bg); font-size: 0.82rem; font-weight: 600;
-      cursor: pointer; color: var(--muted); display: inline-flex; align-items: center;
-      gap: 6px; transition: all 0.2s;
-    }
-    .media-pill.active {
-      background: var(--sidebar); border-color: var(--sidebar); color: white;
-    }
-    .media-panel { display: none; }
-    .media-panel.active { display: block; }
-
-    /* Sub tabs (upload vs youtube) */
-    .sub-tabs {
-      display: flex; border: 1px solid var(--border); border-radius: 8px;
-      overflow: hidden; margin-bottom: 16px;
-    }
-    .sub-tab {
-      flex: 1; padding: 8px 12px; text-align: center; background: white;
-      border: none; font-size: 0.82rem; font-weight: 600; cursor: pointer;
-      color: var(--muted); border-right: 1px solid var(--border); transition: all 0.2s;
-    }
-    .sub-tab:last-child { border-right: none; }
-    .sub-tab.active { background: var(--sidebar); color: white; }
-    .sub-panel { display: none; }
-    .sub-panel.active { display: block; }
-
-    /* Drop zone */
-    .drop-zone {
-      border: 2px dashed var(--border); border-radius: 10px;
-      padding: 28px 16px; text-align: center; cursor: pointer;
-      transition: border-color 0.2s, background 0.2s; position: relative;
-      background: #fafbfc;
-    }
-    .drop-zone:hover, .drop-zone.dragover {
-      border-color: var(--sidebar); background: #eef3f9;
-    }
-    .drop-zone input[type="file"] {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer;
-      width: 100%; height: 100%;
-    }
-    .drop-zone i { font-size: 2rem; color: var(--muted); display: block; margin-bottom: 8px; }
-    .drop-zone p { font-size: 0.85rem; color: var(--text); margin-bottom: 4px; }
-    .drop-zone span { font-size: 0.75rem; color: var(--muted); }
-
-    /* Image gallery grid */
-    .img-gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 10px; margin-top: 14px;
-    }
-    .img-thumb {
-      position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden;
-      border: 2px solid var(--border); background: var(--admin-bg);
-    }
-    .img-thumb.is-cover { border-color: var(--accent); }
-    .img-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .img-thumb-actions {
-      position: absolute; inset: 0; background: rgba(0,0,0,0.52);
-      display: flex; align-items: center; justify-content: center;
-      gap: 6px; opacity: 0; transition: opacity 0.2s;
-    }
-    .img-thumb:hover .img-thumb-actions { opacity: 1; }
-    .img-thumb-actions button {
-      width: 28px; height: 28px; border-radius: 50%; border: none;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      font-size: 0.8rem;
-    }
-    .btn-set-cover  { background: var(--accent);   color: white; }
-    .btn-remove-img { background: var(--danger);    color: white; }
-    .cover-tag {
-      position: absolute; bottom: 5px; left: 5px;
-      background: var(--accent); color: white;
-      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
-      padding: 2px 7px; border-radius: 8px; pointer-events: none;
-    }
-
-    /* Video preview */
-    .video-preview-wrap { display: none; margin-top: 12px; border-radius: 8px; overflow: hidden; background: #000; }
-    .video-preview-wrap.show { display: block; }
-    .video-preview-wrap video { width: 100%; max-height: 240px; display: block; }
-    .video-preview-meta {
-      background: #111; padding: 8px 12px;
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    }
-    .video-preview-meta span { font-size: 0.78rem; color: #aaa; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-    /* YouTube preview */
-    .yt-preview { display: none; margin-top: 12px; border-radius: 8px; overflow: hidden; aspect-ratio: 16/9; }
-    .yt-preview.show { display: block; }
-    .yt-preview iframe { width: 100%; height: 100%; border: none; display: block; }
-
-    /* Count badge on gallery */
-    .gallery-label {
-      font-size: 0.78rem; color: var(--muted); margin-top: 10px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .gallery-label strong { color: var(--sidebar); }
-
-    /* Help tip */
-    .help-tip {
-      font-size: 0.75rem; color: var(--muted); margin-top: 5px;
-      display: flex; align-items: flex-start; gap: 5px;
-    }
-    .help-tip i { margin-top: 1px; flex-shrink: 0; }
+    .media-pills { display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap; }
+    .media-pill { padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--admin-bg);font-size:0.82rem;font-weight:600;cursor:pointer;color:var(--muted);display:inline-flex;align-items:center;gap:6px;transition:all 0.2s; }
+    .media-pill.active { background:var(--sidebar);border-color:var(--sidebar);color:white; }
+    .media-panel { display:none; }
+    .media-panel.active { display:block; }
+    .sub-tabs { display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:16px; }
+    .sub-tab { flex:1;padding:8px 12px;text-align:center;background:white;border:none;font-size:0.82rem;font-weight:600;cursor:pointer;color:var(--muted);border-right:1px solid var(--border);transition:all 0.2s; }
+    .sub-tab:last-child { border-right:none; }
+    .sub-tab.active { background:var(--sidebar);color:white; }
+    .sub-panel { display:none; }
+    .sub-panel.active { display:block; }
+    .drop-zone { border:2px dashed var(--border);border-radius:10px;padding:28px 16px;text-align:center;cursor:pointer;transition:border-color 0.2s,background 0.2s;position:relative;background:#fafbfc; }
+    .drop-zone:hover, .drop-zone.dragover { border-color:var(--sidebar);background:#eef3f9; }
+    .drop-zone input[type="file"] { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%; }
+    .drop-zone i { font-size:2rem;color:var(--muted);display:block;margin-bottom:8px; }
+    .drop-zone p { font-size:0.85rem;color:var(--text);margin-bottom:4px; }
+    .drop-zone span { font-size:0.75rem;color:var(--muted); }
+    .img-gallery { display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:14px; }
+    .img-thumb { position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:2px solid var(--border);background:var(--admin-bg); }
+    .img-thumb.is-cover { border-color:var(--accent); }
+    .img-thumb img { width:100%;height:100%;object-fit:cover;display:block; }
+    .img-thumb-actions { position:absolute;inset:0;background:rgba(0,0,0,0.52);display:flex;align-items:center;justify-content:center;gap:6px;opacity:0;transition:opacity 0.2s; }
+    .img-thumb:hover .img-thumb-actions { opacity:1; }
+    .img-thumb-actions button { width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.8rem; }
+    .btn-set-cover { background:var(--accent);color:white; }
+    .btn-remove-img { background:var(--danger);color:white; }
+    .cover-tag { position:absolute;bottom:5px;left:5px;background:var(--accent);color:white;font-size:0.6rem;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:8px;pointer-events:none; }
+    .video-preview-wrap { display:none;margin-top:12px;border-radius:8px;overflow:hidden;background:#000; }
+    .video-preview-wrap.show { display:block; }
+    .video-preview-wrap video { width:100%;max-height:240px;display:block; }
+    .video-preview-meta { background:#111;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px; }
+    .video-preview-meta span { font-size:0.78rem;color:#aaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .yt-preview { display:none;margin-top:12px;border-radius:8px;overflow:hidden;aspect-ratio:16/9; }
+    .yt-preview.show { display:block; }
+    .yt-preview iframe { width:100%;height:100%;border:none;display:block; }
+    .gallery-label { font-size:0.78rem;color:var(--muted);margin-top:10px;display:flex;align-items:center;justify-content:space-between; }
+    .gallery-label strong { color:var(--sidebar); }
+    .help-tip { font-size:0.75rem;color:var(--muted);margin-top:5px;display:flex;align-items:flex-start;gap:5px; }
+    .help-tip i { margin-top:1px;flex-shrink:0; }
   </style>
 </head>
 <body>
 
-<!-- Sidebar -->
 <aside class="sidebar">
   <div class="sidebar-brand"><h2>Hon. Leke Abejide</h2><p>Admin Panel</p></div>
   <nav class="sidebar-nav">
     <div class="nav-section">Main</div>
     <a href="/admin/dashboard" class="nav-link" data-page="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
     <div class="nav-section">Content</div>
+    <div class="nav-section">Pages</div>
+<a href="/admin/about" class="nav-link" data-page="about"><i class="bi bi-person-lines-fill"></i> About Page</a>
     <a href="/admin/posts" class="nav-link" data-page="posts"><i class="bi bi-newspaper"></i> Blog Posts</a>
     <a href="/admin/posts/new" class="nav-link" data-page="new-post"><i class="bi bi-plus-circle"></i> New Post</a>
     <div class="nav-section">Engagement</div>
@@ -142,7 +71,6 @@
   <div class="sidebar-footer"><span id="admin-name">Admin</span> &nbsp;·&nbsp; <a href="#" id="logout-btn">Logout</a></div>
 </aside>
 
-<!-- Main -->
 <div class="main-content">
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:12px">
@@ -157,16 +85,13 @@
   </div>
 
   <div class="page-body">
-
     <div class="alert alert-danger" id="form-error"></div>
     <div class="alert alert-success" id="form-success"></div>
 
     <div style="display:grid;grid-template-columns:1fr 330px;gap:24px;align-items:start">
 
-      <!-- ══════════ LEFT COLUMN ══════════ -->
+      <!-- LEFT COLUMN -->
       <div>
-
-        <!-- Post Content -->
         <div class="card">
           <div class="card-header"><h3><i class="bi bi-file-text"></i> Post Content</h3></div>
           <div class="card-body">
@@ -188,15 +113,13 @@
           </div>
         </div>
 
-        <!-- ══ MEDIA CARD ══ -->
+        <!-- MEDIA CARD -->
         <div class="card">
           <div class="card-header">
             <h3><i class="bi bi-images"></i> Media</h3>
             <span style="font-size:0.78rem;color:var(--muted)">Images &amp; / or Video</span>
           </div>
           <div class="card-body">
-
-            <!-- Media type selector -->
             <div class="media-pills">
               <button class="media-pill active" onclick="switchMedia(this,'panel-images')" type="button">
                 <i class="bi bi-images"></i> Images Only
@@ -209,7 +132,7 @@
               </button>
             </div>
 
-            <!-- ── PANEL: Images Only ── -->
+            <!-- Images Only -->
             <div class="media-panel active" id="panel-images">
               <div class="help-tip" style="margin-bottom:12px">
                 <i class="bi bi-info-circle"></i>
@@ -231,7 +154,7 @@
               </div>
             </div>
 
-            <!-- ── PANEL: Video Only ── -->
+            <!-- Video Only -->
             <div class="media-panel" id="panel-video">
               <div class="sub-tabs">
                 <button type="button" class="sub-tab active" onclick="switchSub(this,'svid-upload')">
@@ -241,8 +164,6 @@
                   <i class="bi bi-youtube"></i> YouTube / Embed
                 </button>
               </div>
-
-              <!-- Upload -->
               <div class="sub-panel active" id="svid-upload">
                 <div class="drop-zone" id="dz-video">
                   <input type="file" id="input-video" accept="video/*" onchange="handleVideo(this.files[0])">
@@ -260,8 +181,6 @@
                   </div>
                 </div>
               </div>
-
-              <!-- YouTube -->
               <div class="sub-panel" id="svid-youtube">
                 <div class="form-group">
                   <label class="form-label">YouTube / Vimeo URL</label>
@@ -276,10 +195,8 @@
               </div>
             </div>
 
-            <!-- ── PANEL: Images + Video ── -->
+            <!-- Images + Video -->
             <div class="media-panel" id="panel-both">
-
-              <!-- Images part -->
               <p style="font-size:0.82rem;font-weight:600;color:var(--text);margin-bottom:10px">
                 <i class="bi bi-images" style="color:var(--sidebar)"></i> &nbsp;Photos
               </p>
@@ -297,10 +214,7 @@
                   <i class="bi bi-x-circle"></i> Clear all
                 </button>
               </div>
-
               <hr style="border:none;border-top:1px solid var(--border);margin:18px 0">
-
-              <!-- Video part -->
               <p style="font-size:0.82rem;font-weight:600;color:var(--text);margin-bottom:10px">
                 <i class="bi bi-play-circle" style="color:var(--sidebar)"></i> &nbsp;Video
               </p>
@@ -341,18 +255,13 @@
                 </div>
               </div>
             </div>
-
           </div>
         </div>
-        <!-- end media card -->
-
       </div>
       <!-- end left col -->
 
-      <!-- ══════════ RIGHT COLUMN ══════════ -->
+      <!-- RIGHT COLUMN -->
       <div>
-
-        <!-- Post Settings -->
         <div class="card">
           <div class="card-header"><h3><i class="bi bi-gear"></i> Post Settings</h3></div>
           <div class="card-body">
@@ -377,7 +286,6 @@
           </div>
         </div>
 
-        <!-- Save / Actions -->
         <div class="card">
           <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
             <button class="btn btn-primary" id="save-btn"
@@ -399,7 +307,6 @@
             </div>
           </div>
         </div>
-
       </div>
       <!-- end right col -->
 
@@ -409,29 +316,20 @@
 
 <script src="/admin/assets/js/layout.js"></script>
 <script>
-/* ============================================================
-   Post Form — extended with multi-image + video support
-   Uses existing adminAPI, showToast, confirmDelete from layout.js
-   ============================================================ */
-
   const pathParts = window.location.pathname.split('/');
   const editId    = pathParts[pathParts.length - 1];
-  const isEdit    = pathParts.includes('edit') && !isNaN(editId);
+  // ── KEY FIX: don't use isNaN — MongoDB ObjectIds are 24-char hex strings
+  const isEdit    = pathParts.includes('edit') && editId.length >= 10;
 
   initAdminLayout(isEdit ? 'Edit Post' : 'New Post', isEdit ? 'posts' : 'new-post');
 
   /* ── State ── */
-  const images = {
-    main: [],   // { file, url, iscover }
-    both: []
-  };
-  let videoFile   = null;   // File object
-  let videoType   = 'none'; // 'upload' | 'youtube' | 'none'
-  let videoUrl    = '';     // embed url if youtube
+  const images = { main: [], both: [] };
+  let videoFile = null;
+  let videoType = 'none';
+  let videoUrl  = '';
 
-  /* ════════════════════════════════
-     MEDIA PANEL SWITCHING
-  ════════════════════════════════ */
+  /* ── Media panel switching ── */
   function switchMedia(btn, panelId) {
     document.querySelectorAll('.media-pill').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.media-panel').forEach(p => p.classList.remove('active'));
@@ -440,7 +338,6 @@
   }
 
   function switchSub(btn, panelId) {
-    const parent = btn.closest('.card-body, .media-panel, .sub-panel');
     const container = btn.closest('.media-panel, .card-body');
     container.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
     container.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
@@ -448,16 +345,12 @@
     document.getElementById(panelId).classList.add('active');
   }
 
-  /* ════════════════════════════════
-     IMAGE HANDLING
-  ════════════════════════════════ */
+  /* ── Image handling ── */
   function handleImages(files, ctx) {
     ctx = ctx || 'main';
     Array.from(files).forEach(function(file) {
       if (!file.type.startsWith('image/')) return;
-      if (file.size > 5 * 1024 * 1024) {
-        showToast('"' + file.name + '" is too large (max 5 MB)', 'error'); return;
-      }
+      if (file.size > 5 * 1024 * 1024) { showToast('"' + file.name + '" is too large (max 5 MB)', 'error'); return; }
       const reader = new FileReader();
       reader.onload = function(e) {
         const arr = images[ctx];
@@ -469,31 +362,23 @@
   }
 
   function renderGallery(ctx) {
-    const galleryId = ctx === 'both' ? 'gallery-both' : 'gallery-images';
-    const labelId   = ctx === 'both' ? 'gallery-both-label' : 'gallery-images-label';
-    const countId   = ctx === 'both' ? 'gallery-both-count' : 'gallery-images-count';
+    const galleryId = ctx === 'both' ? 'gallery-both'        : 'gallery-images';
+    const labelId   = ctx === 'both' ? 'gallery-both-label'  : 'gallery-images-label';
+    const countId   = ctx === 'both' ? 'gallery-both-count'  : 'gallery-images-count';
     const gallery   = document.getElementById(galleryId);
     const label     = document.getElementById(labelId);
     const arr       = images[ctx];
-
-    if (!arr.length) {
-      gallery.innerHTML = '';
-      label.style.display = 'none';
-      return;
-    }
-
+    if (!arr.length) { gallery.innerHTML = ''; label.style.display = 'none'; return; }
     label.style.display = 'flex';
     document.getElementById(countId).textContent = arr.length;
-
     gallery.innerHTML = arr.map(function(img, i) {
-      return '<div class="img-thumb' + (img.iscover ? ' is-cover' : '') + '">' +
-        (img.iscover ? '<span class="cover-tag">Cover</span>' : '') +
-        '<img src="' + img.url + '" alt="img ' + (i+1) + '">' +
-        '<div class="img-thumb-actions">' +
-          '<button type="button" class="btn-set-cover" title="Set as cover" onclick="setCover(\'' + ctx + '\',' + i + ')"><i class="bi bi-star-fill"></i></button>' +
-          '<button type="button" class="btn-remove-img" title="Remove" onclick="removeImage(\'' + ctx + '\',' + i + ')"><i class="bi bi-trash"></i></button>' +
-        '</div>' +
-      '</div>';
+      return '<div class="img-thumb' + (img.iscover ? ' is-cover' : '') + '">'
+        + (img.iscover ? '<span class="cover-tag">Cover</span>' : '')
+        + '<img src="' + img.url + '" alt="img ' + (i+1) + '">'
+        + '<div class="img-thumb-actions">'
+          + '<button type="button" class="btn-set-cover" title="Set as cover" onclick="setCover(\'' + ctx + '\',' + i + ')"><i class="bi bi-star-fill"></i></button>'
+          + '<button type="button" class="btn-remove-img" title="Remove" onclick="removeImage(\'' + ctx + '\',' + i + ')"><i class="bi bi-trash"></i></button>'
+        + '</div></div>';
     }).join('');
   }
 
@@ -501,49 +386,36 @@
     images[ctx].forEach(function(img, i) { img.iscover = i === idx; });
     renderGallery(ctx);
   }
-
   function removeImage(ctx, idx) {
     images[ctx].splice(idx, 1);
-    if (images[ctx].length && !images[ctx].some(function(i) { return i.iscover; })) {
-      images[ctx][0].iscover = true;
-    }
+    if (images[ctx].length && !images[ctx].some(function(i){ return i.iscover; })) images[ctx][0].iscover = true;
     renderGallery(ctx);
   }
+  function clearImages(ctx) { images[ctx] = []; renderGallery(ctx); }
 
-  function clearImages(ctx) {
-    images[ctx] = [];
-    renderGallery(ctx);
-  }
-
-  /* Drag-and-drop for image zones */
+  /* Drag-and-drop */
   ['dz-images','dz-both-images'].forEach(function(id) {
     const zone = document.getElementById(id);
     if (!zone) return;
-    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
-    zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
-    zone.addEventListener('drop', function(e) {
+    zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', function(){ zone.classList.remove('dragover'); });
+    zone.addEventListener('drop', function(e){
       e.preventDefault(); zone.classList.remove('dragover');
       handleImages(e.dataTransfer.files, id === 'dz-both-images' ? 'both' : 'main');
     });
   });
 
-  /* ════════════════════════════════
-     VIDEO HANDLING
-  ════════════════════════════════ */
+  /* ── Video handling ── */
   function handleVideo(file, ctx) {
     if (!file) return;
     ctx = ctx || 'main';
-    videoFile = file;
-    videoType = 'upload';
-
-    const wrapId   = ctx === 'both' ? 'both-vid-preview-wrap' : 'vid-preview-wrap';
-    const previewId = ctx === 'both' ? 'both-vid-preview' : 'vid-preview';
-    const nameId    = ctx === 'both' ? 'both-vid-filename' : 'vid-filename';
-
+    videoFile = file; videoType = 'upload';
+    const wrapId    = ctx === 'both' ? 'both-vid-preview-wrap' : 'vid-preview-wrap';
+    const previewId = ctx === 'both' ? 'both-vid-preview'      : 'vid-preview';
+    const nameId    = ctx === 'both' ? 'both-vid-filename'      : 'vid-filename';
     const wrap    = document.getElementById(wrapId);
     const preview = document.getElementById(previewId);
     const nameEl  = document.getElementById(nameId);
-
     preview.src = URL.createObjectURL(file);
     if (nameEl) nameEl.textContent = file.name;
     wrap.classList.add('show');
@@ -552,9 +424,9 @@
   function clearVideo(ctx) {
     ctx = ctx || 'main';
     videoFile = null; videoType = 'none'; videoUrl = '';
-    const wrapId = ctx === 'both' ? 'both-vid-preview-wrap' : 'vid-preview-wrap';
-    const previewId = ctx === 'both' ? 'both-vid-preview' : 'vid-preview';
-    const inputId   = ctx === 'both' ? 'input-both-video' : 'input-video';
+    const wrapId    = ctx === 'both' ? 'both-vid-preview-wrap' : 'vid-preview-wrap';
+    const previewId = ctx === 'both' ? 'both-vid-preview'      : 'vid-preview';
+    const inputId   = ctx === 'both' ? 'input-both-video'      : 'input-video';
     const wrap    = document.getElementById(wrapId);
     const preview = document.getElementById(previewId);
     const input   = document.getElementById(inputId);
@@ -563,23 +435,17 @@
     if (input)   input.value = '';
   }
 
-  /* YouTube / Vimeo embed */
   function previewYT(url, previewId, iframeId) {
     previewId = previewId || 'yt-preview';
     iframeId  = iframeId  || 'yt-iframe';
     const preview = document.getElementById(previewId);
     const iframe  = document.getElementById(iframeId);
     if (!url || !preview || !iframe) return;
-
     const embed = toEmbedUrl(url);
     if (embed) {
-      iframe.src = embed;
-      preview.classList.add('show');
-      videoType = 'youtube';
-      videoUrl  = embed;
-    } else {
-      preview.classList.remove('show');
-    }
+      iframe.src = embed; preview.classList.add('show');
+      videoType = 'youtube'; videoUrl = embed;
+    } else { preview.classList.remove('show'); }
   }
 
   function toEmbedUrl(url) {
@@ -590,9 +456,7 @@
     return null;
   }
 
-  /* ════════════════════════════════
-     LOAD CATEGORIES
-  ════════════════════════════════ */
+  /* ── Load categories ── */
   async function loadCategories() {
     const data = await adminAPI.get('/api/posts/categories');
     if (!data) return;
@@ -602,20 +466,20 @@
     });
   }
 
-  /* ════════════════════════════════
-     LOAD POST FOR EDIT
-  ════════════════════════════════ */
+  /* ── Load post for edit ── */
   async function loadPost() {
     if (!isEdit) return;
-    document.getElementById('page-title').textContent = 'Edit Post';
-    document.getElementById('save-btn-text').textContent = 'Update Post';
+    document.getElementById('page-title').textContent     = 'Edit Post';
+    document.getElementById('save-btn-text').textContent  = 'Update Post';
     document.getElementById('edit-view-link').style.display = 'block';
-    document.getElementById('delete-wrap').style.display = 'block';
+    document.getElementById('delete-wrap').style.display    = 'block';
     document.getElementById('view-post-link').href = '/post/' + editId;
 
     const data = await adminAPI.get('/api/admin/posts');
     if (!data) return;
-    const post = data.posts.find(function(p) { return p.id === parseInt(editId); });
+
+    // ── KEY FIX: compare as strings, not parseInt
+    const post = data.posts.find(function(p) { return p.id === editId; });
     if (!post) { showToast('Post not found', 'error'); return; }
 
     document.getElementById('post-title').value    = post.title    || '';
@@ -625,7 +489,7 @@
     document.getElementById('post-date').value     = post.date     || '';
     document.getElementById('post-featured').checked = !!post.featured;
 
-    /* Load existing images into gallery */
+    /* Load existing images */
     if (post.images && post.images.length) {
       post.images.forEach(function(src, idx) {
         images.main.push({ file: null, url: '/' + src, iscover: idx === 0 });
@@ -640,7 +504,6 @@
     if (post.videoType === 'youtube' && post.videoUrl) {
       document.getElementById('input-yt-url').value = post.videoUrl;
       previewYT(post.videoUrl);
-      // Switch to video panel + youtube sub
       const vidPill = document.querySelector('.media-pill:nth-child(2)');
       if (vidPill) switchMedia(vidPill, 'panel-video');
       const ytTab = document.querySelector('#panel-video .sub-tab:nth-child(2)');
@@ -648,9 +511,7 @@
     }
   }
 
-  /* ════════════════════════════════
-     SAVE POST
-  ════════════════════════════════ */
+  /* ── Save post ── */
   async function savePost() {
     const errorEl   = document.getElementById('form-error');
     const successEl = document.getElementById('form-success');
@@ -673,11 +534,10 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Saving…';
 
-    /* Determine active image context */
-    const activePill  = document.querySelector('.media-pill.active');
-    const pillText    = activePill ? activePill.textContent.trim() : '';
-    const imgCtx      = pillText.includes('Both') ? 'both' : 'main';
-    const activeImgs  = images[imgCtx];
+    const activePill = document.querySelector('.media-pill.active');
+    const pillText   = activePill ? activePill.textContent.trim() : '';
+    const imgCtx     = pillText.includes('Both') ? 'both' : 'main';
+    const activeImgs = images[imgCtx];
 
     const formData = new FormData();
     formData.append('title',    title);
@@ -690,7 +550,6 @@
     formData.append('videoType', videoType);
     formData.append('videoUrl',  videoUrl);
 
-    /* Attach images */
     var coverIndex = 0;
     activeImgs.forEach(function(img, idx) {
       if (img.file) formData.append('images', img.file);
@@ -698,10 +557,7 @@
     });
     formData.append('coverIndex', coverIndex);
 
-    /* Attach video file */
-    if (videoFile && videoType === 'upload') {
-      formData.append('video', videoFile);
-    }
+    if (videoFile && videoType === 'upload') formData.append('video', videoFile);
 
     try {
       const url    = isEdit ? '/api/admin/posts/' + editId : '/api/admin/posts';
@@ -733,9 +589,7 @@
     }
   }
 
-  /* ════════════════════════════════
-     DELETE POST
-  ════════════════════════════════ */
+  /* ── Delete post ── */
   async function deletePost() {
     confirmDelete('Delete this post permanently? This cannot be undone.', async function() {
       const data = await adminAPI.delete('/api/admin/posts/' + editId);
@@ -744,11 +598,7 @@
     });
   }
 
-  /* ════════════════════════════════
-     INIT
-  ════════════════════════════════ */
   document.getElementById('save-btn').addEventListener('click', savePost);
-
   loadCategories();
   loadPost();
 </script>

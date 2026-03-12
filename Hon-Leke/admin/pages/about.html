@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Page — Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/admin/assets/css/admin.css" rel="stylesheet">
+  <style>
+    .team-grid-admin { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 16px; }
+    .team-card-admin { background: var(--admin-bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; position: relative; }
+    .team-card-admin img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 12px; border: 2px solid var(--border); }
+    .team-card-admin .img-placeholder { width: 80px; height: 80px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-size: 1.8rem; color: var(--muted); }
+    .team-card-admin .remove-btn { position: absolute; top: 8px; right: 8px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
+    .profile-img-wrap { position: relative; display: inline-block; }
+    .profile-img-wrap img { width: 120px; height: 140px; object-fit: cover; border-radius: 10px; border: 2px solid var(--border); display: block; }
+    .profile-img-wrap .change-btn { position: absolute; bottom: 6px; right: 6px; background: var(--sidebar); color: white; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.72rem; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .section-divider { border: none; border-top: 2px solid var(--border); margin: 28px 0; }
+    .achievement-list { display: flex; flex-direction: column; gap: 12px; }
+    .achievement-item { display: grid; grid-template-columns: 60px 1fr 1fr auto; gap: 10px; align-items: center; background: var(--admin-bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+    .achievement-item input { font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand"><h2>Hon. Leke Abejide</h2><p>Admin Panel</p></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <a href="/admin/dashboard" class="nav-link" data-page="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <div class="nav-section">Content</div>
+    <a href="/admin/posts" class="nav-link" data-page="posts"><i class="bi bi-newspaper"></i> Blog Posts</a>
+    <a href="/admin/posts/new" class="nav-link" data-page="new-post"><i class="bi bi-plus-circle"></i> New Post</a>
+    <div class="nav-section">Pages</div>
+    <a href="/admin/about" class="nav-link" data-page="about"><i class="bi bi-person-lines-fill"></i> About Page</a>
+    <div class="nav-section">Engagement</div>
+    <a href="/admin/comments" class="nav-link" data-page="comments"><i class="bi bi-chat-left-text"></i> Comments</a>
+    <a href="/admin/messages" class="nav-link" data-page="messages"><i class="bi bi-envelope"></i> Messages</a>
+    <a href="/admin/subscribers" class="nav-link" data-page="subscribers"><i class="bi bi-people"></i> Subscribers</a>
+    <div class="nav-section">Site</div>
+    <a href="/admin/settings" class="nav-link" data-page="settings"><i class="bi bi-gear"></i> Settings</a>
+    <a href="/" target="_blank" class="nav-link"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
+  </nav>
+  <div class="sidebar-footer"><span id="admin-name">Admin</span> &nbsp;·&nbsp; <a href="#" id="logout-btn">Logout</a></div>
+</aside>
+
+<div class="main-content">
+  <div class="topbar">
+    <h1 id="page-title">About Page</h1>
+    <div class="topbar-actions">
+      <button class="btn btn-primary" id="save-btn"><i class="bi bi-check-lg"></i> Save Changes</button>
+      <a href="/about" target="_blank" class="btn btn-outline btn-sm"><i class="bi bi-eye"></i> View Page</a>
+      <div class="admin-avatar" id="admin-avatar">A</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <div class="alert alert-danger" id="form-error"></div>
+    <div class="alert alert-success" id="form-success"></div>
+
+    <!-- ── Hero ── -->
+    <div class="card">
+      <div class="card-header"><h3><i class="bi bi-type-h1"></i> Hero Section</h3></div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label">Hero Title</label>
+          <input type="text" class="form-control" id="hero-title" placeholder="About Hon. Leke Abejide">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Hero Subtitle</label>
+          <input type="text" class="form-control" id="hero-subtitle" placeholder="Member, House of Representatives…">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Hon. Leke Profile ── -->
+    <div class="card">
+      <div class="card-header"><h3><i class="bi bi-person-circle"></i> Hon. Leke Abejide — Profile</h3></div>
+      <div class="card-body">
+        <div style="display:flex;gap:24px;align-items:flex-start;margin-bottom:20px">
+          <div>
+            <label class="form-label">Profile Photo</label>
+            <div class="profile-img-wrap">
+              <img id="leke-img-preview" src="/image/leke abejide.jpg" alt="Profile"
+                onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'140\'><rect fill=\'%23eee\' width=\'120\' height=\'140\'/></svg>'">
+              <button type="button" class="change-btn" onclick="document.getElementById('leke-img-input').click()">
+                <i class="bi bi-camera"></i> Change
+              </button>
+            </div>
+            <input type="file" id="leke-img-input" accept="image/*" style="display:none" onchange="previewProfileImg(this,'leke-img-preview')">
+          </div>
+          <div style="flex:1">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="leke-name" placeholder="Rt. Hon. Elder Leke Joseph Abejide">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Title / Badge</label>
+              <input type="text" class="form-control" id="leke-title" placeholder="Member, House of Representatives">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio (paragraph 1)</label>
+          <textarea class="form-control" id="leke-bio1" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio (paragraph 2)</label>
+          <textarea class="form-control" id="leke-bio2" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio (paragraph 3)</label>
+          <textarea class="form-control" id="leke-bio3" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio (paragraph 4)</label>
+          <textarea class="form-control" id="leke-bio4" rows="3"></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Bio (paragraph 5)</label>
+          <textarea class="form-control" id="leke-bio5" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Achievements ── -->
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="bi bi-trophy"></i> Achievements</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="addAchievement()">
+          <i class="bi bi-plus"></i> Add
+        </button>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:50px 1fr 1fr auto;gap:8px;margin-bottom:8px">
+          <span style="font-size:0.72rem;color:var(--muted);font-weight:600">ICON</span>
+          <span style="font-size:0.72rem;color:var(--muted);font-weight:600">TITLE</span>
+          <span style="font-size:0.72rem;color:var(--muted);font-weight:600">DESCRIPTION</span>
+          <span></span>
+        </div>
+        <div class="achievement-list" id="achievement-list"></div>
+      </div>
+    </div>
+
+    <!-- ── Spouse Profile ── -->
+    <div class="card">
+      <div class="card-header"><h3><i class="bi bi-person-heart"></i> Spouse Profile</h3></div>
+      <div class="card-body">
+        <div style="display:flex;gap:24px;align-items:flex-start;margin-bottom:20px">
+          <div>
+            <label class="form-label">Photo</label>
+            <div class="profile-img-wrap">
+              <img id="spouse-img-preview" src="/image/her ex.jpg" alt="Spouse"
+                onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'140\'><rect fill=\'%23eee\' width=\'120\' height=\'140\'/></svg>'">
+              <button type="button" class="change-btn" onclick="document.getElementById('spouse-img-input').click()">
+                <i class="bi bi-camera"></i> Change
+              </button>
+            </div>
+            <input type="file" id="spouse-img-input" accept="image/*" style="display:none" onchange="previewProfileImg(this,'spouse-img-preview')">
+          </div>
+          <div style="flex:1">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="spouse-name" placeholder="Chief Mrs. Esther Modupe Abejide">
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">Title / Badge</label>
+              <input type="text" class="form-control" id="spouse-title" placeholder="Beloved Wife & Philanthropist">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio (paragraph 1)</label>
+          <textarea class="form-control" id="spouse-bio1" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio (paragraph 2)</label>
+          <textarea class="form-control" id="spouse-bio2" rows="3"></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Bio (paragraph 3)</label>
+          <textarea class="form-control" id="spouse-bio3" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Team ── -->
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="bi bi-people"></i> Team Members</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="addTeamMember()">
+          <i class="bi bi-plus"></i> Add Member
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="team-grid-admin" id="team-grid-admin"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/admin/assets/js/layout.js"></script>
+<script>
+initAdminLayout('About Page', 'about');
+
+// ── State ──────────────────────────────────────────────────────
+let teamMembers    = [];
+let achievements   = [];
+let lekeImgFile    = null;
+let spouseImgFile  = null;
+const teamImgFiles = {}; // index → File
+
+// ── Load current settings ──────────────────────────────────────
+async function loadAbout() {
+  const data = await adminAPI.get('/api/admin/settings');
+  if (!data || !data.success) return;
+  const s = data.settings;
+  const a = s.about || {};
+
+  // Hero
+  document.getElementById('hero-title').value    = a.heroTitle    || 'About Hon. Leke Abejide';
+  document.getElementById('hero-subtitle').value = a.heroSubtitle || '';
+
+  // Leke profile
+  document.getElementById('leke-name').value  = a.lekeName  || 'Rt. Hon. Elder Leke Joseph Abejide';
+  document.getElementById('leke-title').value = a.lekeTitle || 'Member, House of Representatives';
+  document.getElementById('leke-bio1').value  = a.lekeBio1  || '';
+  document.getElementById('leke-bio2').value  = a.lekeBio2  || '';
+  document.getElementById('leke-bio3').value  = a.lekeBio3  || '';
+  document.getElementById('leke-bio4').value  = a.lekeBio4  || '';
+  document.getElementById('leke-bio5').value  = a.lekeBio5  || '';
+  if (a.lekeImage) {
+    document.getElementById('leke-img-preview').src = mediaUrl(a.lekeImage);
+  }
+
+  // Spouse
+  document.getElementById('spouse-name').value  = a.spouseName  || 'Chief Mrs. Esther Modupe Abejide';
+  document.getElementById('spouse-title').value = a.spouseTitle || 'Beloved Wife & Philanthropist';
+  document.getElementById('spouse-bio1').value  = a.spouseBio1  || '';
+  document.getElementById('spouse-bio2').value  = a.spouseBio2  || '';
+  document.getElementById('spouse-bio3').value  = a.spouseBio3  || '';
+  if (a.spouseImage) {
+    document.getElementById('spouse-img-preview').src = mediaUrl(a.spouseImage);
+  }
+
+  // Achievements
+  achievements = a.achievements || defaultAchievements();
+  renderAchievements();
+
+  // Team
+  teamMembers = a.team || defaultTeam();
+  renderTeam();
+}
+
+function mediaUrl(src) {
+  if (!src) return '';
+  return src.startsWith('http') ? src : '/' + src;
+}
+
+// ── Defaults ───────────────────────────────────────────────────
+function defaultAchievements() {
+  return [
+    { icon: '🎓', title: 'WAEC Fees for All Students', desc: 'Paid WAEC exam fees for all students in public schools across Yagba Federal Constituency.' },
+    { icon: '👩‍👧', title: 'Widow Empowerment', desc: 'Six consecutive years of dedicated empowerment programs for widows across Yagbaland.' },
+    { icon: '🏥', title: 'Healthcare Infrastructure', desc: 'Renovation of health centres and provision of motorised boreholes for clean water access.' },
+    { icon: '🚔', title: 'Police Station Construction', desc: 'Constructed a "C" Division police station in Alu community, fully equipped.' },
+    { icon: '💡', title: 'Rural Electrification', desc: 'Donated poles and supported the Igbo-Ero rural electrification project.' },
+    { icon: '💼', title: 'Employment Creation', desc: 'Employed over 200 Yagba indigenes directly in ABYEM INT\'L LTD.' }
+  ];
+}
+
+function defaultTeam() {
+  return [
+    { name: 'Team Member', role: 'Media Aids', image: '/image/image3.jpg' },
+    { name: 'Team Member', role: 'Media Aids', image: '/image/image1.jpg' },
+    { name: 'Team Member', role: 'Media Aids', image: '/image/image5.jpg' },
+    { name: 'Team Member', role: 'Media Aids', image: '/image/image6.jpg' }
+  ];
+}
+
+// ── Preview profile image ──────────────────────────────────────
+function previewProfileImg(input, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+  if (previewId === 'leke-img-preview')   lekeImgFile   = file;
+  if (previewId === 'spouse-img-preview') spouseImgFile = file;
+  const reader = new FileReader();
+  reader.onload = e => document.getElementById(previewId).src = e.target.result;
+  reader.readAsDataURL(file);
+}
+
+// ── Achievements ───────────────────────────────────────────────
+function renderAchievements() {
+  const list = document.getElementById('achievement-list');
+  list.innerHTML = achievements.map((a, i) => `
+    <div class="achievement-item">
+      <input type="text" class="form-control" value="${a.icon}" placeholder="🎓"
+        onchange="achievements[${i}].icon = this.value" style="text-align:center;font-size:1.2rem">
+      <input type="text" class="form-control" value="${escHtml(a.title)}" placeholder="Title"
+        onchange="achievements[${i}].title = this.value">
+      <input type="text" class="form-control" value="${escHtml(a.desc)}" placeholder="Description"
+        onchange="achievements[${i}].desc = this.value">
+      <button type="button" class="btn btn-danger btn-sm btn-icon" onclick="removeAchievement(${i})">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
+function addAchievement() {
+  achievements.push({ icon: '⭐', title: '', desc: '' });
+  renderAchievements();
+}
+function removeAchievement(i) {
+  achievements.splice(i, 1);
+  renderAchievements();
+}
+
+// ── Team ───────────────────────────────────────────────────────
+function renderTeam() {
+  const grid = document.getElementById('team-grid-admin');
+  grid.innerHTML = teamMembers.map((m, i) => `
+    <div class="team-card-admin">
+      <button type="button" class="remove-btn" onclick="removeTeamMember(${i})" title="Remove">
+        <i class="bi bi-x"></i>
+      </button>
+      ${m.image
+        ? `<img src="${mediaUrl(m.image)}" alt="${escHtml(m.name)}"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : ''
+      }
+      <div class="img-placeholder" style="${m.image ? 'display:none' : ''}">
+        <i class="bi bi-person"></i>
+      </div>
+      <div style="text-align:center">
+        <button type="button" class="btn btn-outline btn-sm" style="width:100%;margin-bottom:10px;font-size:0.75rem"
+          onclick="document.getElementById('team-img-${i}').click()">
+          <i class="bi bi-camera"></i> Change Photo
+        </button>
+        <input type="file" id="team-img-${i}" accept="image/*" style="display:none"
+          onchange="handleTeamImg(this, ${i})">
+        <input type="text" class="form-control" value="${escHtml(m.name)}" placeholder="Name"
+          style="margin-bottom:8px;font-size:0.82rem;text-align:center"
+          onchange="teamMembers[${i}].name = this.value">
+        <input type="text" class="form-control" value="${escHtml(m.role)}" placeholder="Role"
+          style="font-size:0.78rem;text-align:center;color:var(--muted)"
+          onchange="teamMembers[${i}].role = this.value">
+      </div>
+    </div>
+  `).join('');
+}
+
+function handleTeamImg(input, idx) {
+  const file = input.files[0];
+  if (!file) return;
+  teamImgFiles[idx] = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    teamMembers[idx].image = e.target.result; // temp preview
+    renderTeam();
+  };
+  reader.readAsDataURL(file);
+}
+
+function addTeamMember() {
+  teamMembers.push({ name: 'New Member', role: 'Staff', image: '' });
+  renderTeam();
+}
+function removeTeamMember(i) {
+  teamMembers.splice(i, 1);
+  delete teamImgFiles[i];
+  renderTeam();
+}
+
+// ── Save ───────────────────────────────────────────────────────
+async function saveAbout() {
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Saving…';
+
+  const formData = new FormData();
+
+  // Upload images via existing /api/admin/about/upload endpoint
+  if (lekeImgFile)   formData.append('lekeImage',   lekeImgFile);
+  if (spouseImgFile) formData.append('spouseImage', spouseImgFile);
+
+  // Team images — append with index key
+  Object.entries(teamImgFiles).forEach(([idx, file]) => {
+    formData.append('teamImage_' + idx, file);
+  });
+
+  // Text fields
+  const aboutData = {
+    heroTitle:    document.getElementById('hero-title').value.trim(),
+    heroSubtitle: document.getElementById('hero-subtitle').value.trim(),
+    lekeName:     document.getElementById('leke-name').value.trim(),
+    lekeTitle:    document.getElementById('leke-title').value.trim(),
+    lekeBio1:     document.getElementById('leke-bio1').value.trim(),
+    lekeBio2:     document.getElementById('leke-bio2').value.trim(),
+    lekeBio3:     document.getElementById('leke-bio3').value.trim(),
+    lekeBio4:     document.getElementById('leke-bio4').value.trim(),
+    lekeBio5:     document.getElementById('leke-bio5').value.trim(),
+    spouseName:   document.getElementById('spouse-name').value.trim(),
+    spouseTitle:  document.getElementById('spouse-title').value.trim(),
+    spouseBio1:   document.getElementById('spouse-bio1').value.trim(),
+    spouseBio2:   document.getElementById('spouse-bio2').value.trim(),
+    spouseBio3:   document.getElementById('spouse-bio3').value.trim(),
+    achievements,
+    team: teamMembers.map((m, i) => ({
+      name:  m.name,
+      role:  m.role,
+      image: teamImgFiles[i] ? null : m.image // null = will be set from upload
+    }))
+  };
+
+  formData.append('aboutData', JSON.stringify(aboutData));
+
+  try {
+    const res  = await fetch('/api/admin/about', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      showToast('About page saved!', 'success');
+      document.getElementById('form-success').textContent = 'Saved successfully.';
+      document.getElementById('form-success').classList.add('show');
+      // Reload to get updated image URLs
+      setTimeout(() => loadAbout(), 800);
+    } else {
+      showToast(data.message || 'Save failed', 'error');
+      document.getElementById('form-error').textContent = data.message;
+      document.getElementById('form-error').classList.add('show');
+    }
+  } catch(e) {
+    showToast('Network error', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-lg"></i> Save Changes';
+  }
+}
+
+function escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+document.getElementById('save-btn').addEventListener('click', saveAbout);
+loadAbout();
+</script>
+</body>
+</html>

@@ -2,49 +2,91 @@
 
 const adminAPI = {
   async get(url) {
-    const res = await fetch(url);
-    if (res.status === 401) { window.location.href = '/admin/login'; return null; }
-    return res.json();
+    try {
+      const res = await fetch(url);
+      if (res.status === 401) { window.location.href = '/admin/login'; return null; }
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('API error [GET ' + url + ']:', data.message || res.status);
+        return data; // still return so caller can check data.success
+      }
+      return data;
+    } catch(err) {
+      console.error('Network error [GET ' + url + ']:', err.message);
+      return null;
+    }
   },
   async post(url, data) {
-    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    return res.json();
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (res.status === 401) { window.location.href = '/admin/login'; return null; }
+      return res.json();
+    } catch(err) {
+      console.error('Network error [POST ' + url + ']:', err.message);
+      return null;
+    }
   },
   async put(url, data) {
-    const res = await fetch(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    return res.json();
+    try {
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (res.status === 401) { window.location.href = '/admin/login'; return null; }
+      return res.json();
+    } catch(err) {
+      console.error('Network error [PUT ' + url + ']:', err.message);
+      return null;
+    }
   },
   async patch(url, data) {
-    const res = await fetch(url, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data || {}) });
-    return res.json();
+    try {
+      const res = await fetch(url, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data || {})
+      });
+      if (res.status === 401) { window.location.href = '/admin/login'; return null; }
+      return res.json();
+    } catch(err) {
+      console.error('Network error [PATCH ' + url + ']:', err.message);
+      return null;
+    }
   },
   async delete(url) {
-    const res = await fetch(url, { method: 'DELETE' });
-    return res.json();
+    try {
+      const res = await fetch(url, { method: 'DELETE' });
+      if (res.status === 401) { window.location.href = '/admin/login'; return null; }
+      return res.json();
+    } catch(err) {
+      console.error('Network error [DELETE ' + url + ']:', err.message);
+      return null;
+    }
   }
 };
 
 function initAdminLayout(pageTitle, activeNav) {
-  // Set page title
   const titleEl = document.getElementById('page-title');
   if (titleEl) titleEl.textContent = pageTitle;
-  document.title = `${pageTitle} — Admin`;
+  document.title = pageTitle + ' — Admin';
 
-  // Active nav
   document.querySelectorAll('.nav-link[data-page]').forEach(link => {
     link.classList.toggle('active', link.dataset.page === activeNav);
   });
 
-  // Load admin name
   adminAPI.get('/api/admin/me').then(data => {
     if (!data) return;
-    const nameEl = document.getElementById('admin-name');
+    const nameEl   = document.getElementById('admin-name');
     const avatarEl = document.getElementById('admin-avatar');
-    if (nameEl) nameEl.textContent = data.name;
+    if (nameEl)   nameEl.textContent   = data.name;
     if (avatarEl) avatarEl.textContent = (data.name || 'A')[0].toUpperCase();
   }).catch(() => {});
 
-  // Logout
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async e => {
@@ -64,18 +106,18 @@ function showToast(message, type = 'success') {
     document.body.appendChild(container);
   }
   const toast = document.createElement('div');
-  toast.style.cssText = `padding:12px 18px;border-radius:8px;font-size:0.88rem;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.15);color:white;max-width:320px;background:${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#1a3c5e'};animation:fadeInToast 0.3s ease;`;
-  toast.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+  toast.style.cssText = 'padding:12px 18px;border-radius:8px;font-size:0.88rem;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.15);color:white;max-width:320px;background:'
+    + (type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#1a3c5e')
+    + ';animation:fadeInToast 0.3s ease;';
+  toast.innerHTML = '<i class="bi bi-' + (type === 'success' ? 'check-circle' : 'exclamation-circle') + '"></i> ' + message;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 4000);
 }
 
 function confirmDelete(message, callback) {
-  const confirmed = window.confirm(message);
-  if (confirmed) callback();
+  if (window.confirm(message)) callback();
 }
 
-// Toast animation
 const style = document.createElement('style');
 style.textContent = '@keyframes fadeInToast{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}';
 document.head.appendChild(style);

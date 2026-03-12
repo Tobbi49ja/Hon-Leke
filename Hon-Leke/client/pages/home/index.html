@@ -144,10 +144,15 @@
 <a href="#" class="scroll-top"><i class="bi bi-arrow-up"></i></a>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<!-- app.js handles hamburger nav via DOMContentLoaded -->
 <script src="/js/app.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', async function () {
+
+  // ── Helper: handles both Cloudinary https:// and local /image/ paths
+  function mediaUrl(src) {
+    if (!src) return '';
+    return src.startsWith('http') ? src : '/' + src;
+  }
 
   /* Settings */
   try {
@@ -162,7 +167,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
     const fa = document.getElementById('footer-about');
     if (fa) fa.textContent = settings.footerAbout || '';
-    const map = { facebookUrl:['hdr-fb','drawer-fb','ft-fb'], instagramUrl:['hdr-ig','drawer-ig','ft-ig'], twitterUrl:['hdr-tw','drawer-tw','ft-tw'] };
+    const map = {
+      facebookUrl:  ['hdr-fb','ft-fb'],
+      instagramUrl: ['hdr-ig','ft-ig'],
+      twitterUrl:   ['hdr-tw','ft-tw']
+    };
     Object.entries(map).forEach(([key, ids]) => {
       if (settings[key]) ids.forEach(id => { const el=document.getElementById(id); if(el) el.href=settings[key]; });
     });
@@ -180,8 +189,8 @@ document.addEventListener('DOMContentLoaded', async function () {
       wrapper.innerHTML = data.slides.map(s => `
         <div class="swiper-slide">
           <a href="${s.link}" class="slider-slide-link">
-            <div class="slider-bg-blur" style="background-image:url('/${s.image}')"></div>
-            <div class="slider-bg-main" style="background-image:url('/${s.image}')"></div>
+            <div class="slider-bg-blur" style="background-image:url('${mediaUrl(s.image)}')"></div>
+            <div class="slider-bg-main" style="background-image:url('${mediaUrl(s.image)}')"></div>
             <div class="slider-overlay">
               <div class="slider-content">
                 <span class="slider-badge">Featured</span>
@@ -225,9 +234,9 @@ document.addEventListener('DOMContentLoaded', async function () {
   const perPage = 9;
 
   async function loadPosts(cat = 'all', search = '') {
-    const grid = document.getElementById('posts-grid');
+    const grid    = document.getElementById('posts-grid');
     const noPosts = document.getElementById('no-posts');
-    const lmWrap = document.getElementById('load-more-wrap');
+    const lmWrap  = document.getElementById('load-more-wrap');
     currentPage = 1;
     grid.innerHTML = '<div class="loading-posts"><div class="spinner-lg"></div><p>Loading...</p></div>';
     noPosts.style.display = 'none'; lmWrap.style.display = 'none';
@@ -242,10 +251,12 @@ document.addEventListener('DOMContentLoaded', async function () {
       if (!allPosts.length) { grid.innerHTML = ''; noPosts.style.display = 'flex'; return; }
       renderPosts(allPosts.slice(0, perPage), grid, true);
       if (allPosts.length > perPage) lmWrap.style.display = 'block';
+
+      // Footer recent posts — fixed mediaUrl
       const fr = document.getElementById('footer-recent-posts');
       if (fr) fr.innerHTML = allPosts.slice(0,3).map(p =>
         `<li><a href="/post/${p.id}" class="footer-recent-item">
-          ${p.image ? `<img src="/${p.image}" alt="${p.title}" onerror="this.style.display='none'">` : ''}
+          ${p.image ? `<img src="${mediaUrl(p.image)}" alt="${p.title}" onerror="this.style.display='none'">` : ''}
           <div><span class="footer-post-date">${p.date}</span><span class="footer-post-title">${p.title.substring(0,55)}...</span></div>
         </a></li>`).join('');
     } catch(e) {
@@ -253,24 +264,33 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   }
 
-  function cardHTML(p) {
-    const media = p.hasVideo && p.videoSrc
-      ? `<video class="post-card-video" muted loop playsinline preload="metadata" onmouseover="this.play()" onmouseout="this.pause()"><source src="/${p.videoSrc}" type="video/mp4"></video>`
-      : p.image
-        ? `<img src="/${p.image}" alt="${p.title}" class="post-card-img" loading="lazy">`
-        : `<div class="post-card-img-placeholder"><i class="bi bi-newspaper"></i></div>`;
-    return `<article class="post-card" onclick="window.location.href='/post/${p.id}'">
-      <div class="post-card-media">${media}${p.featured ? '<span class="featured-badge"><i class="bi bi-star-fill"></i> Featured</span>' : ''}</div>
+function cardHTML(p) {
+  const media = p.hasVideo && p.videoSrc
+    ? `<video class="post-card-video" muted loop playsinline preload="metadata"
+         onmouseover="this.play()" onmouseout="this.pause()">
+         <source src="${mediaUrl(p.videoSrc)}" type="video/mp4">
+       </video>`
+    : p.image
+      ? `<img src="${mediaUrl(p.image)}" alt="${p.title}" class="post-card-img" loading="lazy">`
+      : `<div class="post-card-img-placeholder"><i class="bi bi-newspaper"></i></div>`;
+
+  return `
+    <article class="post-card" onclick="window.location.href='/post/${p.id}'">
+      <div class="post-card-media">
+        ${media}
+        ${p.featured ? '<span class="featured-badge"><i class="bi bi-star-fill"></i> Featured</span>' : ''}
+      </div>
       <div class="post-card-body">
         <span class="post-cat-badge">${p.category}</span>
-        <h3>${p.title}</h3><p>${p.excerpt}</p>
+        <h3>${p.title}</h3>
+        <p>${p.excerpt}</p>
         <div class="post-meta-row">
           <span><i class="bi bi-calendar3"></i> ${p.date}</span>
           <span class="read-more">Read More <i class="bi bi-arrow-right"></i></span>
         </div>
       </div>
     </article>`;
-  }
+}
 
   function renderPosts(posts, grid, replace) {
     const html = posts.map(cardHTML).join('');

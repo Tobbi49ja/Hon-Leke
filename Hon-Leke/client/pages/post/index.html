@@ -1,320 +1,568 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Post — Hon. Leke Abejide</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="icon" href="/favicon.png">
-</head>
-<body>
-
-<header id="header">
-  <div class="header-inner">
-    <a href="/" class="logo">
-      <img src="/favicon.png" alt="Hon. Leke Abejide" 
-           style="height:48px;width:auto;object-fit:contain;display:block;">
-      <span id="site-logo-text">Hon. Leke Abejide</span>
-    </a>
-    <nav class="navbar" id="navbar">
-      <ul>
-        <li><a href="/">Blog</a></li>
-        <li><a href="/about">About</a></li>
-        <li><a href="/contact">Contact</a></li>
-      </ul>
-    </nav>
-    <div class="header-actions">
-      <div class="header-social">
-        <a href="#" target="_blank" id="hdr-fb"><i class="bi bi-facebook"></i></a>
-        <a href="#" target="_blank" id="hdr-ig"><i class="bi bi-instagram"></i></a>
-      </div>
-      <button class="search-toggle"><i class="bi bi-search"></i></button>
-      <button class="mobile-nav-toggle"><i class="bi bi-list"></i></button>
-    </div>
-  </div>
-</header>
-
-<div class="search-overlay">
-  <form id="search-form">
-    <input type="text" id="search-input" placeholder="Search posts…" autocomplete="off">
-    <button type="submit">Search</button>
-    <button type="button" class="search-close"><i class="bi bi-x"></i></button>
-  </form>
-</div>
-
-<main id="main">
-  <section class="post-single">
-    <div class="container">
-      <div class="layout-with-sidebar">
-        <!-- Main content -->
-        <div class="post-main">
-          <a href="/" class="back-link"><i class="bi bi-arrow-left"></i> Back to Blog</a>
-
-          <div id="post-content">
-            <div class="loading-posts"><div class="spinner-lg"></div><p>Loading post…</p></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Post — Hon. Leke Abejide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="/favicon.png" />
+  </head>
+  <body>
+    <header id="header">
+      <div class="header-inner">
+        <a href="/" class="logo">
+          <img
+            src="/favicon.png"
+            alt="Hon. Leke Abejide"
+            style="
+              height: 48px;
+              width: auto;
+              object-fit: contain;
+              display: block;
+            "
+          />
+          <span id="site-logo-text">Hon. Leke Abejide</span>
+        </a>
+        <nav class="navbar" id="navbar">
+          <ul>
+            <li><a href="/">Blog</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </nav>
+        <div class="header-actions">
+          <div class="header-social">
+            <a href="#" target="_blank" id="hdr-fb"
+              ><i class="bi bi-facebook"></i
+            ></a>
+            <a href="#" target="_blank" id="hdr-ig"
+              ><i class="bi bi-instagram"></i
+            ></a>
           </div>
+          <button class="search-toggle"><i class="bi bi-search"></i></button>
+          <button class="mobile-nav-toggle"><i class="bi bi-list"></i></button>
+        </div>
+      </div>
+    </header>
 
-          <!-- Comments -->
-          <div class="comments-section" id="comments-section" style="display:none">
-            <h3 id="comments-title">Comments</h3>
-            <div id="comments-list"></div>
+    <div class="search-overlay">
+      <form id="search-form">
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Search posts…"
+          autocomplete="off"
+        />
+        <button type="submit">Search</button>
+        <button type="button" class="search-close">
+          <i class="bi bi-x"></i>
+        </button>
+      </form>
+    </div>
 
-            <div class="comment-form">
-              <h4>Leave a Comment</h4>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="comment-name">Name *</label>
-                  <input type="text" id="comment-name" placeholder="Your name" required>
-                </div>
-                <div class="form-group">
-                  <label for="comment-email">Email *</label>
-                  <input type="email" id="comment-email" placeholder="Your email" required>
+    <main id="main">
+      <section class="post-single">
+        <div class="container">
+          <div class="layout-with-sidebar">
+            <div class="post-main">
+              <a href="/" class="back-link"
+                ><i class="bi bi-arrow-left"></i> Back to Blog</a
+              >
+              <div id="post-content">
+                <div class="loading-posts">
+                  <div class="spinner-lg"></div>
+                  <p>Loading post…</p>
                 </div>
               </div>
-              <div class="form-group">
-                <label for="comment-message">Comment *</label>
-                <textarea id="comment-message" placeholder="Share your thoughts…" rows="5" required></textarea>
+
+              <div
+                class="comments-section"
+                id="comments-section"
+                style="display: none"
+              >
+                <h3 id="comments-title">Comments</h3>
+                <div id="comments-list"></div>
+                <div class="comment-form">
+                  <h4>Leave a Comment</h4>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="comment-name">Name *</label>
+                      <input
+                        type="text"
+                        id="comment-name"
+                        placeholder="Your name"
+                        required
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="comment-email">Email *</label>
+                      <input
+                        type="email"
+                        id="comment-email"
+                        placeholder="Your email"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="comment-message">Comment *</label>
+                    <textarea
+                      id="comment-message"
+                      placeholder="Share your thoughts…"
+                      rows="5"
+                      required
+                    ></textarea>
+                  </div>
+                  <button class="btn btn-primary" id="post-comment-btn">
+                    <i class="bi bi-chat-left-text"></i> Post Comment
+                  </button>
+                  <div class="alert" id="comment-alert"></div>
+                </div>
               </div>
-              <button class="btn btn-primary" id="post-comment-btn">
-                <i class="bi bi-chat-left-text"></i> Post Comment
-              </button>
-              <div class="alert" id="comment-alert"></div>
             </div>
+
+            <aside class="sidebar">
+              <div class="sidebar-widget">
+                <h4><i class="bi bi-clock-history"></i> Recent Posts</h4>
+                <div id="recent-posts"><div class="spinner-sm"></div></div>
+              </div>
+              <div class="sidebar-widget">
+                <h4><i class="bi bi-tags"></i> Categories</h4>
+                <div id="sidebar-categories" class="sidebar-cats"></div>
+              </div>
+              <div class="sidebar-widget">
+                <h4><i class="bi bi-envelope"></i> Newsletter</h4>
+                <p
+                  style="
+                    font-size: 0.85rem;
+                    color: var(--muted);
+                    margin-bottom: 14px;
+                  "
+                >
+                  Stay updated with the latest news.
+                </p>
+                <form class="newsletter-form" id="newsletter-form">
+                  <input
+                    type="email"
+                    placeholder="Your email address"
+                    required
+                  />
+                  <button type="submit">Subscribe</button>
+                </form>
+                <div
+                  id="newsletter-msg"
+                  style="
+                    font-size: 0.82rem;
+                    margin-top: 8px;
+                    color: var(--green);
+                  "
+                ></div>
+              </div>
+              <div class="sidebar-widget">
+                <h4><i class="bi bi-share"></i> Follow Us</h4>
+                <div class="social-links">
+                  <a href="#" target="_blank" id="sb-fb" class="social-link"
+                    ><i class="bi bi-facebook"></i
+                  ></a>
+                  <a href="#" target="_blank" id="sb-ig" class="social-link"
+                    ><i class="bi bi-instagram"></i
+                  ></a>
+                  <a href="#" target="_blank" class="social-link"
+                    ><i class="bi bi-twitter-x"></i
+                  ></a>
+                  <a href="#" target="_blank" class="social-link"
+                    ><i class="bi bi-youtube"></i
+                  ></a>
+                </div>
+              </div>
+            </aside>
           </div>
         </div>
+      </section>
+    </main>
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
-          <div class="sidebar-widget">
-            <h4><i class="bi bi-clock-history"></i> Recent Posts</h4>
-            <div id="recent-posts"><div class="spinner-sm"></div></div>
+    <footer id="site-footer">
+      <div class="container">
+        <div class="footer-inner">
+          <div class="footer-brand">
+            <h3>Hon. Leke Abejide</h3>
+            <p>
+              Rt. Hon. Elder Leke Joseph Abejide — Member, House of
+              Representatives, Yagba Federal Constituency, Kogi State.
+            </p>
           </div>
-          <div class="sidebar-widget">
-            <h4><i class="bi bi-tags"></i> Categories</h4>
-            <div id="sidebar-categories" class="sidebar-cats"></div>
+          <div class="footer-col">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="/">Blog</a></li>
+              <li><a href="/about">About</a></li>
+              <li><a href="/contact">Contact</a></li>
+            </ul>
           </div>
-          <div class="sidebar-widget">
-            <h4><i class="bi bi-envelope"></i> Newsletter</h4>
-            <p style="font-size:0.85rem;color:var(--muted);margin-bottom:14px">Stay updated with the latest news.</p>
-            <form class="newsletter-form" id="newsletter-form">
-              <input type="email" placeholder="Your email address" required>
-              <button type="submit">Subscribe</button>
-            </form>
-            <div id="newsletter-msg" style="font-size:0.82rem;margin-top:8px;color:var(--green)"></div>
+          <div class="footer-col">
+            <h4>Connect</h4>
+            <ul>
+              <li><a href="#" target="_blank" id="ft-fb">Facebook</a></li>
+              <li><a href="#" target="_blank" id="ft-ig">Instagram</a></li>
+            </ul>
           </div>
-          <div class="sidebar-widget">
-            <h4><i class="bi bi-share"></i> Follow Us</h4>
-            <div class="social-links">
-              <a href="#" target="_blank" id="sb-fb" class="social-link"><i class="bi bi-facebook"></i></a>
-              <a href="#" target="_blank" id="sb-ig" class="social-link"><i class="bi bi-instagram"></i></a>
-              <a href="#" target="_blank" class="social-link"><i class="bi bi-twitter-x"></i></a>
-              <a href="#" target="_blank" class="social-link"><i class="bi bi-youtube"></i></a>
-            </div>
-          </div>
-        </aside>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2024 Hon. Leke Abejide. All Rights Reserved.</span>
+        </div>
       </div>
-    </div>
-  </section>
-</main>
+    </footer>
 
-<footer id="site-footer">
-  <div class="container">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <h3>Hon. Leke Abejide</h3>
-        <p>Rt. Hon. Elder Leke Joseph Abejide — Member, House of Representatives, Yagba Federal Constituency, Kogi State.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Quick Links</h4>
-        <ul>
-          <li><a href="/">Blog</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/contact">Contact</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Connect</h4>
-        <ul>
-          <li><a href="#" target="_blank" id="ft-fb">Facebook</a></li>
-          <li><a href="#" target="_blank" id="ft-ig">Instagram</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2024 Hon. Leke Abejide. All Rights Reserved.</span>
-    </div>
-  </div>
-</footer>
+    <a href="#" class="scroll-top"><i class="bi bi-arrow-up"></i></a>
 
-<a href="#" class="scroll-top"><i class="bi bi-arrow-up"></i></a>
+    <script src="/js/app.js"></script>
+    <script>
+      const postId = window.location.pathname.split("/").pop();
+      if (!postId || postId.length < 10) window.location.href = "/";
 
-<script src="/js/app.js"></script>
-<script>
-const postId = parseInt(window.location.pathname.split('/').pop());
-if (isNaN(postId)) window.location.href = '/';
+      (async function init() {
+        // ── Helpers ────────────────────────────────────────────────
+        function mediaUrl(src) {
+          if (!src) return "";
+          return src.startsWith("http") ? src : "/" + src;
+        }
 
-(async function init() {
-  // Settings
-  try {
-    const s = await API.get('/api/admin/settings');
-    if (s.success) {
-      if (s.settings.facebookUrl) { document.getElementById('hdr-fb').href = s.settings.facebookUrl; document.getElementById('sb-fb').href = s.settings.facebookUrl; document.getElementById('ft-fb').href = s.settings.facebookUrl; }
-      if (s.settings.instagramUrl) { document.getElementById('hdr-ig').href = s.settings.instagramUrl; document.getElementById('sb-ig').href = s.settings.instagramUrl; document.getElementById('ft-ig').href = s.settings.instagramUrl; }
-    }
-  } catch(e) {}
+        function toYouTubeEmbed(url) {
+          if (!url) return "";
+          if (url.includes("/embed/")) return url;
+          const short = url.match(/youtu\.be\/([^?&]+)/);
+          if (short) return "https://www.youtube.com/embed/" + short[1];
+          const watch = url.match(/[?&]v=([^&]+)/);
+          if (watch) return "https://www.youtube.com/embed/" + watch[1];
+          return url;
+        }
 
-  // Load post
-  async function loadPost() {
-    const el = document.getElementById('post-content');
-    try {
-      const data = await API.get(`/api/posts/${postId}`);
-      const p = data.post;
-      document.title = `${p.title} — Hon. Leke Abejide`;
+        function showAlert(el, type, msg) {
+          el.className =
+            "alert alert-" +
+            (type === "success" ? "success" : "error") +
+            " show";
+          el.textContent = msg;
+          el.style.display = "block";
+          el.style.marginTop = "14px";
+        }
 
-      // Render content paragraphs
-      const paragraphs = p.content.split(/\n\n+/).map(para => para.trim()).filter(Boolean);
-      const contentHtml = paragraphs.map(para => `<p>${para.replace(/\n/g, '<br>')}</p>`).join('');
-
-      el.innerHTML = `
-        <div class="post-single-header page-fade">
-          <span class="post-cat-badge">${p.category}</span>
-          <h1>${p.title}</h1>
-          <div class="post-meta-row" style="margin-bottom:28px">
-            <span><i class="bi bi-calendar3"></i> ${p.date}</span>
-            <span><i class="bi bi-person"></i> Hon. Leke Abejide</span>
-          </div>
-          ${p.hasVideo && p.videoSrc
-            ? `<video controls class="post-single-media" style="width:100%;border-radius:12px;margin-bottom:28px"><source src="/${p.videoSrc}" type="video/mp4">Your browser does not support video.</video>`
-            : p.image ? `<img class="post-single-img" src="/${p.image}" alt="${p.title}" onerror="this.style.display='none'">` : ''
+        // Settings
+        try {
+          const s = await API.get("/api/admin/settings");
+          if (s.success && s.settings) {
+            if (s.settings.facebookUrl) {
+              ["hdr-fb", "sb-fb", "ft-fb"].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.href = s.settings.facebookUrl;
+              });
+            }
+            if (s.settings.instagramUrl) {
+              ["hdr-ig", "sb-ig", "ft-ig"].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.href = s.settings.instagramUrl;
+              });
+            }
           }
-          <div class="post-single-content">${contentHtml}</div>
-          <div class="share-row">
-            <strong>Share:</strong>
-            <div class="social-links">
-              <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}" target="_blank" class="social-link"><i class="bi bi-facebook"></i></a>
-              <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(p.title)}" target="_blank" class="social-link"><i class="bi bi-twitter-x"></i></a>
-              <a href="https://wa.me/?text=${encodeURIComponent(p.title + ' ' + window.location.href)}" target="_blank" class="social-link" style="color:#25d366"><i class="bi bi-whatsapp"></i></a>
-            </div>
-          </div>
-        </div>
-      `;
-      document.getElementById('comments-section').style.display = 'block';
-      loadComments();
-    } catch(e) {
-      el.innerHTML = `<div class="no-posts"><i class="bi bi-exclamation-circle"></i><p>Post not found.</p><a href="/" class="btn btn-primary" style="margin-top:16px">← Back to Blog</a></div>`;
-    }
-  }
+        } catch (e) {}
 
-  async function loadComments() {
-    const list = document.getElementById('comments-list');
-    const title = document.getElementById('comments-title');
-    try {
-      const data = await API.get(`/api/posts/${postId}/comments`);
-      const comments = data.comments;
-      title.textContent = `${comments.length} Comment${comments.length !== 1 ? 's' : ''}`;
-      if (!comments.length) {
-        list.innerHTML = '<p style="color:var(--muted);font-size:0.9rem;margin-bottom:24px">No comments yet. Be the first!</p>';
-        return;
-      }
-      list.innerHTML = comments.map(c => `
-        <div class="comment-item">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span class="comment-author"><i class="bi bi-person-circle"></i> ${c.name}</span>
-            <span class="comment-date">${c.date}</span>
-          </div>
-          <p>${c.message}</p>
-        </div>
-      `).join('');
-    } catch(e) { list.innerHTML = ''; }
-  }
+        // ── Load post ──────────────────────────────────────────────
+        async function loadPost() {
+          const el = document.getElementById("post-content");
+          try {
+            const data = await API.get("/api/posts/" + postId);
+            if (!data.success || !data.post) throw new Error("Not found");
+            const p = data.post;
+            document.title = p.title + " — Hon. Leke Abejide";
 
-  document.getElementById('post-comment-btn').addEventListener('click', async () => {
-    const name = document.getElementById('comment-name').value.trim();
-    const email = document.getElementById('comment-email').value.trim();
-    const message = document.getElementById('comment-message').value.trim();
-    const alertEl = document.getElementById('comment-alert');
-    const btn = document.getElementById('post-comment-btn');
+            // ── Media block — all paths go through mediaUrl() ──────
+            var mediaHtml = "";
+            if (p.hasVideo && p.videoType === "youtube" && p.videoUrl) {
+              mediaHtml =
+                '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin-bottom:28px">' +
+                '<iframe src="' +
+                toYouTubeEmbed(p.videoUrl) +
+                '" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen></iframe>' +
+                "</div>";
+            } else if (p.hasVideo && p.videoSrc) {
+              mediaHtml =
+                '<video controls class="post-single-media" style="width:100%;border-radius:12px;margin-bottom:28px">' +
+                '<source src="' +
+                mediaUrl(p.videoSrc) +
+                '" type="video/mp4">Your browser does not support video.</video>';
+            } else if (p.images && p.images.length > 1) {
+              mediaHtml =
+                '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:28px">' +
+                p.images
+                  .map(function (img) {
+                    return (
+                      '<div class="post-single-img-wrap" style="margin-bottom:0">' +
+                      '<div class="post-single-img-blur" style="background-image:url(\'' +
+                      mediaUrl(img) +
+                      "')\"></div>" +
+                      '<img class="post-single-img" src="' +
+                      mediaUrl(img) +
+                      '" alt="' +
+                      p.title +
+                      '" onerror="this.parentElement.style.display=\'none\'">' +
+                      "</div>"
+                    );
+                  })
+                  .join("") +
+                "</div>";
+            } else if (p.image) {
+              mediaHtml =
+                '<div class="post-single-img-wrap">' +
+                '<div class="post-single-img-blur" style="background-image:url(\'' +
+                mediaUrl(p.image) +
+                "')\"></div>" +
+                '<img class="post-single-img" src="' +
+                mediaUrl(p.image) +
+                '" alt="' +
+                p.title +
+                '" onerror="this.parentElement.style.display=\'none\'">' +
+                "</div>";
+            }
 
-    if (!name || !email || !message) { showAlert(alertEl, 'error', 'Please fill in all fields.'); return; }
+            var paragraphs = p.content
+              .split(/\n\n+/)
+              .map(function (s) {
+                return s.trim();
+              })
+              .filter(Boolean);
+            var contentHtml = paragraphs
+              .map(function (para) {
+                return "<p>" + para.replace(/\n/g, "<br>") + "</p>";
+              })
+              .join("");
 
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Posting…';
-    try {
-      const res = await API.post(`/api/posts/${postId}/comments`, { name, email, message });
-      if (res.success) {
-        showAlert(alertEl, 'success', res.message);
-        document.getElementById('comment-name').value = '';
-        document.getElementById('comment-email').value = '';
-        document.getElementById('comment-message').value = '';
-        loadComments();
-      } else {
-        showAlert(alertEl, 'error', res.message);
-      }
-    } catch(e) { showAlert(alertEl, 'error', 'Something went wrong.'); }
-    finally {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-chat-left-text"></i> Post Comment';
-    }
-  });
+            el.innerHTML =
+              '<div class="post-single-header page-fade">' +
+              '<span class="post-cat-badge">' +
+              p.category +
+              "</span>" +
+              "<h1>" +
+              p.title +
+              "</h1>" +
+              '<div class="post-meta-row" style="margin-bottom:28px">' +
+              '<span><i class="bi bi-calendar3"></i> ' +
+              p.date +
+              "</span>" +
+              '<span><i class="bi bi-person"></i> Hon. Leke Abejide</span>' +
+              "</div>" +
+              mediaHtml +
+              '<div class="post-single-content">' +
+              contentHtml +
+              "</div>" +
+              '<div class="share-row">' +
+              "<strong>Share:</strong>" +
+              '<div class="social-links">' +
+              '<a href="https://www.facebook.com/sharer/sharer.php?u=' +
+              encodeURIComponent(window.location.href) +
+              '" target="_blank" class="social-link"><i class="bi bi-facebook"></i></a>' +
+              '<a href="https://twitter.com/intent/tweet?url=' +
+              encodeURIComponent(window.location.href) +
+              "&text=" +
+              encodeURIComponent(p.title) +
+              '" target="_blank" class="social-link"><i class="bi bi-twitter-x"></i></a>' +
+              '<a href="https://wa.me/?text=' +
+              encodeURIComponent(p.title + " " + window.location.href) +
+              '" target="_blank" class="social-link" style="color:#25d366"><i class="bi bi-whatsapp"></i></a>' +
+              "</div>" +
+              "</div>" +
+              "</div>";
 
-  // Recent posts sidebar
-  async function loadRecentPosts() {
-    try {
-      const data = await API.get('/api/posts');
-      const el = document.getElementById('recent-posts');
-      el.innerHTML = data.posts.filter(p => p.id !== postId).slice(0, 5).map(p => `
-        <div class="recent-post-item" onclick="window.location.href='/post/${p.id}'">
-          ${p.image
-            ? `<img class="recent-post-thumb" src="/${p.image}" alt="${p.title}" onerror="this.parentElement.style.display='none'">`
-            : `<div class="recent-post-thumb recent-post-thumb-placeholder"><i class="bi bi-newspaper"></i></div>`
+            document.getElementById("comments-section").style.display = "block";
+            loadComments();
+          } catch (e) {
+            el.innerHTML =
+              '<div class="no-posts"><i class="bi bi-exclamation-circle"></i><p>Post not found.</p>' +
+              '<a href="/" class="btn btn-primary" style="margin-top:16px">← Back to Blog</a></div>';
           }
-          <div class="recent-post-info">
-            <h6>${p.title.substring(0, 55)}${p.title.length > 55 ? '…' : ''}</h6>
-            <span>${p.date}</span>
-          </div>
-        </div>
-      `).join('');
-    } catch(e) {}
-  }
+        }
 
-  // Categories sidebar
-  async function loadSidebarCategories() {
-    try {
-      const data = await API.get('/api/posts/categories');
-      const el = document.getElementById('sidebar-categories');
-      el.innerHTML = data.categories.map(cat => `
-        <a href="/?category=${encodeURIComponent(cat.toLowerCase())}" class="sidebar-cat-link">${cat}</a>
-      `).join('');
-    } catch(e) {}
-  }
+        // ── Comments ───────────────────────────────────────────────
+        async function loadComments() {
+          var list = document.getElementById("comments-list");
+          var title = document.getElementById("comments-title");
+          try {
+            var data = await API.get("/api/posts/" + postId + "/comments");
+            var comments = data.comments || [];
+            title.textContent =
+              comments.length + " Comment" + (comments.length !== 1 ? "s" : "");
+            if (!comments.length) {
+              list.innerHTML =
+                '<p style="color:var(--muted);font-size:0.9rem;margin-bottom:24px">No comments yet. Be the first!</p>';
+              return;
+            }
+            list.innerHTML = comments
+              .map(function (c) {
+                return (
+                  '<div class="comment-item">' +
+                  '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+                  '<span class="comment-author"><i class="bi bi-person-circle"></i> ' +
+                  c.name +
+                  "</span>" +
+                  '<span class="comment-date">' +
+                  c.date +
+                  "</span>" +
+                  "</div>" +
+                  "<p>" +
+                  c.message +
+                  "</p>" +
+                  "</div>"
+                );
+              })
+              .join("");
+          } catch (e) {
+            list.innerHTML = "";
+          }
+        }
 
-  // Newsletter
-  document.getElementById('newsletter-form').addEventListener('submit', async e => {
-    e.preventDefault();
-    const email = e.target.querySelector('input').value.trim();
-    const msg = document.getElementById('newsletter-msg');
-    try {
-      const res = await API.post('/api/subscribe', { email });
-      msg.textContent = res.message;
-      if (res.success) e.target.querySelector('input').value = '';
-    } catch(e) { msg.textContent = 'Something went wrong.'; }
-  });
+        document
+          .getElementById("post-comment-btn")
+          .addEventListener("click", async function () {
+            var name = document.getElementById("comment-name").value.trim();
+            var email = document.getElementById("comment-email").value.trim();
+            var message = document
+              .getElementById("comment-message")
+              .value.trim();
+            var alertEl = document.getElementById("comment-alert");
+            var btn = document.getElementById("post-comment-btn");
 
-  // Search
-  document.getElementById('search-form').addEventListener('submit', e => {
-    e.preventDefault();
-    const q = document.getElementById('search-input').value.trim();
-    if (q) window.location.href = `/?search=${encodeURIComponent(q)}`;
-  });
+            if (!name || !email || !message) {
+              showAlert(alertEl, "error", "Please fill in all fields.");
+              return;
+            }
 
-  await loadPost();
-  loadRecentPosts();
-  loadSidebarCategories();
-})();
-</script>
-</body>
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Posting…';
+            try {
+              var res = await API.post("/api/posts/" + postId + "/comments", {
+                name,
+                email,
+                message,
+              });
+              if (res.success) {
+                showAlert(alertEl, "success", res.message);
+                document.getElementById("comment-name").value = "";
+                document.getElementById("comment-email").value = "";
+                document.getElementById("comment-message").value = "";
+                loadComments();
+              } else {
+                showAlert(alertEl, "error", res.message);
+              }
+            } catch (e) {
+              showAlert(alertEl, "error", "Something went wrong.");
+            } finally {
+              btn.disabled = false;
+              btn.innerHTML =
+                '<i class="bi bi-chat-left-text"></i> Post Comment';
+            }
+          });
+
+        // ── Sidebar: recent posts ──────────────────────────────────
+        async function loadRecentPosts() {
+          try {
+            var data = await API.get("/api/posts");
+            var posts = (data.posts || [])
+              .filter(function (p) {
+                return p.id !== postId;
+              })
+              .slice(0, 5);
+            var el = document.getElementById("recent-posts");
+            if (!posts.length) {
+              el.innerHTML =
+                '<p style="color:var(--muted);font-size:0.85rem">No other posts.</p>';
+              return;
+            }
+            el.innerHTML = posts
+              .map(function (p) {
+                return (
+                  '<div class="recent-post-item" onclick="window.location.href=\'/post/' +
+                  p.id +
+                  '\'" style="cursor:pointer">' +
+                  (p.image
+                    ? '<img class="recent-post-thumb" src="' +
+                      mediaUrl(p.image) +
+                      '" alt="' +
+                      p.title +
+                      '" onerror="this.parentElement.style.display=\'none\'">'
+                    : '<div class="recent-post-thumb recent-post-thumb-placeholder"><i class="bi bi-newspaper"></i></div>') +
+                  '<div class="recent-post-info">' +
+                  "<h6>" +
+                  p.title.substring(0, 55) +
+                  (p.title.length > 55 ? "…" : "") +
+                  "</h6>" +
+                  "<span>" +
+                  p.date +
+                  "</span>" +
+                  "</div>" +
+                  "</div>"
+                );
+              })
+              .join("");
+          } catch (e) {}
+        }
+
+        // ── Sidebar: categories ────────────────────────────────────
+        async function loadSidebarCategories() {
+          try {
+            var data = await API.get("/api/posts/categories");
+            var el = document.getElementById("sidebar-categories");
+            el.innerHTML = (data.categories || [])
+              .map(function (cat) {
+                return (
+                  '<a href="/?category=' +
+                  encodeURIComponent(cat.toLowerCase()) +
+                  '" class="sidebar-cat-link">' +
+                  cat +
+                  "</a>"
+                );
+              })
+              .join("");
+          } catch (e) {}
+        }
+
+        // ── Newsletter ─────────────────────────────────────────────
+        document
+          .getElementById("newsletter-form")
+          .addEventListener("submit", async function (e) {
+            e.preventDefault();
+            var email = e.target.querySelector("input").value.trim();
+            var msg = document.getElementById("newsletter-msg");
+            try {
+              var res = await API.post("/api/subscribe", { email });
+              msg.textContent = res.message;
+              if (res.success) e.target.querySelector("input").value = "";
+            } catch (e) {
+              msg.textContent = "Something went wrong.";
+            }
+          });
+
+        // ── Search ─────────────────────────────────────────────────
+        document
+          .getElementById("search-form")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
+            var q = document.getElementById("search-input").value.trim();
+            if (q) window.location.href = "/?search=" + encodeURIComponent(q);
+          });
+
+        await loadPost();
+        loadRecentPosts();
+        loadSidebarCategories();
+      })();
+    </script>
+  </body>
 </html>
