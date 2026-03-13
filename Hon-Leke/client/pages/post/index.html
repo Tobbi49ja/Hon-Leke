@@ -320,10 +320,15 @@
   const postId = window.location.pathname.split('/').pop();
   if (!postId || postId.length < 10) { window.location.href = '/'; return; }
 
-  /* ── Settings (social links) ── */
+  /* ── Site owner name — used in reply labels & post author line ── */
+  let siteOwnerName = 'Hon. Leke Abejide';
+
+  /* ── Settings (social links + site name) ── */
   try {
     const s = await API.get('/api/posts/site-settings');
     if (s.success && s.settings) {
+      // Pull the site owner name from settings if available
+      if (s.settings.heroTitle) siteOwnerName = s.settings.heroTitle;
       if (s.settings.facebookUrl) {
         ['hdr-fb', 'sb-fb', 'ft-fb'].forEach(id => {
           const el = document.getElementById(id);
@@ -349,41 +354,73 @@
       const p = data.post;
       document.title = p.title + ' — Hon. Leke Abejide';
 
-      /* Media block — all images use data-src for lazy loading */
-      let mediaHtml = '';
-      if (p.hasVideo && p.videoType === 'youtube' && p.videoUrl) {
-        mediaHtml =
-          '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin-bottom:28px">' +
-          '<iframe src="' + toYouTubeEmbed(p.videoUrl) + '" ' +
-          'style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" ' +
-          'allowfullscreen loading="lazy"></iframe></div>';
-      } else if (p.hasVideo && p.videoSrc) {
-        mediaHtml =
-          '<video controls class="post-single-media" style="width:100%;border-radius:12px;margin-bottom:28px">' +
-          '<source src="' + mediaUrl(p.videoSrc) + '" type="video/mp4">Your browser does not support video.</video>';
-      } else if (p.images && p.images.length > 1) {
-        mediaHtml =
-          '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:28px">' +
-          p.images.map(img =>
-            '<div class="post-single-img-wrap" style="margin-bottom:0">' +
-            '<div class="post-single-img-blur" data-bg-src="' + mediaUrl(img) + '"></div>' +
-            lazyImg(mediaUrl(img), 'post-single-img', p.title, "this.parentElement.style.display='none'") +
-            '</div>'
-          ).join('') + '</div>';
-      } else if (p.image) {
-        mediaHtml =
-          '<div class="post-single-img-wrap">' +
-          '<div class="post-single-img-blur" data-bg-src="' + mediaUrl(p.image) + '"></div>' +
-          lazyImg(mediaUrl(p.image), 'post-single-img', p.title, "this.parentElement.style.display='none'") +
-          '</div>';
+      /* ── Render blocks (new) or fall back to legacy content + image ── */
+      function renderTextBlock(text) {
+        return text.split(/\n\n+/)
+          .map(s => s.trim()).filter(Boolean)
+          .map(para => '<p style="margin-bottom:1.4em">' + para.replace(/\n/g, '<br>') + '</p>')
+          .join('');
       }
 
-      const contentHtml = p.content
-        .split(/\n\n+/)
-        .map(s => s.trim())
-        .filter(Boolean)
-        .map(para => '<p>' + para.replace(/\n/g, '<br>') + '</p>')
-        .join('');
+      function renderImageBlock(b) {
+        if (!b.image) return '';
+        return (
+          '<figure style="margin:28px 0">' +
+            '<div class="post-single-img-wrap">' +
+              '<div class="post-single-img-blur" data-bg-src="' + mediaUrl(b.image) + '"></div>' +
+              lazyImg(mediaUrl(b.image), 'post-single-img', b.caption || p.title, "this.parentElement.style.display='none'") +
+            '</div>' +
+            (b.caption ? '<figcaption style="text-align:center;font-size:0.82rem;color:var(--muted);margin-top:8px;font-style:italic">' + escHtml(b.caption) + '</figcaption>' : '') +
+          '</figure>'
+        );
+      }
+
+      function renderVideoBlock(b) {
+        if (b.videoType === 'youtube' && b.videoUrl) {
+          return '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin:28px 0">' +
+            '<iframe src="' + toYouTubeEmbed(b.videoUrl) + '" ' +
+            'style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen loading="lazy"></iframe></div>';
+        }
+        if (b.videoSrc) {
+          return '<video controls style="width:100%;border-radius:12px;margin:28px 0">' +
+            '<source src="' + mediaUrl(b.videoSrc) + '" type="video/mp4">Your browser does not support video.</video>';
+        }
+        return '';
+      }
+
+      let bodyHtml = '';
+
+      if (p.blocks && p.blocks.length) {
+        // New block-based post
+        bodyHtml = p.blocks.map(b => {
+          if (b.type === 'text')  return '<div class="post-single-content">' + renderTextBlock(b.text || '') + '</div>';
+          if (b.type === 'image') return renderImageBlock(b);
+          if (b.type === 'video') return renderVideoBlock(b);
+          return '';
+        }).join('');
+      } else {
+        // Legacy post — show top image then content
+        let mediaHtml = '';
+        if (p.hasVideo && p.videoType === 'youtube' && p.videoUrl) {
+          mediaHtml = renderVideoBlock({ videoType:'youtube', videoUrl: p.videoUrl });
+        } else if (p.hasVideo && p.videoSrc) {
+          mediaHtml = renderVideoBlock({ videoType:'upload', videoSrc: p.videoSrc });
+        } else if (p.images && p.images.length > 1) {
+          mediaHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:28px">' +
+            p.images.map(img =>
+              '<div class="post-single-img-wrap" style="margin-bottom:0">' +
+              '<div class="post-single-img-blur" data-bg-src="' + mediaUrl(img) + '"></div>' +
+              lazyImg(mediaUrl(img), 'post-single-img', p.title, "this.parentElement.style.display='none'") +
+              '</div>'
+            ).join('') + '</div>';
+        } else if (p.image) {
+          mediaHtml = renderImageBlock({ image: p.image });
+        }
+        bodyHtml = mediaHtml + '<div class="post-single-content">' + renderTextBlock(p.content || '') + '</div>';
+      }
+
+      const mediaHtml = '';   // kept for reference — now part of bodyHtml
+      const contentHtml = ''; // kept for reference — now part of bodyHtml
 
       el.innerHTML =
         '<div class="post-single-header page-fade">' +
@@ -391,10 +428,9 @@
         '<h1>' + p.title + '</h1>' +
         '<div class="post-meta-row" style="margin-bottom:28px">' +
         '<span><i class="bi bi-calendar3"></i> ' + p.date + '</span>' +
-        '<span><i class="bi bi-person"></i> Hon. Leke Abejide</span>' +
+        '<span><i class="bi bi-person"></i> ' + siteOwnerName + '</span>' +
         '</div>' +
-        mediaHtml +
-        '<div class="post-single-content">' + contentHtml + '</div>' +
+        bodyHtml +
         '<div class="share-row"><strong>Share:</strong><div class="social-links">' +
         '<a href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href) + '" target="_blank" class="social-link"><i class="bi bi-facebook"></i></a>' +
         '<a href="https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent(p.title) + '" target="_blank" class="social-link"><i class="bi bi-twitter-x"></i></a>' +
@@ -450,7 +486,7 @@
             (hasReply
               ? '<div style="margin-top:14px;padding:12px 16px;background:#f0f7ee;border-left:3px solid #2a7a4b;border-radius:6px">' +
                   '<div style="font-size:0.75rem;font-weight:700;color:#2a7a4b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">' +
-                    '<i class=\"bi bi-reply-fill\"></i> Reply from Admin' +
+                    '<i class=\"bi bi-reply-fill\"></i> Reply from ' + siteOwnerName +
                   '</div>' +
                   '<p style="margin:0;font-size:0.9rem;line-height:1.65;color:#333">' + escHtml(c.reply) + '</p>' +
                   (c.repliedAt ? '<div style="font-size:0.75rem;color:#6c757d;margin-top:6px">' + escHtml(c.repliedAt) + '</div>' : '') +
