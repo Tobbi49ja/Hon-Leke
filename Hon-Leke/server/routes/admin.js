@@ -248,6 +248,55 @@ router.put('/posts/:id', requireAdmin, async (req, res) => {
   }
 });
 
+
+// PATCH /api/admin/comments/:id/reply  —— admin saves/edits a reply
+router.patch('/comments/:id/reply', requireAdmin, async (req, res) => {
+  try {
+    const { reply } = req.body;
+    if (!reply || !reply.trim())
+      return res.status(400).json({ success: false, message: 'Reply text is required.' });
+
+    const dateStr = new Date().toLocaleDateString('en-GB', {
+      year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    const Comment = require('../models/Comment');
+    const doc = await Comment.findByIdAndUpdate(
+      req.params.id,
+      { reply: reply.trim(), repliedAt: dateStr, repliedByAdmin: true },
+      { new: true }
+    ).lean();
+
+    if (!doc)
+      return res.status(404).json({ success: false, message: 'Comment not found.' });
+
+    const plain = JSON.parse(JSON.stringify(doc));
+    plain.id = doc._id.toString();
+
+    res.json({ success: true, message: 'Reply saved.', comment: plain });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// PATCH /api/admin/comments/:id/reply/delete  —— remove a reply
+router.patch('/comments/:id/reply/delete', requireAdmin, async (req, res) => {
+  try {
+    const Comment = require('../models/Comment');
+    const doc = await Comment.findByIdAndUpdate(
+      req.params.id,
+      { reply: '', repliedAt: '', repliedByAdmin: false },
+      { new: true }
+    ).lean();
+
+    if (!doc)
+      return res.status(404).json({ success: false, message: 'Comment not found.' });
+
+    res.json({ success: true, message: 'Reply removed.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 router.delete('/posts/:id', requireAdmin, async (req, res) => {
   try {
     const ok = await store.deletePost(req.params.id);
