@@ -41,11 +41,12 @@
   --shadow-md: 0 8px 24px rgba(0,0,0,0.4);
   --shadow-lg: 0 20px 48px rgba(0,0,0,0.5);
 }
-
 /* Dark mode specific overrides */
 [data-theme="dark"] body { background: #0f1219; }
 [data-theme="dark"] #header {
-  background: rgba(19,23,31,0.97);
+background: rgba(19, 23, 31, 0.9);
+backdrop-filter: blur(10px);
+-webkit-backdrop-filter: blur(10px);
   border-bottom-color: var(--border);
 }
 [data-theme="dark"] .navbar {
@@ -144,15 +145,20 @@ ul { list-style: none; }
    HEADER
    ================================================================ */
 #header {
-  position: fixed; top: 0; left: 0; right: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
-  background: rgba(255,255,255,0.97);
-  border-bottom: 1px solid var(--border);
-  height: var(--header-height);
-  display: flex; align-items: center;
-  transition: box-shadow var(--transition);
+
+  background: rgba(255, 255, 255, 0.7); /* more transparency */
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
 }
 #header.sticked { box-shadow: 0 2px 24px rgba(0,0,0,0.10); }
 
@@ -1292,4 +1298,9 @@ img.lazy-img:not(.skeleton) {
   /* Footer newsletter */
   .newsletter-footer-form { flex-direction: column; }
   .newsletter-footer-form button { width: 100%; }
+}
+@media(max-width: 425px){
+  #site-logo-text{
+    display: none;
+  }
 }
