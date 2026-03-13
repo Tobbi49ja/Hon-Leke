@@ -37,10 +37,7 @@ const API = {
   },
 };
 
-/* ── Global Lazy Image Observer ─────────────────────────────────
-   Any <img data-src="..."> anywhere on the page will be observed
-   automatically once the DOM is ready.
-   ────────────────────────────────────────────────────────────── */
+
 const LazyLoader = (function () {
   const observer = new IntersectionObserver(
     (entries) => {
@@ -71,9 +68,7 @@ const LazyLoader = (function () {
   return { observe, observer };
 })();
 
-/* ── Cookie Consent Banner ───────────────────────────────────────
-   Works site-wide; banner HTML must exist on the page.
-   ────────────────────────────────────────────────────────────── */
+
 function initCookieBanner() {
   const banner = document.getElementById('cookie-banner');
   if (!banner) return;

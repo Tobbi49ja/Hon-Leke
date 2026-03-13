@@ -610,8 +610,14 @@ main { padding-top: var(--header-height); min-height: 80vh; }
 }
 .post-single-media { border-radius: var(--radius-md); margin-bottom: 28px; }
 .post-single-content {
-  font-size: 1.06rem; line-height: 1.95;
-  color: #333; font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.06rem;
+  line-height: 1.95;
+  color: #333;
+  font-family: 'EB Garamond', Georgia, serif;
+}
+
+[data-theme="dark"] .post-single-content {
+  color: #ffffff;
 }
 .post-single-content p { margin-bottom: 22px; }
 .share-row {
