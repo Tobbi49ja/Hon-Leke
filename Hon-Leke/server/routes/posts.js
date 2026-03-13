@@ -41,11 +41,12 @@ router.get('/slider', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to load slider.' });
   }
 });
+// Public settings endpoint (no auth required)
 router.get('/site-settings', async (req, res) => {
   try {
     const settings = await store.getSettings();
     res.json({ success: true, settings });
-  } catch (err) {
+  } catch(err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });

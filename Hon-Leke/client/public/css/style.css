@@ -1007,7 +1007,107 @@ footer {
 }
 .nav-overlay.open { display: block; }
 @keyframes fadeOverlay { from { opacity: 0; } to { opacity: 1; } }
+/* ================================================================
+   ADDITIONS — append these to the bottom of /css/style.css
+   ================================================================ */
 
+/* ── Cookie Consent Banner ────────────────────────────────────── */
+#cookie-banner {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 9999;
+  background: #111827;
+  color: #e5e7eb;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.35);
+  transform: translateY(100%);
+  transition: transform 0.4s ease;
+}
+#cookie-banner.show { transform: translateY(0); }
+#cookie-banner p {
+  margin: 0;
+  font-size: 0.875rem;
+  flex: 1;
+  min-width: 200px;
+  line-height: 1.6;
+}
+#cookie-banner a { color: #93c5fd; text-decoration: underline; }
+
+.cookie-btns { display: flex; gap: 10px; flex-shrink: 0; }
+
+.cookie-btn-accept {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 9px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background var(--transition);
+}
+.cookie-btn-accept:hover { background: #2d5f8a; }
+
+.cookie-btn-decline {
+  background: transparent;
+  color: #9ca3af;
+  border: 1px solid #4b5563;
+  padding: 9px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: border-color var(--transition), color var(--transition);
+}
+.cookie-btn-decline:hover { border-color: #9ca3af; color: #e5e7eb; }
+
+@media (max-width: 480px) {
+  #cookie-banner { flex-direction: column; align-items: flex-start; }
+  .cookie-btns { width: 100%; }
+  .cookie-btn-accept { flex: 1; text-align: center; }
+}
+
+/* ── Lazy-loaded images: fade in on load ──────────────────────── */
+img.lazy-img {
+  transition: opacity 0.4s ease;
+}
+img.lazy-img.skeleton {
+  opacity: 0;
+}
+img.lazy-img:not(.skeleton) {
+  opacity: 1;
+}
+
+/* ── Skeleton shimmer (override if not already present) ──────── */
+.skeleton {
+  animation: shimmer 1.6s infinite linear;
+  background: linear-gradient(
+    90deg,
+    var(--border) 25%,
+    color-mix(in srgb, var(--border) 50%, white) 50%,
+    var(--border) 75%
+  );
+  background-size: 200% 100%;
+  border-radius: var(--radius-sm);
+  display: block;
+}
+[data-theme="dark"] .skeleton {
+  background: linear-gradient(
+    90deg,
+    #1e2535 25%,
+    #2a3348 50%,
+    #1e2535 75%
+  );
+  background-size: 200% 100%;
+}
+@keyframes shimmer {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
 /* ================================================================
    RESPONSIVE — 1280px
    ================================================================ */
