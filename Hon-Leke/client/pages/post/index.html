@@ -421,6 +421,12 @@
   }
 
   /* ── Comments ── */
+  function escHtml(str) {
+    return String(str || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
   async function loadComments() {
     const list  = document.getElementById('comments-list');
     const title = document.getElementById('comments-title');
@@ -432,13 +438,27 @@
         list.innerHTML = '<p style="color:var(--muted);font-size:0.9rem;margin-bottom:24px">No comments yet. Be the first!</p>';
         return;
       }
-      list.innerHTML = comments.map(c =>
-        '<div class="comment-item">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
-        '<span class="comment-author"><i class="bi bi-person-circle"></i> ' + c.name + '</span>' +
-        '<span class="comment-date">' + c.date + '</span>' +
-        '</div><p>' + c.message + '</p></div>'
-      ).join('');
+      list.innerHTML = comments.map(c => {
+        const hasReply = c.reply && c.reply.trim();
+        return (
+          '<div class="comment-item">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+              '<span class="comment-author"><i class="bi bi-person-circle"></i> ' + escHtml(c.name) + '</span>' +
+              '<span class="comment-date">' + escHtml(c.date) + '</span>' +
+            '</div>' +
+            '<p style="margin:0;font-size:0.95rem;line-height:1.7">' + escHtml(c.message) + '</p>' +
+            (hasReply
+              ? '<div style="margin-top:14px;padding:12px 16px;background:#f0f7ee;border-left:3px solid #2a7a4b;border-radius:6px">' +
+                  '<div style="font-size:0.75rem;font-weight:700;color:#2a7a4b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">' +
+                    '<i class=\"bi bi-reply-fill\"></i> Reply from Admin' +
+                  '</div>' +
+                  '<p style="margin:0;font-size:0.9rem;line-height:1.65;color:#333">' + escHtml(c.reply) + '</p>' +
+                  (c.repliedAt ? '<div style="font-size:0.75rem;color:#6c757d;margin-top:6px">' + escHtml(c.repliedAt) + '</div>' : '') +
+                '</div>'
+              : '') +
+          '</div>'
+        );
+      }).join('');
     } catch (e) { list.innerHTML = ''; }
   }
 

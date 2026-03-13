@@ -4,115 +4,386 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comments — Admin</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="/admin/assets/css/admin.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    :root {
+      --primary: #1a3c5e; --accent: #c8971f; --green: #2a7a4b;
+      --red: #dc3545; --border: #e5ddd0; --muted: #6c757d;
+      --light: #f9f5ef; --white: #fff; --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f4f6f9; color: #1a1a1a; }
+
+    .admin-wrap { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 240px; background: var(--primary); color: #fff;
+      padding: 24px 0; flex-shrink: 0; position: sticky; top: 0; height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar-brand {
+      padding: 0 20px 24px; font-size: 1rem; font-weight: 700;
+      border-bottom: 1px solid rgba(255,255,255,0.12); margin-bottom: 12px;
+    }
+    .sidebar a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 20px; color: rgba(255,255,255,0.78);
+      text-decoration: none; font-size: 0.9rem; transition: background 0.2s, color 0.2s;
+    }
+    .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.12); color: #fff; }
+    .main { flex: 1; padding: 32px; overflow-y: auto; }
+
+    .page-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px;
+    }
+    .page-header h1 { font-size: 1.5rem; color: var(--primary); }
+
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-btn {
+      padding: 7px 18px; border-radius: 20px; border: 2px solid var(--border);
+      background: var(--white); font-size: 0.83rem; font-weight: 500;
+      color: var(--muted); cursor: pointer; transition: all 0.2s;
+    }
+    .filter-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    #comments-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .comment-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px;
+      transition: box-shadow 0.2s;
+    }
+    .comment-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .comment-card.has-reply { border-left: 4px solid var(--green); }
+
+    .comment-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 12px; margin-bottom: 10px;
+    }
+    .comment-author { font-weight: 700; font-size: 0.95rem; color: var(--primary); }
+    .comment-info { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+    .comment-post-link { color: var(--primary); text-decoration: underline; }
+
+    .comment-body { font-size: 0.92rem; line-height: 1.7; color: #333; margin-bottom: 14px; }
+
+    .comment-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 6px; font-size: 0.82rem;
+      font-weight: 600; cursor: pointer; border: none; transition: all 0.2s;
+    }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-reply  { background: #deeaf7; color: var(--primary); }
+    .btn-reply:hover { background: var(--primary); color: #fff; }
+    .btn-delete { background: #fde8ea; color: var(--red); }
+    .btn-delete:hover { background: var(--red); color: #fff; }
+    .btn-save   { background: var(--green); color: #fff; }
+    .btn-save:hover { opacity: 0.88; }
+    .btn-cancel { background: #eee; color: #555; }
+    .btn-cancel:hover { background: #ddd; }
+    .btn-del-reply { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+    .btn-del-reply:hover { background: #ffc107; color: #333; }
+
+    /* Reply compose box */
+    .reply-box {
+      margin-top: 14px; padding: 16px;
+      background: var(--light); border-radius: 8px;
+      border-left: 3px solid var(--primary);
+      display: none;
+    }
+    .reply-box.open { display: block; }
+    .reply-box label { font-size: 0.8rem; font-weight: 600; color: var(--primary); margin-bottom: 8px; display: block; }
+    .reply-box textarea {
+      width: 100%; padding: 10px 14px;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: 0.9rem; font-family: inherit;
+      resize: vertical; min-height: 90px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .reply-box textarea:focus { border-color: var(--primary); }
+    .reply-box-actions { display: flex; gap: 8px; margin-top: 10px; }
+
+    /* Existing reply display */
+    .existing-reply {
+      margin-top: 14px; padding: 14px 16px;
+      background: #f0f7ee; border-radius: 8px;
+      border-left: 3px solid var(--green);
+    }
+    .existing-reply-label {
+      font-size: 0.75rem; font-weight: 700; color: var(--green);
+      text-transform: uppercase; letter-spacing: 0.8px;
+      margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+    }
+    .existing-reply-text { font-size: 0.9rem; line-height: 1.65; color: #333; }
+    .existing-reply-date { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
+
+    .badge {
+      display: inline-block; padding: 2px 10px; border-radius: 12px;
+      font-size: 0.7rem; font-weight: 700; margin-left: 8px;
+    }
+    .badge-replied { background: #d1fae5; color: #065f46; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+
+    .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty i { font-size: 3rem; display: block; margin-bottom: 12px; opacity: 0.4; }
+    .spinner {
+      width: 36px; height: 36px; border: 3px solid var(--border);
+      border-top-color: var(--primary); border-radius: 50%;
+      animation: spin 0.6s linear infinite; margin: 60px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #toast {
+      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+      color: #fff; padding: 12px 22px; border-radius: 8px;
+      font-size: 0.88rem; font-weight: 500; pointer-events: none;
+      opacity: 0; transform: translateY(8px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.success { background: var(--green); }
+    #toast.error   { background: var(--red); }
+  </style>
 </head>
 <body>
-<aside class="sidebar">
-  <div class="sidebar-brand"><h2>Hon. Leke Abejide</h2><p>Admin Panel</p></div>
-  <nav class="sidebar-nav">
-    <div class="nav-section">Main</div>
-    <a href="/admin/dashboard" class="nav-link" data-page="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
-    <div class="nav-section">Content</div>
-    <div class="nav-section">Pages</div>
-<a href="/admin/about" class="nav-link" data-page="about"><i class="bi bi-person-lines-fill"></i> About Page</a>
-    <a href="/admin/posts" class="nav-link" data-page="posts"><i class="bi bi-newspaper"></i> Blog Posts</a>
-    <a href="/admin/posts/new" class="nav-link" data-page="new-post"><i class="bi bi-plus-circle"></i> New Post</a>
-    <div class="nav-section">Engagement</div>
-    <a href="/admin/comments" class="nav-link" data-page="comments"><i class="bi bi-chat-left-text"></i> Comments</a>
-    <a href="/admin/messages" class="nav-link" data-page="messages"><i class="bi bi-envelope"></i> Messages</a>
-    <a href="/admin/subscribers" class="nav-link" data-page="subscribers"><i class="bi bi-people"></i> Subscribers</a>
-    <div class="nav-section">Site</div>
-    <a href="/admin/settings" class="nav-link" data-page="settings"><i class="bi bi-gear"></i> Settings</a>
-    <a href="/" target="_blank" class="nav-link"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
-  </nav>
-  <div class="sidebar-footer"><span id="admin-name">Admin</span> &nbsp;·&nbsp; <a href="#" id="logout-btn">Logout</a></div>
-</aside>
+<div class="admin-wrap">
 
-<div class="main-content">
-  <div class="topbar">
-    <h1 id="page-title">Comments</h1>
-    <div class="topbar-actions">
-      <div class="admin-avatar" id="admin-avatar">A</div>
+  <aside class="sidebar">
+    <div class="sidebar-brand"><i class="bi bi-person-badge"></i> Admin Panel</div>
+    <a href="/admin/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/admin/posts"><i class="bi bi-file-earmark-text"></i> Posts</a>
+    <a href="/admin/comments" class="active"><i class="bi bi-chat-left-text"></i> Comments</a>
+    <a href="/admin/messages"><i class="bi bi-envelope"></i> Messages</a>
+    <a href="/admin/subscribers"><i class="bi bi-people"></i> Subscribers</a>
+    <a href="/admin/settings"><i class="bi bi-gear"></i> Settings</a>
+    <a href="/admin/about"><i class="bi bi-person"></i> About Page</a>
+    <a href="/" target="_blank"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
+  </aside>
+
+  <div class="main">
+    <div class="page-header">
+      <h1><i class="bi bi-chat-left-text"></i> Comments</h1>
+      <span id="comment-count" style="color:var(--muted);font-size:0.9rem"></span>
     </div>
-  </div>
 
-  <div class="page-body">
-    <div class="card">
-      <div class="card-header">
-        <h3><i class="bi bi-chat-left-text"></i> All Comments <span id="comments-count" style="font-weight:400;color:var(--muted)"></span></h3>
-      </div>
-      <div class="card-body" style="padding:0">
-        <table class="admin-table">
-          <thead>
-            <tr>
-              <th>Author</th>
-              <th>Email</th>
-              <th>Comment</th>
-              <th>Post</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="comments-table">
-            <tr><td colspan="6" style="text-align:center;padding:32px;color:#718096">Loading…</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="pending">Needs Reply</button>
+      <button class="filter-btn" data-filter="replied">Replied</button>
+    </div>
+
+    <div id="comments-list">
+      <div class="spinner"></div>
     </div>
   </div>
 </div>
 
-<script src="/admin/assets/js/layout.js"></script>
+<div id="toast"></div>
+
 <script>
-initAdminLayout('Comments', 'comments');
+(function () {
+  let allComments = [];
+  let currentFilter = 'all';
 
-async function loadComments() {
-  const [commentsRes, postsRes] = await Promise.all([
-    adminAPI.get('/api/admin/comments'),
-    adminAPI.get('/api/admin/posts')
-  ]);
-  if (!commentsRes || !postsRes) return;
-
-  const comments = commentsRes.comments;
-  const posts = postsRes.posts;
-  const postMap = {};
-  posts.forEach(p => postMap[p.id] = p);
-
-  document.getElementById('comments-count').textContent = `(${comments.length})`;
-  const tbody = document.getElementById('comments-table');
-
-  if (!comments.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:#718096">No comments yet.</td></tr>';
-    return;
+  function toast(msg, type) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show ' + (type || 'success');
+    setTimeout(() => { el.className = ''; }, 3000);
   }
 
-  tbody.innerHTML = comments.map(c => {
-    const post = postMap[c.postId];
-    return `
-      <tr>
-        <td><strong style="font-size:0.875rem">${c.name}</strong></td>
-        <td style="color:#718096;font-size:0.8rem">${c.email}</td>
-        <td style="max-width:300px;font-size:0.875rem">${c.message.substring(0, 100)}${c.message.length > 100 ? '…' : ''}</td>
-        <td>${post ? `<a href="/post/${post.id}" target="_blank" style="color:var(--sidebar);font-size:0.8rem">${post.title.substring(0,40)}…</a>` : `<span style="color:#718096;font-size:0.8rem">Post #${c.postId}</span>`}</td>
-        <td style="color:#718096;font-size:0.8rem;white-space:nowrap">${c.date}</td>
-        <td>
-          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteComment(${c.id})" title="Delete"><i class="bi bi-trash"></i></button>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
+  async function api(method, url, body) {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(url, opts);
+    return res.json();
+  }
 
-async function deleteComment(id) {
-  confirmDelete('Delete this comment?', async () => {
-    const data = await adminAPI.delete(`/api/admin/comments/${id}`);
-    if (data) showToast(data.message, data.success ? 'success' : 'error');
-    if (data && data.success) loadComments();
+  function esc(str) {
+    return String(str || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  async function loadComments() {
+    document.getElementById('comments-list').innerHTML = '<div class="spinner"></div>';
+    try {
+      const data = await api('GET', '/api/admin/comments');
+      allComments = data.comments || [];
+      renderComments();
+    } catch (e) {
+      document.getElementById('comments-list').innerHTML =
+        '<div class="empty"><i class="bi bi-exclamation-circle"></i><p>Failed to load.</p></div>';
+    }
+  }
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentFilter = this.dataset.filter;
+      renderComments();
+    });
   });
-}
 
-loadComments();
+  function renderComments() {
+    const list = document.getElementById('comments-list');
+    let filtered = allComments;
+    if (currentFilter === 'replied') filtered = allComments.filter(c => c.reply);
+    if (currentFilter === 'pending')  filtered = allComments.filter(c => !c.reply);
+
+    document.getElementById('comment-count').textContent =
+      filtered.length + ' comment' + (filtered.length !== 1 ? 's' : '');
+
+    if (!filtered.length) {
+      list.innerHTML = '<div class="empty"><i class="bi bi-chat-left-text"></i><p>No comments here.</p></div>';
+      return;
+    }
+
+    list.innerHTML = filtered.map(c => cardHTML(c)).join('');
+    attachEvents();
+  }
+
+  function cardHTML(c) {
+    const hasReply = !!(c.reply && c.reply.trim());
+    return `
+      <div class="comment-card ${hasReply ? 'has-reply' : ''}" id="card-${c.id}">
+
+        <div class="comment-header">
+          <div>
+            <div class="comment-author">
+              <i class="bi bi-person-circle"></i> ${esc(c.name)}
+              <span class="badge ${hasReply ? 'badge-replied' : 'badge-pending'}">
+                ${hasReply ? '✓ Replied' : 'Pending reply'}
+              </span>
+            </div>
+            <div class="comment-info">
+              <i class="bi bi-envelope"></i> ${esc(c.email)}
+              &nbsp;·&nbsp;
+              <i class="bi bi-calendar3"></i> ${esc(c.date || '')}
+              &nbsp;·&nbsp;
+              <a class="comment-post-link" href="/post/${c.postId}" target="_blank">
+                View Post <i class="bi bi-arrow-up-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <p class="comment-body">${esc(c.message)}</p>
+
+        ${hasReply ? `
+          <div class="existing-reply" id="reply-display-${c.id}">
+            <div class="existing-reply-label">
+              <i class="bi bi-reply-fill"></i> Your Reply
+            </div>
+            <div class="existing-reply-text">${esc(c.reply)}</div>
+            <div class="existing-reply-date">${esc(c.repliedAt || '')}</div>
+          </div>
+        ` : ''}
+
+        <div class="comment-actions">
+          <button class="btn btn-reply" data-id="${c.id}">
+            <i class="bi bi-reply"></i> ${hasReply ? 'Edit Reply' : 'Reply'}
+          </button>
+          ${hasReply ? `
+            <button class="btn btn-del-reply" data-del-reply="${c.id}">
+              <i class="bi bi-x-circle"></i> Remove Reply
+            </button>
+          ` : ''}
+          <button class="btn btn-delete" data-delete="${c.id}">
+            <i class="bi bi-trash"></i> Delete
+          </button>
+        </div>
+
+        <div class="reply-box" id="reply-box-${c.id}">
+          <label>Replying to <strong>${esc(c.name)}</strong>:</label>
+          <textarea id="reply-text-${c.id}" placeholder="Type your reply…">${hasReply ? esc(c.reply) : ''}</textarea>
+          <div class="reply-box-actions">
+            <button class="btn btn-save" data-save="${c.id}">
+              <i class="bi bi-send-fill"></i> Save Reply
+            </button>
+            <button class="btn btn-cancel" data-close="${c.id}">Cancel</button>
+          </div>
+        </div>
+
+      </div>`;
+  }
+
+  function attachEvents() {
+    /* Toggle reply box */
+    document.querySelectorAll('.btn-reply').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const box = document.getElementById('reply-box-' + this.dataset.id);
+        box.classList.toggle('open');
+        if (box.classList.contains('open'))
+          document.getElementById('reply-text-' + this.dataset.id).focus();
+      });
+    });
+
+    /* Cancel */
+    document.querySelectorAll('[data-close]').forEach(btn => {
+      btn.addEventListener('click', function () {
+        document.getElementById('reply-box-' + this.dataset.close).classList.remove('open');
+      });
+    });
+
+    /* Save reply */
+    document.querySelectorAll('[data-save]').forEach(btn => {
+      btn.addEventListener('click', async function () {
+        const id    = this.dataset.save;
+        const reply = document.getElementById('reply-text-' + id).value.trim();
+        if (!reply) { toast('Reply cannot be empty.', 'error'); return; }
+
+        const orig = this.innerHTML;
+        this.disabled = true;
+        this.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving…';
+
+        const res = await api('PATCH', '/api/admin/comments/' + id + '/reply', { reply });
+        if (res.success) {
+          toast('Reply saved successfully!');
+          const idx = allComments.findIndex(c => c.id === id);
+          if (idx !== -1) Object.assign(allComments[idx], res.comment);
+          renderComments();
+        } else {
+          toast(res.message || 'Failed to save.', 'error');
+          this.disabled = false;
+          this.innerHTML = orig;
+        }
+      });
+    });
+
+    /* Remove reply */
+    document.querySelectorAll('[data-del-reply]').forEach(btn => {
+      btn.addEventListener('click', async function () {
+        if (!confirm('Remove this reply? The comment will show as unanswered.')) return;
+        const id  = this.dataset.delReply;
+        const res = await api('PATCH', '/api/admin/comments/' + id + '/reply/delete');
+        if (res.success) {
+          toast('Reply removed.');
+          const idx = allComments.findIndex(c => c.id === id);
+          if (idx !== -1) { allComments[idx].reply = ''; allComments[idx].repliedAt = ''; }
+          renderComments();
+        } else { toast(res.message || 'Failed.', 'error'); }
+      });
+    });
+
+    /* Delete comment */
+    document.querySelectorAll('[data-delete]').forEach(btn => {
+      btn.addEventListener('click', async function () {
+        if (!confirm('Delete this comment permanently?')) return;
+        const id  = this.dataset.delete;
+        const res = await api('DELETE', '/api/admin/comments/' + id);
+        if (res.success) {
+          toast('Comment deleted.');
+          allComments = allComments.filter(c => c.id !== id);
+          renderComments();
+        } else { toast(res.message || 'Failed.', 'error'); }
+      });
+    });
+  }
+
+  loadComments();
+})();
 </script>
 </body>
 </html>
