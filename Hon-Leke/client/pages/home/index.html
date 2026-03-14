@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
-<link rel="icon" href="/favicon.png">
+  <link rel="icon" href="/favicon.png">
 </head>
 <body>
 
@@ -21,7 +21,7 @@
 <header id="header">
   <div class="header-inner">
     <a href="/" class="logo">
-      <img src="/Logo.png" alt="Hon. Leke Abejide" 
+      <img src="/Logo.png" alt="Hon. Leke Abejide"
            style="height:28px;width:auto;object-fit:contain;display:block;">
       <span id="site-logo-text">Hon. Leke Abejide</span>
     </a>
@@ -39,10 +39,10 @@
         <a href="#" target="_blank" id="hdr-tw"><i class="bi bi-twitter-x"></i></a>
       </div>
       <button class="search-toggle" aria-label="Search"><i class="bi bi-search"></i></button>
-        <button class="theme-toggle" aria-label="Toggle dark mode">
-    <i class="bi bi-moon-fill icon-moon"></i>
-    <i class="bi bi-sun-fill icon-sun"></i>
-  </button>
+      <button class="theme-toggle" aria-label="Toggle dark mode">
+        <i class="bi bi-moon-fill icon-moon"></i>
+        <i class="bi bi-sun-fill icon-sun"></i>
+      </button>
       <button class="mobile-nav-toggle" aria-label="Toggle menu"><i class="bi bi-list"></i></button>
     </div>
   </div>
@@ -58,6 +58,7 @@
 </div>
 
 <main id="main">
+
   <!-- Hero Slider -->
   <section class="hero-slider-section">
     <div class="container-fluid px-0">
@@ -98,6 +99,7 @@
       </div>
     </div>
   </section>
+
 </main>
 
 <!-- Footer -->
@@ -131,7 +133,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span id="footer-copy">2024 Hon. Leke Abejide. All Rights Reserved.</span>
+      <span id="footer-copy">© 2024 Hon. Leke Abejide. All Rights Reserved.</span>
       <div class="footer-social">
         <a href="#" target="_blank" id="ft-fb"><i class="bi bi-facebook"></i></a>
         <a href="#" target="_blank" id="ft-ig"><i class="bi bi-instagram"></i></a>
@@ -148,39 +150,41 @@
 <script>
 document.addEventListener('DOMContentLoaded', async function () {
 
-  // ── Helper: handles both Cloudinary https:// and local /image/ paths
   function mediaUrl(src) {
     if (!src) return '';
     return src.startsWith('http') ? src : '/' + src;
   }
 
-  /* Settings */
+  /* ── Settings ── */
   try {
     const s = await API.get('/api/admin/settings');
     if (s.success) applySettings(s.settings);
   } catch(e) {}
 
   function applySettings(settings) {
-    ['site-logo-text','footer-site-name'].forEach(id => {
+    ['site-logo-text', 'footer-site-name'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.textContent = settings.heroTitle || 'Hon. Leke Abejide';
     });
     const fa = document.getElementById('footer-about');
     if (fa) fa.textContent = settings.footerAbout || '';
     const map = {
-      facebookUrl:  ['hdr-fb','ft-fb'],
-      instagramUrl: ['hdr-ig','ft-ig'],
-      twitterUrl:   ['hdr-tw','ft-tw']
+      facebookUrl:  ['hdr-fb', 'ft-fb'],
+      instagramUrl: ['hdr-ig', 'ft-ig'],
+      twitterUrl:   ['hdr-tw', 'ft-tw']
     };
     Object.entries(map).forEach(([key, ids]) => {
-      if (settings[key]) ids.forEach(id => { const el=document.getElementById(id); if(el) el.href=settings[key]; });
+      if (settings[key]) ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.href = settings[key];
+      });
     });
   }
 
-  /* Slider */
+  /* ── Slider ── */
   async function loadSlider() {
     try {
-      const data = await API.get('/api/posts/slider');
+      const data    = await API.get('/api/posts/slider');
       const wrapper = document.getElementById('slider-wrapper');
       if (!data.slides || !data.slides.length) {
         wrapper.innerHTML = '<div class="swiper-slide"><div class="slider-empty"><i class="bi bi-images"></i><p>No featured posts</p></div></div>';
@@ -207,103 +211,134 @@ document.addEventListener('DOMContentLoaded', async function () {
         navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
         effect: 'fade', fadeEffect: { crossFade: true }
       });
-    } catch(e) { document.getElementById('slider-wrapper').innerHTML = ''; }
+    } catch(e) {
+      document.getElementById('slider-wrapper').innerHTML = '';
+    }
   }
 
-  /* Categories */
+  /* ── Categories ── */
   async function loadCategories() {
     try {
       const data = await API.get('/api/posts/categories');
-      const bar = document.getElementById('category-filters');
+      const bar  = document.getElementById('category-filters');
       (data.categories || []).forEach(cat => {
-        const btn = document.createElement('button');
-        btn.className = 'cat-btn'; btn.dataset.cat = cat.toLowerCase(); btn.textContent = cat;
+        const btn       = document.createElement('button');
+        btn.className   = 'cat-btn';
+        btn.dataset.cat = cat.toLowerCase();
+        btn.textContent = cat;
         bar.appendChild(btn);
       });
       bar.querySelectorAll('.cat-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           bar.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active'); loadPosts(btn.dataset.cat);
+          btn.classList.add('active');
+          loadPosts(btn.dataset.cat);
         });
       });
     } catch(e) {}
   }
 
-  /* Posts */
-  let allPosts = [], currentPage = 1;
-  const perPage = 9;
+  /* ── Posts ── */
+  let allPosts    = [];
+  let currentPage = 1;
+  const perPage   = 9;
 
   async function loadPosts(cat = 'all', search = '') {
     const grid    = document.getElementById('posts-grid');
     const noPosts = document.getElementById('no-posts');
     const lmWrap  = document.getElementById('load-more-wrap');
-    currentPage = 1;
-    grid.innerHTML = '<div class="loading-posts"><div class="spinner-lg"></div><p>Loading...</p></div>';
-    noPosts.style.display = 'none'; lmWrap.style.display = 'none';
+    currentPage           = 1;
+    grid.innerHTML        = '<div class="loading-posts"><div class="spinner-lg"></div><p>Loading...</p></div>';
+    noPosts.style.display = 'none';
+    lmWrap.style.display  = 'none';
+
     try {
-      let url = '/api/posts';
+      let url      = '/api/posts';
       const params = [];
       if (cat !== 'all') params.push('category=' + encodeURIComponent(cat));
-      if (search) params.push('search=' + encodeURIComponent(search));
+      if (search)        params.push('search='   + encodeURIComponent(search));
       if (params.length) url += '?' + params.join('&');
+
       const data = await API.get(url);
       allPosts = data.posts || [];
-      if (!allPosts.length) { grid.innerHTML = ''; noPosts.style.display = 'flex'; return; }
+
+      if (!allPosts.length) {
+        grid.innerHTML = '';
+        noPosts.style.display = 'flex';
+        return;
+      }
+
       renderPosts(allPosts.slice(0, perPage), grid, true);
       if (allPosts.length > perPage) lmWrap.style.display = 'block';
 
-      // Footer recent posts — fixed mediaUrl
+      /* Footer recent posts */
       const fr = document.getElementById('footer-recent-posts');
-      if (fr) fr.innerHTML = allPosts.slice(0,3).map(p =>
+      if (fr) fr.innerHTML = allPosts.slice(0, 3).map(p =>
         `<li><a href="/post/${p.id}" class="footer-recent-item">
           ${p.image ? `<img src="${mediaUrl(p.image)}" alt="${p.title}" onerror="this.style.display='none'">` : ''}
-          <div><span class="footer-post-date">${p.date}</span><span class="footer-post-title">${p.title.substring(0,55)}...</span></div>
+          <div>
+            <span class="footer-post-date">${p.date}</span>
+            <span class="footer-post-title">${p.title.substring(0, 55)}...</span>
+          </div>
         </a></li>`).join('');
+
     } catch(e) {
       grid.innerHTML = '<div class="no-posts"><i class="bi bi-exclamation-circle"></i><p>Failed to load posts.</p></div>';
     }
   }
 
-function cardHTML(p) {
-  const media = p.hasVideo && p.videoSrc
-    ? `<video class="post-card-video" muted loop playsinline preload="metadata"
-         onmouseover="this.play()" onmouseout="this.pause()">
-         <source src="${mediaUrl(p.videoSrc)}" type="video/mp4">
-       </video>`
-    : p.image
-      ? `<img src="${mediaUrl(p.image)}" alt="${p.title}" class="post-card-img" loading="lazy">`
-      : `<div class="post-card-img-placeholder"><i class="bi bi-newspaper"></i></div>`;
+  /* ── Card HTML ── */
+  function cardHTML(p) {
+    const media = p.hasVideo && p.videoSrc
+      ? `<video class="post-card-video" muted loop playsinline preload="metadata"
+           onmouseover="this.play()" onmouseout="this.pause()">
+           <source src="${mediaUrl(p.videoSrc)}" type="video/mp4">
+         </video>`
+      : p.image
+        ? `<img src="${mediaUrl(p.image)}" alt="${p.title}" class="post-card-img" loading="lazy">`
+        : `<div class="post-card-img-placeholder"><i class="bi bi-newspaper"></i></div>`;
 
-  return `
-    <article class="post-card" onclick="window.location.href='/post/${p.id}'">
-      <div class="post-card-media">
-        ${media}
-        ${p.featured ? '<span class="featured-badge"><i class="bi bi-star-fill"></i> Featured</span>' : ''}
-      </div>
-      <div class="post-card-body">
-        <span class="post-cat-badge">${p.category}</span>
-        <h3>${p.title}</h3>
-        <p>${p.excerpt}</p>
-        <div class="post-meta-row">
-          <span><i class="bi bi-calendar3"></i> ${p.date}</span>
-          <span class="read-more">Read More <i class="bi bi-arrow-right"></i></span>
+    return `
+      <article class="post-card" onclick="window.location.href='/post/${p.id}'">
+        <div class="post-card-media">
+          ${media}
+          ${p.featured ? '<span class="featured-badge"><i class="bi bi-star-fill"></i> Featured</span>' : ''}
         </div>
-      </div>
-    </article>`;
-}
-
-  function renderPosts(posts, grid, replace) {
-    const html = posts.map(cardHTML).join('');
-    replace ? (grid.innerHTML = html) : grid.insertAdjacentHTML('beforeend', html);
+        <div class="post-card-body">
+          <span class="post-cat-badge">${p.category}</span>
+          <h3>${p.title}</h3>
+          <p>${p.excerpt}</p>
+          <div class="post-meta-row">
+            <span><i class="bi bi-calendar3"></i> ${p.date}</span>
+            <span class="read-more">Read More <i class="bi bi-arrow-right"></i></span>
+          </div>
+        </div>
+      </article>`;
   }
 
+  /* ── Render + animate ── */
+  function renderPosts(posts, grid, replace) {
+    const html = posts.map(cardHTML).join('');
+    if (replace) {
+      grid.innerHTML = html;
+    } else {
+      grid.insertAdjacentHTML('beforeend', html);
+    }
+    /* Run the stagger animation on ALL cards currently in the grid */
+    animateBlogCards();
+  }
+
+  /* ── Load More ── */
   document.getElementById('load-more-btn').addEventListener('click', () => {
     currentPage++;
     const start = (currentPage - 1) * perPage;
     renderPosts(allPosts.slice(start, start + perPage), document.getElementById('posts-grid'), false);
-    if (currentPage * perPage >= allPosts.length) document.getElementById('load-more-wrap').style.display = 'none';
+    if (currentPage * perPage >= allPosts.length) {
+      document.getElementById('load-more-wrap').style.display = 'none';
+    }
   });
 
+  /* ── Search ── */
   document.getElementById('search-form').addEventListener('submit', e => {
     e.preventDefault();
     const q = document.getElementById('search-input').value.trim();
@@ -314,19 +349,26 @@ function cardHTML(p) {
     loadPosts('all', q);
   });
 
+  /* ── Newsletter ── */
   document.getElementById('newsletter-form').addEventListener('submit', async e => {
     e.preventDefault();
     const email = e.target.querySelector('input').value.trim();
-    const msg = document.getElementById('newsletter-msg');
+    const msg   = document.getElementById('newsletter-msg');
     try {
       const res = await API.post('/api/subscribe', { email });
-      msg.textContent = res.message; msg.style.color = res.success ? '#90ee90' : '#ff6b6b';
+      msg.textContent = res.message;
+      msg.style.color = res.success ? '#90ee90' : '#ff6b6b';
       if (res.success) e.target.querySelector('input').value = '';
-    } catch(err) { msg.textContent = 'Something went wrong.'; msg.style.color = '#ff6b6b'; }
+    } catch(err) {
+      msg.textContent = 'Something went wrong.';
+      msg.style.color = '#ff6b6b';
+    }
   });
 
+  /* ── Init ── */
   await Promise.all([loadSlider(), loadCategories()]);
   await loadPosts();
+
 });
 </script>
 </body>
