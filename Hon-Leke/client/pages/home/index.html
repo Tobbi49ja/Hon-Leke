@@ -287,16 +287,24 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
   }
 
-  /* ── Card HTML ── */
+  /* ── Card HTML ──
+     Video posts: show static image thumbnail + play icon overlay.
+     Clicking always opens the full post page (no inline autoplay).        */
   function cardHTML(p) {
-    const media = p.hasVideo && p.videoSrc
-      ? `<video class="post-card-video" muted loop playsinline preload="metadata"
-           onmouseover="this.play()" onmouseout="this.pause()">
-           <source src="${mediaUrl(p.videoSrc)}" type="video/mp4">
-         </video>`
+    const media = p.hasVideo && p.image
+      ? `<div style="position:relative;width:100%;height:100%">
+           <img src="${mediaUrl(p.image)}" alt="${p.title}" class="post-card-img" loading="lazy">
+           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25)">
+             <i class="bi bi-play-circle-fill" style="font-size:3rem;color:white;opacity:0.9"></i>
+           </div>
+         </div>`
       : p.image
         ? `<img src="${mediaUrl(p.image)}" alt="${p.title}" class="post-card-img" loading="lazy">`
-        : `<div class="post-card-img-placeholder"><i class="bi bi-newspaper"></i></div>`;
+        : p.hasVideo
+          ? `<div class="post-card-img-placeholder" style="background:#111">
+               <i class="bi bi-play-circle" style="color:#aaa"></i>
+             </div>`
+          : `<div class="post-card-img-placeholder"><i class="bi bi-newspaper"></i></div>`;
 
     return `
       <article class="post-card" onclick="window.location.href='/post/${p.id}'">
@@ -324,7 +332,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     } else {
       grid.insertAdjacentHTML('beforeend', html);
     }
-    /* Run the stagger animation on ALL cards currently in the grid */
     animateBlogCards();
   }
 

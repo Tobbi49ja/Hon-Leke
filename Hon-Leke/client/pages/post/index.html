@@ -3,7 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Post — Hon. Leke Abejide</title>
+
+  <!-- ── Open Graph / Social sharing meta tags (filled by JS) ── -->
+  <title id="page-title">Post — Hon. Leke Abejide</title>
+  <meta id="og-title"       property="og:title"       content="Hon. Leke Abejide">
+  <meta id="og-description" property="og:description" content="Official blog of Rt. Hon. Leke Abejide">
+  <meta id="og-image"       property="og:image"       content="/favicon.png">
+  <meta id="og-url"         property="og:url"         content="">
+  <meta id="og-type"        property="og:type"        content="article">
+  <meta id="og-site"        property="og:site_name"   content="Hon. Leke Abejide">
+  <meta id="tw-card"        name="twitter:card"       content="summary_large_image">
+  <meta id="tw-title"       name="twitter:title"      content="Hon. Leke Abejide">
+  <meta id="tw-description" name="twitter:description" content="Official blog of Rt. Hon. Leke Abejide">
+  <meta id="tw-image"       name="twitter:image"      content="/favicon.png">
+  <meta name="description"  content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -63,20 +77,76 @@
     /* Lazy img placeholder shimmer while loading */
     img.lazy-img { transition: opacity 0.3s ease; }
     img.lazy-img.skeleton { opacity: 0.5; }
+
+    /* ── Download / right-click prevention ── */
+    .post-single-img,
+    .post-single-img-wrap,
+    .post-card-img,
+    video {
+      -webkit-user-select: none;
+      user-select: none;
+      pointer-events: none;
+    }
+    /* Re-enable pointer events on video controls wrapper */
+    .video-wrap { pointer-events: all; }
+    video.protected { pointer-events: none; }
+
+    /* Overlay sits on top of images to block right-click */
+    .img-protect-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      cursor: default;
+    }
+
+    /* Video preview container */
+    .video-wrap {
+      position: relative;
+      width: 100%;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 28px;
+      background: #000;
+    }
+    .video-wrap video {
+      width: 100%;
+      display: block;
+      pointer-events: all;
+    }
+    .video-preview-badge {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      z-index: 5;
+    }
   </style>
 </head>
 <body>
+
 <div class="nav-overlay" id="nav-overlay"></div>
+
+<!-- Disable right-click on images/videos globally -->
+<script>
+  document.addEventListener("contextmenu", function(e) {
+    if (e.target.tagName === "IMG" || e.target.tagName === "VIDEO") {
+      e.preventDefault();
+    }
+  });
+</script>
 
 <header id="header">
   <div class="header-inner">
     <a href="/" class="logo">
-      <img src="/Logo.png" alt="Hon. Leke Abejide"
-           style="height:28px;width:auto;object-fit:contain;display:block;">
+      <img src="/favicon.png" alt="Hon. Leke Abejide"
+           style="height:48px;width:auto;object-fit:contain;display:block;">
       <span id="site-logo-text">Hon. Leke Abejide</span>
     </a>
-
-    <!-- nav + nav-overlay are what app.js targets -->
     <nav class="navbar" id="navbar">
       <ul id="nav-links">
         <li><a href="/">Blog</a></li>
@@ -84,14 +154,12 @@
         <li><a href="/contact">Contact</a></li>
       </ul>
     </nav>
-
     <div class="header-actions">
       <div class="header-social">
         <a href="#" target="_blank" id="hdr-fb"><i class="bi bi-facebook"></i></a>
         <a href="#" target="_blank" id="hdr-ig"><i class="bi bi-instagram"></i></a>
       </div>
       <button class="search-toggle" aria-label="Search"><i class="bi bi-search"></i></button>
-      <!-- hamburger button — app.js listens for .mobile-nav-toggle -->
       <button class="mobile-nav-toggle" aria-label="Toggle menu" aria-expanded="false">
         <i class="bi bi-list"></i>
       </button>
@@ -165,7 +233,6 @@
         <aside class="sidebar">
           <div class="sidebar-widget">
             <h4><i class="bi bi-clock-history"></i> Recent Posts</h4>
-            <!-- Skeleton while loading -->
             <div id="recent-posts">
               <div style="display:flex;flex-direction:column;gap:12px">
                 <div style="display:flex;gap:10px;align-items:center">
@@ -259,7 +326,7 @@
 
 <a href="#" class="scroll-top"><i class="bi bi-arrow-up"></i></a>
 
-<!-- Cookie Banner (shown on first visit) -->
+<!-- Cookie Banner -->
 <div id="cookie-banner" role="dialog" aria-label="Cookie consent">
   <p>
     We use cookies to improve your experience.
@@ -272,7 +339,6 @@
   </div>
 </div>
 
-<!-- app.js must load BEFORE the inline script so API & LazyLoader are available -->
 <script src="/js/app.js"></script>
 <script>
 (async function () {
@@ -300,7 +366,6 @@
     el.style.marginTop = '14px';
   }
 
-  /* Helper: build a lazy <img> tag (picks up by LazyLoader.observer) */
   function lazyImg(src, cls, alt, onerrorCode) {
     return `<img
       data-src="${src}"
@@ -312,18 +377,22 @@
     >`;
   }
 
+  function escHtml(str) {
+    return String(str || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
   /* ── Get post ID from URL ── */
   const postId = window.location.pathname.split('/').pop();
   if (!postId || postId.length < 10) { window.location.href = '/'; return; }
 
-  /* ── Site owner name — used in reply labels & post author line ── */
   let siteOwnerName = 'Hon. Leke Abejide';
 
-  /* ── Settings (social links + site name) ── */
+  /* ── Settings ── */
   try {
     const s = await API.get('/api/posts/site-settings');
     if (s.success && s.settings) {
-      // Pull the site owner name from settings if available
       if (s.settings.heroTitle) siteOwnerName = s.settings.heroTitle;
       if (s.settings.facebookUrl) {
         ['hdr-fb', 'sb-fb', 'ft-fb'].forEach(id => {
@@ -340,6 +409,42 @@
     }
   } catch (e) {}
 
+  /* ── Inject Open Graph meta tags for social sharing previews ── */
+  async function injectOGTags(postId) {
+    try {
+      const og = await API.get('/api/posts/' + postId + '/og');
+      if (!og.success) return;
+
+      document.title = og.title + ' — ' + og.siteName;
+
+      const setMeta = (id, attr, val) => {
+        const el = document.getElementById(id);
+        if (el && val) el.setAttribute(attr, val);
+      };
+
+      setMeta('og-title',       'content', og.title);
+      setMeta('og-description', 'content', og.description);
+      setMeta('og-image',       'content', og.image);
+      setMeta('og-url',         'content', og.url || window.location.href);
+      setMeta('og-type',        'content', 'article');
+      setMeta('og-site',        'content', og.siteName);
+      setMeta('tw-title',       'content', og.title);
+      setMeta('tw-description', 'content', og.description);
+      setMeta('tw-image',       'content', og.image);
+
+      /* Update or create canonical link */
+      let canonical = document.querySelector('link[rel="canonical"]');
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.rel = 'canonical';
+        document.head.appendChild(canonical);
+      }
+      canonical.href = og.url || window.location.href;
+    } catch(e) {
+      console.warn('OG tag injection failed:', e.message);
+    }
+  }
+
   /* ── Load post ── */
   async function loadPost() {
     const skeleton = document.getElementById('post-skeleton');
@@ -350,7 +455,6 @@
       const p = data.post;
       document.title = p.title + ' — Hon. Leke Abejide';
 
-      /* ── Render blocks (new) or fall back to legacy content + image ── */
       function renderTextBlock(text) {
         return text.split(/\n\n+/)
           .map(s => s.trim()).filter(Boolean)
@@ -358,28 +462,49 @@
           .join('');
       }
 
+      /* Image block with protection overlay */
       function renderImageBlock(b) {
         if (!b.image) return '';
         return (
           '<figure style="margin:28px 0">' +
-            '<div class="post-single-img-wrap">' +
+            '<div class="post-single-img-wrap" style="position:relative">' +
               '<div class="post-single-img-blur" data-bg-src="' + mediaUrl(b.image) + '"></div>' +
               lazyImg(mediaUrl(b.image), 'post-single-img', b.caption || p.title, "this.parentElement.style.display='none'") +
+              '<div class="img-protect-overlay" oncontextmenu="return false"></div>' +
             '</div>' +
-            (b.caption ? '<figcaption style="text-align:center;font-size:0.82rem;color:var(--muted);margin-top:8px;font-style:italic">' + escHtml(b.caption) + '</figcaption>' : '') +
+            (b.caption
+              ? '<figcaption style="text-align:center;font-size:0.82rem;color:var(--muted);margin-top:8px;font-style:italic">'
+                + escHtml(b.caption) + '</figcaption>'
+              : '') +
           '</figure>'
         );
       }
 
+      /* Video block — YouTube embed or 10-second upload preview */
       function renderVideoBlock(b) {
         if (b.videoType === 'youtube' && b.videoUrl) {
-          return '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin:28px 0">' +
-            '<iframe src="' + toYouTubeEmbed(b.videoUrl) + '" ' +
-            'style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen loading="lazy"></iframe></div>';
+          const embedUrl = toYouTubeEmbed(b.videoUrl) + '?rel=0&modestbranding=1';
+          return (
+            '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin:28px 0">' +
+            '<iframe src="' + embedUrl + '" ' +
+            'style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen loading="lazy"></iframe>' +
+            '</div>'
+          );
         }
         if (b.videoSrc) {
-          return '<video controls style="width:100%;border-radius:12px;margin:28px 0">' +
-            '<source src="' + mediaUrl(b.videoSrc) + '" type="video/mp4">Your browser does not support video.</video>';
+          return (
+            '<div class="video-wrap">' +
+            '<span class="video-preview-badge"><i class="bi bi-play-circle"></i> 10s Preview</span>' +
+            '<video controls controlsList="nodownload nofullscreen noremoteplayback" ' +
+            'disablePictureInPicture ' +
+            'oncontextmenu="return false" ' +
+            'ontimeupdate="if(this.currentTime>=10&&!this._ended){this._ended=true;this.pause();this.currentTime=0;}" ' +
+            'style="width:100%;display:block">' +
+            '<source src="' + mediaUrl(b.videoSrc) + '" type="video/mp4">' +
+            'Your browser does not support video.' +
+            '</video>' +
+            '</div>'
+          );
         }
         return '';
       }
@@ -387,7 +512,6 @@
       let bodyHtml = '';
 
       if (p.blocks && p.blocks.length) {
-        // New block-based post
         bodyHtml = p.blocks.map(b => {
           if (b.type === 'text')  return '<div class="post-single-content">' + renderTextBlock(b.text || '') + '</div>';
           if (b.type === 'image') return renderImageBlock(b);
@@ -395,7 +519,6 @@
           return '';
         }).join('');
       } else {
-        // Legacy post — show top image then content
         let mediaHtml = '';
         if (p.hasVideo && p.videoType === 'youtube' && p.videoUrl) {
           mediaHtml = renderVideoBlock({ videoType:'youtube', videoUrl: p.videoUrl });
@@ -404,9 +527,10 @@
         } else if (p.images && p.images.length > 1) {
           mediaHtml = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:28px">' +
             p.images.map(img =>
-              '<div class="post-single-img-wrap" style="margin-bottom:0">' +
+              '<div class="post-single-img-wrap" style="margin-bottom:0;position:relative">' +
               '<div class="post-single-img-blur" data-bg-src="' + mediaUrl(img) + '"></div>' +
               lazyImg(mediaUrl(img), 'post-single-img', p.title, "this.parentElement.style.display='none'") +
+              '<div class="img-protect-overlay" oncontextmenu="return false"></div>' +
               '</div>'
             ).join('') + '</div>';
         } else if (p.image) {
@@ -414,9 +538,6 @@
         }
         bodyHtml = mediaHtml + '<div class="post-single-content">' + renderTextBlock(p.content || '') + '</div>';
       }
-
-      const mediaHtml = '';   // kept for reference — now part of bodyHtml
-      const contentHtml = ''; // kept for reference — now part of bodyHtml
 
       el.innerHTML =
         '<div class="post-single-header page-fade">' +
@@ -433,11 +554,11 @@
         '<a href="https://wa.me/?text=' + encodeURIComponent(p.title + ' ' + window.location.href) + '" target="_blank" class="social-link" style="color:#25d366"><i class="bi bi-whatsapp"></i></a>' +
         '</div></div></div>';
 
-      /* Hide skeleton → show content */
+      /* Inject OG tags for social previews */
+      injectOGTags(postId);
+
       skeleton.style.display = 'none';
       el.style.display = 'block';
-
-      /* Trigger lazy loading on newly injected images/bg elements */
       LazyLoader.observe(el);
 
       document.getElementById('comments-section').style.display = 'block';
@@ -453,12 +574,6 @@
   }
 
   /* ── Comments ── */
-  function escHtml(str) {
-    return String(str || '')
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
   async function loadComments() {
     const list  = document.getElementById('comments-list');
     const title = document.getElementById('comments-title');
@@ -482,7 +597,7 @@
             (hasReply
               ? '<div style="margin-top:14px;padding:12px 16px;background:#f0f7ee;border-left:3px solid #2a7a4b;border-radius:6px">' +
                   '<div style="font-size:0.75rem;font-weight:700;color:#2a7a4b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">' +
-                    '<i class=\"bi bi-reply-fill\"></i> Reply from ' + siteOwnerName +
+                    '<i class="bi bi-reply-fill"></i> Reply from ' + siteOwnerName +
                   '</div>' +
                   '<p style="margin:0;font-size:0.9rem;line-height:1.65;color:#333">' + escHtml(c.reply) + '</p>' +
                   (c.repliedAt ? '<div style="font-size:0.75rem;color:#6c757d;margin-top:6px">' + escHtml(c.repliedAt) + '</div>' : '') +
@@ -522,7 +637,7 @@
     }
   });
 
-  /* ── Sidebar: recent posts (with lazy thumbnails) ── */
+  /* ── Sidebar: recent posts ── */
   async function loadRecentPosts() {
     const el = document.getElementById('recent-posts');
     try {

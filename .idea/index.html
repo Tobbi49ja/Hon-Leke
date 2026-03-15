@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stagger Grid</title>
+<style>
+    *{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+background:#0f172a;
+color:white;
+padding:80px 5%;
+}
+
+.title{
+text-align:center;
+font-size:40px;
+margin-bottom:60px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:30px;
+}
+
+.card{
+background:#1e293b;
+border-radius:14px;
+overflow:hidden;
+box-shadow:0 10px 25px rgba(0,0,0,0.3);
+
+opacity:0;
+transform:translateY(40px);
+
+transition:all .7s ease;
+}
+
+.card img{
+width:100%;
+height:180px;
+object-fit:cover;
+}
+
+.card h3{
+padding:20px 20px 5px;
+}
+
+.card p{
+padding:0 20px 20px;
+opacity:.7;
+}
+
+.card.show{
+opacity:1;
+transform:translateY(0);
+}
+</style>
+</head>
+<body>
+
+<section class="grid-section">
+
+<h1 class="title">Featured Projects</h1>
+
+<div class="grid">
+
+<div class="card">
+<img src="https://picsum.photos/400/300?1">
+<h3>Project One</h3>
+<p>Modern design interface.</p>
+</div>
+
+<div class="card">
+<img src="https://picsum.photos/400/300?2">
+<h3>Project Two</h3>
+<p>Creative web layouts.</p>
+</div>
+
+<div class="card">
+<img src="https://picsum.photos/400/300?3">
+<h3>Project Three</h3>
+<p>Smooth UI animations.</p>
+</div>
+
+<div class="card">
+<img src="https://picsum.photos/400/300?4">
+<h3>Project Four</h3>
+<p>Responsive experience.</p>
+</div>
+
+<div class="card">
+<img src="https://picsum.photos/400/300?5">
+<h3>Project Five</h3>
+<p>Fast and optimized.</p>
+</div>
+
+<div class="card">
+<img src="https://picsum.photos/400/300?6">
+<h3>Project Six</h3>
+<p>Professional UI system.</p>
+</div>
+
+</div>
+
+</section>
+
+<script>
+const cards = document.querySelectorAll(".card")
+
+const observer = new IntersectionObserver((entries)=>{
+entries.forEach(entry=>{
+
+if(entry.isIntersecting){
+
+cards.forEach((card,index)=>{
+
+setTimeout(()=>{
+card.classList.add("show")
+}, index * 200)
+
+})
+
+}
+
+})
+},{threshold:0.3})
+
+observer.observe(document.querySelector(".grid"))
+</script>
+</body>
+</html>
