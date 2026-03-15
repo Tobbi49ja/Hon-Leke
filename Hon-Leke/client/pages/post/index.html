@@ -4,19 +4,25 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ── Open Graph / Social sharing meta tags (filled by JS) ── -->
+  <!-- ── Open Graph / Social sharing meta tags ──────────────────────────────
+       These are pre-filled with defaults here.
+       When a real user visits, JS updates them via injectOGTags().
+       When WhatsApp/Facebook/Twitter crawls the link, the server (posts.js
+       /post/:id route) injects the real post values BEFORE sending HTML —
+       so crawlers always see the correct title, image and description.
+  ──────────────────────────────────────────────────────────────────────── -->
   <title id="page-title">Post — Hon. Leke Abejide</title>
-  <meta id="og-title"       property="og:title"       content="Hon. Leke Abejide">
-  <meta id="og-description" property="og:description" content="Official blog of Rt. Hon. Leke Abejide">
-  <meta id="og-image"       property="og:image"       content="/favicon.png">
-  <meta id="og-url"         property="og:url"         content="">
-  <meta id="og-type"        property="og:type"        content="article">
-  <meta id="og-site"        property="og:site_name"   content="Hon. Leke Abejide">
-  <meta id="tw-card"        name="twitter:card"       content="summary_large_image">
-  <meta id="tw-title"       name="twitter:title"      content="Hon. Leke Abejide">
-  <meta id="tw-description" name="twitter:description" content="Official blog of Rt. Hon. Leke Abejide">
-  <meta id="tw-image"       name="twitter:image"      content="/favicon.png">
-  <meta name="description"  content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives">
+  <meta id="og-title"       property="og:title"        content="Hon. Leke Abejide">
+  <meta id="og-description" property="og:description"  content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives.">
+  <meta id="og-image"       property="og:image"        content="/favicon.png">
+  <meta id="og-url"         property="og:url"          content="">
+  <meta id="og-type"        property="og:type"         content="article">
+  <meta id="og-site"        property="og:site_name"    content="Hon. Leke Abejide">
+  <meta id="tw-card"        name="twitter:card"        content="summary_large_image">
+  <meta id="tw-title"       name="twitter:title"       content="Hon. Leke Abejide">
+  <meta id="tw-description" name="twitter:description" content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives.">
+  <meta id="tw-image"       name="twitter:image"       content="/favicon.png">
+  <meta name="description"  content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives.">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,20 +84,13 @@
     img.lazy-img { transition: opacity 0.3s ease; }
     img.lazy-img.skeleton { opacity: 0.5; }
 
-    /* ── Download / right-click prevention ── */
+    /* ── Image right-click protection ── */
     .post-single-img,
-    .post-single-img-wrap,
-    .post-card-img,
-    video {
+    .post-card-img {
       -webkit-user-select: none;
       user-select: none;
       pointer-events: none;
     }
-    /* Re-enable pointer events on video controls wrapper */
-    .video-wrap { pointer-events: all; }
-    video.protected { pointer-events: none; }
-
-    /* Overlay sits on top of images to block right-click */
     .img-protect-overlay {
       position: absolute;
       inset: 0;
@@ -99,31 +98,18 @@
       cursor: default;
     }
 
-    /* Video preview container */
-    .video-wrap {
+    /* ── Video: full-width, normal playback inside post ── */
+    .post-video-wrap {
       position: relative;
       width: 100%;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-md, 12px);
       overflow: hidden;
-      margin-bottom: 28px;
+      margin: 28px 0;
       background: #000;
     }
-    .video-wrap video {
+    .post-video-wrap video {
       width: 100%;
       display: block;
-      pointer-events: all;
-    }
-    .video-preview-badge {
-      position: absolute;
-      top: 12px; right: 12px;
-      background: rgba(0,0,0,0.65);
-      color: #fff;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-      letter-spacing: 0.5px;
-      z-index: 5;
     }
   </style>
 </head>
@@ -131,12 +117,10 @@
 
 <div class="nav-overlay" id="nav-overlay"></div>
 
-<!-- Disable right-click on images/videos globally -->
+<!-- Block right-click save on images -->
 <script>
   document.addEventListener("contextmenu", function(e) {
-    if (e.target.tagName === "IMG" || e.target.tagName === "VIDEO") {
-      e.preventDefault();
-    }
+    if (e.target.tagName === "IMG") e.preventDefault();
   });
 </script>
 
@@ -144,7 +128,7 @@
   <div class="header-inner">
     <a href="/" class="logo">
       <img src="/Logo.png" alt="Hon. Leke Abejide"
-           style="height:28px;width:auto;object-fit:contain;display:block;">
+           style="height:48px;width:auto;object-fit:contain;display:block;">
       <span id="site-logo-text">Hon. Leke Abejide</span>
     </a>
     <nav class="navbar" id="navbar">
@@ -184,7 +168,6 @@
         <div class="post-main">
           <a href="/" class="back-link"><i class="bi bi-arrow-left"></i> Back to Blog</a>
 
-          <!-- Skeleton shown while post loads -->
           <div id="post-skeleton">
             <div class="skeleton skeleton-hero"></div>
             <div class="skeleton skeleton-badge"></div>
@@ -409,7 +392,9 @@
     }
   } catch (e) {}
 
-  /* ── Inject Open Graph meta tags for social sharing previews ── */
+  /* ── Update OG tags in DOM after post loads (for real users / browser tab) ──
+     WhatsApp/Facebook/Twitter see the server-injected values (see posts.js).
+     This just keeps the browser tab title and meta in sync.                   */
   async function injectOGTags(postId) {
     try {
       const og = await API.get('/api/posts/' + postId + '/og');
@@ -417,31 +402,20 @@
 
       document.title = og.title + ' — ' + og.siteName;
 
-      const setMeta = (id, attr, val) => {
+      const setMeta = (id, val) => {
         const el = document.getElementById(id);
-        if (el && val) el.setAttribute(attr, val);
+        if (el && val) el.setAttribute('content', val);
       };
-
-      setMeta('og-title',       'content', og.title);
-      setMeta('og-description', 'content', og.description);
-      setMeta('og-image',       'content', og.image);
-      setMeta('og-url',         'content', og.url || window.location.href);
-      setMeta('og-type',        'content', 'article');
-      setMeta('og-site',        'content', og.siteName);
-      setMeta('tw-title',       'content', og.title);
-      setMeta('tw-description', 'content', og.description);
-      setMeta('tw-image',       'content', og.image);
-
-      /* Update or create canonical link */
-      let canonical = document.querySelector('link[rel="canonical"]');
-      if (!canonical) {
-        canonical = document.createElement('link');
-        canonical.rel = 'canonical';
-        document.head.appendChild(canonical);
-      }
-      canonical.href = og.url || window.location.href;
+      setMeta('og-title',       og.title);
+      setMeta('og-description', og.description);
+      setMeta('og-image',       og.image);
+      setMeta('og-url',         og.url || window.location.href);
+      setMeta('og-site',        og.siteName);
+      setMeta('tw-title',       og.title);
+      setMeta('tw-description', og.description);
+      setMeta('tw-image',       og.image);
     } catch(e) {
-      console.warn('OG tag injection failed:', e.message);
+      console.warn('OG tag update failed:', e.message);
     }
   }
 
@@ -462,7 +436,7 @@
           .join('');
       }
 
-      /* Image block with protection overlay */
+      /* Image block with right-click protection overlay */
       function renderImageBlock(b) {
         if (!b.image) return '';
         return (
@@ -480,7 +454,7 @@
         );
       }
 
-      /* Video block — YouTube embed or 10-second upload preview */
+      /* Video block — full playback, no time limit */
       function renderVideoBlock(b) {
         if (b.videoType === 'youtube' && b.videoUrl) {
           const embedUrl = toYouTubeEmbed(b.videoUrl) + '?rel=0&modestbranding=1';
@@ -492,14 +466,10 @@
           );
         }
         if (b.videoSrc) {
+          /* Full video, standard browser controls, no restrictions */
           return (
-            '<div class="video-wrap">' +
-            '<span class="video-preview-badge"><i class="bi bi-play-circle"></i> 10s Preview</span>' +
-            '<video controls controlsList="nodownload nofullscreen noremoteplayback" ' +
-            'disablePictureInPicture ' +
-            'oncontextmenu="return false" ' +
-            'ontimeupdate="if(this.currentTime>=10&&!this._ended){this._ended=true;this.pause();this.currentTime=0;}" ' +
-            'style="width:100%;display:block">' +
+            '<div class="post-video-wrap">' +
+            '<video controls style="width:100%;display:block">' +
             '<source src="' + mediaUrl(b.videoSrc) + '" type="video/mp4">' +
             'Your browser does not support video.' +
             '</video>' +
@@ -554,7 +524,7 @@
         '<a href="https://wa.me/?text=' + encodeURIComponent(p.title + ' ' + window.location.href) + '" target="_blank" class="social-link" style="color:#25d366"><i class="bi bi-whatsapp"></i></a>' +
         '</div></div></div>';
 
-      /* Inject OG tags for social previews */
+      /* Update OG tags for browser tab (crawlers already got server-injected values) */
       injectOGTags(postId);
 
       skeleton.style.display = 'none';

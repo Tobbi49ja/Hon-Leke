@@ -2,53 +2,123 @@
 const express = require('express');
 const router  = require('express').Router();
 const crypto  = require('crypto');
+const path    = require('path');
+const fs      = require('fs');
 const store   = require('../data/store');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CLOUDINARY SIGNED URL HELPER
-// Generates a signed delivery URL so the URL cannot be tampered with.
-// Requires env vars: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
 // ─────────────────────────────────────────────────────────────────────────────
 function signedCloudinaryUrl(publicId, resourceType = 'image', transformation = '') {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey    = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
-
   if (!cloudName || !apiKey || !apiSecret) return null;
 
-  // Build string to sign: transformation (if any) + public_id
   const toSign    = (transformation ? transformation + '/' : '') + publicId;
   const rawHash   = crypto.createHash('sha1').update(toSign + apiSecret).digest('base64');
   const signature = rawHash.replace(/\+/g, '-').replace(/\//g, '_').slice(0, 8);
-
   const sigComponent  = `s--${signature}--`;
   const transformPart = transformation ? `/${transformation}` : '';
-
   return `https://res.cloudinary.com/${cloudName}/${resourceType}/upload/${sigComponent}${transformPart}/${publicId}`;
 }
 
-// Watermark: semi-transparent text overlay on every image
-const WATERMARK_TRANSFORM = 'l_text:Arial_18_bold:Hon.+Leke+Abejide,co_white,o_30,g_south_east,x_10,y_10/fl_attachment:false';
-
-// Video: first 10 seconds only, auto quality/format
-const VIDEO_PREVIEW_TRANSFORM = 'du_10,q_auto,f_auto';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Helper: extract Cloudinary public_id from a stored URL
-// e.g. https://res.cloudinary.com/cloud/image/upload/v123/folder/file.jpg
-//   → folder/file
-// ─────────────────────────────────────────────────────────────────────────────
 function extractPublicId(url) {
   if (!url) return null;
   const match = url.match(/\/upload\/(?:v\d+\/)?(.+)$/);
   if (!match) return null;
-  return match[1].replace(/\.[^.]+$/, ''); // strip extension
+  return match[1].replace(/\.[^.]+$/, '');
 }
+
+function escHtml(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/"/g,'&quot;')
+    .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IMPORTANT — Wire this up in your main app.js/server.js BEFORE static files:
+//
+//   const postsRouter = require('./routes/posts');
+//   app.use(postsRouter);                        // handles /post/:id SSR + all /api/posts/*
+//   app.use(express.static(path.join(__dirname, 'public')));
+//
+// This ensures /post/:id is intercepted by Express (for OG tag injection)
+// before the static file middleware can serve the bare post.html.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /post/:id  — serves post.html with OG tags already in <head>
+//
+// WhatsApp, Facebook, and Twitter crawlers DO NOT run JavaScript.
+// They read only the raw HTML that the server sends. So OG tags MUST be
+// present in the initial HTML response — not injected by JS after load.
+// This route reads post.html from disk, injects the real post's OG values
+// into the placeholder meta tags, then sends the result.
+// ─────────────────────────────────────────────────────────────────────────────
+router.get('/post/:id', async (req, res, next) => {
+  try {
+    const post = await store.getPostById(req.params.id);
+
+    // If post not found, fall through — post.html JS will show the 404 UI
+    if (!post) return next();
+
+    const siteUrl = process.env.SITE_URL || `https://${req.headers.host}`;
+    const postUrl = `${siteUrl}/post/${post.id}`;
+    const siteName = 'Hon. Leke Abejide';
+    const title    = post.title   || siteName;
+    const desc     = post.excerpt || 'Read the latest from Hon. Leke Abejide';
+
+    // Build OG image: signed Cloudinary 1200×630 crop, or fallback to raw image
+    let ogImage = post.image || `${siteUrl}/favicon.png`;
+    if (post.image && process.env.CLOUDINARY_CLOUD_NAME) {
+      const publicId = extractPublicId(post.image);
+      if (publicId) {
+        const signed = signedCloudinaryUrl(publicId, 'image', 'c_fill,w_1200,h_630,q_auto,f_jpg');
+        if (signed) ogImage = signed;
+      }
+    }
+
+    // Read the static post.html from disk
+    const htmlPath = path.join(__dirname, '../../public/post.html');
+    let html = fs.readFileSync(htmlPath, 'utf8');
+
+    // Inject real values into the placeholder meta tag content attributes
+    html = html
+      .replace(/<title[^>]*>.*?<\/title>/,
+        `<title>${escHtml(title)} — ${escHtml(siteName)}</title>`)
+      .replace(/(<meta[^>]*id="og-title"[^>]*content=")[^"]*"/,
+        `$1${escHtml(title)}"`)
+      .replace(/(<meta[^>]*id="og-description"[^>]*content=")[^"]*"/,
+        `$1${escHtml(desc)}"`)
+      .replace(/(<meta[^>]*id="og-image"[^>]*content=")[^"]*"/,
+        `$1${escHtml(ogImage)}"`)
+      .replace(/(<meta[^>]*id="og-url"[^>]*content=")[^"]*"/,
+        `$1${escHtml(postUrl)}"`)
+      .replace(/(<meta[^>]*id="og-site"[^>]*content=")[^"]*"/,
+        `$1${escHtml(siteName)}"`)
+      .replace(/(<meta[^>]*id="tw-title"[^>]*content=")[^"]*"/,
+        `$1${escHtml(title)}"`)
+      .replace(/(<meta[^>]*id="tw-description"[^>]*content=")[^"]*"/,
+        `$1${escHtml(desc)}"`)
+      .replace(/(<meta[^>]*id="tw-image"[^>]*content=")[^"]*"/,
+        `$1${escHtml(ogImage)}"`)
+      // Inject canonical link before </head>
+      .replace('</head>',
+        `  <link rel="canonical" href="${escHtml(postUrl)}">\n</head>`);
+
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  } catch (err) {
+    console.error('SSR error for /post/:id:', err);
+    next(); // fall through to static file on error
+  }
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GET /api/posts — all posts with optional ?category= and ?search=
 // ─────────────────────────────────────────────────────────────────────────────
-router.get('/', async (req, res) => {
+router.get('/api/posts', async (req, res) => {
   try {
     let posts = await store.getAllPosts();
     const { category, search } = req.query;
@@ -58,7 +128,6 @@ router.get('/', async (req, res) => {
         p.category && p.category.toLowerCase() === category.toLowerCase()
       );
     }
-
     if (search) {
       const q = search.toLowerCase();
       posts = posts.filter(p =>
@@ -67,7 +136,6 @@ router.get('/', async (req, res) => {
         (p.content && p.content.toLowerCase().includes(q))
       );
     }
-
     res.json({ success: true, posts });
   } catch (err) {
     console.error('GET /api/posts error:', err);
@@ -76,9 +144,9 @@ router.get('/', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GET /api/posts/slider — MUST be before /:id
+// GET /api/posts/slider  — MUST be before /api/posts/:id
 // ─────────────────────────────────────────────────────────────────────────────
-router.get('/slider', async (req, res) => {
+router.get('/api/posts/slider', async (req, res) => {
   try {
     const slides = await store.getSliderPosts();
     res.json({ success: true, slides });
@@ -89,9 +157,9 @@ router.get('/slider', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GET /api/posts/site-settings — public settings (no auth required)
+// GET /api/posts/site-settings — public settings (no auth)
 // ─────────────────────────────────────────────────────────────────────────────
-router.get('/site-settings', async (req, res) => {
+router.get('/api/posts/site-settings', async (req, res) => {
   try {
     const settings = await store.getSettings();
     res.json({ success: true, settings });
@@ -101,9 +169,9 @@ router.get('/site-settings', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GET /api/posts/categories — MUST be before /:id
+// GET /api/posts/categories  — MUST be before /api/posts/:id
 // ─────────────────────────────────────────────────────────────────────────────
-router.get('/categories', async (req, res) => {
+router.get('/api/posts/categories', async (req, res) => {
   try {
     const categories = await store.getCategories();
     res.json({ success: true, categories });
@@ -116,7 +184,7 @@ router.get('/categories', async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // GET /api/posts/:id — single post
 // ─────────────────────────────────────────────────────────────────────────────
-router.get('/:id', async (req, res) => {
+router.get('/api/posts/:id', async (req, res) => {
   try {
     const post = await store.getPostById(req.params.id);
     if (!post) return res.status(404).json({ success: false, message: 'Post not found.' });
@@ -128,11 +196,9 @@ router.get('/:id', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GET /api/posts/:id/og — Open Graph meta for a post
-// Called by post.html to inject OG/Twitter tags dynamically.
-// Returns a signed, resized Cloudinary image URL (1200×630) for the preview.
+// GET /api/posts/:id/og — OG data (used by JS to update page title after load)
 // ─────────────────────────────────────────────────────────────────────────────
-router.get('/:id/og', async (req, res) => {
+router.get('/api/posts/:id/og', async (req, res) => {
   try {
     const post = await store.getPostById(req.params.id);
     if (!post) return res.status(404).json({ success: false });
@@ -140,14 +206,12 @@ router.get('/:id/og', async (req, res) => {
     const siteUrl = process.env.SITE_URL || `https://${req.headers.host}`;
     const postUrl = `${siteUrl}/post/${post.id}`;
 
-    // Build OG image: signed Cloudinary URL resized to 1200×630
     let ogImage = post.image || '';
     if (ogImage && process.env.CLOUDINARY_CLOUD_NAME) {
       const publicId = extractPublicId(ogImage);
       if (publicId) {
-        // c_fill,w_1200,h_630 ensures correct crop for all platforms
-        const ogTransform = 'c_fill,w_1200,h_630,q_auto,f_jpg';
-        ogImage = signedCloudinaryUrl(publicId, 'image', ogTransform) || ogImage;
+        const signed = signedCloudinaryUrl(publicId, 'image', 'c_fill,w_1200,h_630,q_auto,f_jpg');
+        if (signed) ogImage = signed;
       }
     }
 
@@ -169,11 +233,10 @@ router.get('/:id/og', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GET /api/posts/:id/media — returns signed Cloudinary URL for a specific asset
-// Query params: ?type=image|video&publicId=<cloudinary_public_id>
-// Use this on the frontend whenever you need a protected media URL on demand.
+// GET /api/posts/:id/media — signed Cloudinary URL on demand
+// Query: ?type=image|video&publicId=<cloudinary_public_id>
 // ─────────────────────────────────────────────────────────────────────────────
-router.get('/:id/media', async (req, res) => {
+router.get('/api/posts/:id/media', async (req, res) => {
   try {
     const post = await store.getPostById(req.params.id);
     if (!post) return res.status(404).json({ success: false, message: 'Post not found.' });
@@ -181,22 +244,11 @@ router.get('/:id/media', async (req, res) => {
     const { type = 'image', publicId } = req.query;
     if (!publicId) return res.status(400).json({ success: false, message: 'publicId is required.' });
 
-    let transform = '';
-    let resourceType = type;
-
-    if (type === 'image') {
-      // Apply watermark to all served images
-      transform = WATERMARK_TRANSFORM;
-    } else if (type === 'video') {
-      // Serve only first 10 seconds of video
-      transform = VIDEO_PREVIEW_TRANSFORM;
-      resourceType = 'video';
-    }
+    const transform    = type === 'video' ? 'q_auto,f_auto' : '';
+    const resourceType = type === 'video' ? 'video' : 'image';
 
     const url = signedCloudinaryUrl(publicId, resourceType, transform);
-    if (!url) {
-      return res.status(500).json({ success: false, message: 'Cloudinary not configured.' });
-    }
+    if (!url) return res.status(500).json({ success: false, message: 'Cloudinary not configured.' });
 
     res.json({ success: true, url });
   } catch (err) {
@@ -208,7 +260,7 @@ router.get('/:id/media', async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // GET /api/posts/:id/comments
 // ─────────────────────────────────────────────────────────────────────────────
-router.get('/:id/comments', async (req, res) => {
+router.get('/api/posts/:id/comments', async (req, res) => {
   try {
     const comments = await store.getCommentsByPost(req.params.id);
     res.json({ success: true, comments });
@@ -218,8 +270,10 @@ router.get('/:id/comments', async (req, res) => {
   }
 });
 
-
-router.post('/:id/comments', async (req, res) => {
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/posts/:id/comments
+// ─────────────────────────────────────────────────────────────────────────────
+router.post('/api/posts/:id/comments', async (req, res) => {
   try {
     const { name, email, message } = req.body;
     if (!name || !email || !message)

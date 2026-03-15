@@ -12,6 +12,41 @@
   <link href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="icon" href="/favicon.png">
+  <style>
+    /* ── Video card: play overlay icon ── */
+    .post-card-video-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .post-card-video-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .post-card-video-wrap .play-icon {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.28);
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+    }
+    .post-card-video-wrap .play-icon i {
+      font-size: 3rem;
+      color: #fff;
+      opacity: 0.9;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    }
+    /* Hide play icon while video is playing */
+    .post-card-video-wrap.playing .play-icon {
+      opacity: 0;
+    }
+  </style>
 </head>
 <body>
 
@@ -288,23 +323,32 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   /* ── Card HTML ──
-     Video posts: show static image thumbnail + play icon overlay.
-     Clicking always opens the full post page (no inline autoplay).        */
+     - Image post  → shows image
+     - Video post with image → shows image thumbnail + play icon; hovers autoplays video,
+                               mouseout pauses and resets to thumbnail
+     - Video post no image  → shows dark placeholder + play icon; hover autoplays            */
   function cardHTML(p) {
-    const media = p.hasVideo && p.image
-      ? `<div style="position:relative;width:100%;height:100%">
-           <img src="${mediaUrl(p.image)}" alt="${p.title}" class="post-card-img" loading="lazy">
-           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25)">
-             <i class="bi bi-play-circle-fill" style="font-size:3rem;color:white;opacity:0.9"></i>
-           </div>
-         </div>`
-      : p.image
-        ? `<img src="${mediaUrl(p.image)}" alt="${p.title}" class="post-card-img" loading="lazy">`
-        : p.hasVideo
-          ? `<div class="post-card-img-placeholder" style="background:#111">
-               <i class="bi bi-play-circle" style="color:#aaa"></i>
-             </div>`
-          : `<div class="post-card-img-placeholder"><i class="bi bi-newspaper"></i></div>`;
+    let media = '';
+
+    if (p.hasVideo && p.videoSrc) {
+      // Video card: thumbnail image (if available) + autoplay-on-hover video
+      const thumb = p.image
+        ? `<img src="${mediaUrl(p.image)}" alt="${p.title}" class="post-card-img" loading="lazy"
+               style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`
+        : '';
+      media = `
+        <div class="post-card-video-wrap" data-video-src="${mediaUrl(p.videoSrc)}">
+          ${thumb}
+          <video muted playsinline preload="none"
+                 style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 0.3s">
+          </video>
+          <div class="play-icon"><i class="bi bi-play-circle-fill"></i></div>
+        </div>`;
+    } else if (p.image) {
+      media = `<img src="${mediaUrl(p.image)}" alt="${p.title}" class="post-card-img" loading="lazy">`;
+    } else {
+      media = `<div class="post-card-img-placeholder"><i class="bi bi-newspaper"></i></div>`;
+    }
 
     return `
       <article class="post-card" onclick="window.location.href='/post/${p.id}'">
@@ -333,6 +377,33 @@ document.addEventListener('DOMContentLoaded', async function () {
       grid.insertAdjacentHTML('beforeend', html);
     }
     animateBlogCards();
+    attachVideoHovers(grid);
+  }
+
+  /* ── Video hover: autoplay on mouseenter, pause+reset on mouseleave ── */
+  function attachVideoHovers(container) {
+    container.querySelectorAll('.post-card-video-wrap').forEach(wrap => {
+      const video = wrap.querySelector('video');
+      const src   = wrap.dataset.videoSrc;
+      if (!video || !src) return;
+
+      wrap.addEventListener('mouseenter', () => {
+        // Lazy-load src only on first hover
+        if (!video.src || !video.src.includes(src.split('/').pop())) {
+          video.src = src;
+        }
+        video.style.opacity = '1';
+        wrap.classList.add('playing');
+        video.play().catch(() => {});
+      });
+
+      wrap.addEventListener('mouseleave', () => {
+        video.pause();
+        video.currentTime = 0;
+        video.style.opacity = '0';
+        wrap.classList.remove('playing');
+      });
+    });
   }
 
   /* ── Load More ── */
