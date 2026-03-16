@@ -82,14 +82,57 @@
 
     .block-body{padding:14px 16px;}
 
-    /* Text block */
+    /* ── Markdown toolbar ── */
+    .md-toolbar{
+      display:flex;gap:4px;flex-wrap:wrap;
+      padding:6px 8px;background:#f0f4f8;
+      border:1px solid var(--border);border-bottom:none;
+      border-radius:8px 8px 0 0;
+    }
+    .md-btn{
+      background:var(--white);border:1px solid var(--border);
+      border-radius:5px;padding:4px 8px;
+      font-size:0.78rem;font-weight:700;cursor:pointer;
+      color:var(--primary);transition:all .15s;
+      display:inline-flex;align-items:center;gap:3px;
+      font-family: 'Georgia', serif;
+    }
+    .md-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+    .md-btn.md-sep{background:none;border:none;color:var(--border);cursor:default;padding:4px 2px;}
+    .md-hint{
+      font-size:0.72rem;color:var(--muted);margin-top:6px;
+      display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+    }
+    .md-hint code{
+      background:#f0f4f8;padding:1px 5px;border-radius:3px;
+      font-size:0.7rem;color:var(--primary);
+    }
+
+    /* Text block textarea — connects flush to toolbar */
     .block-textarea{
-      width:100%;min-height:120px;padding:10px 14px;
-      border:1px solid var(--border);border-radius:8px;
-      font-size:0.95rem;line-height:1.75;font-family:inherit;
+      width:100%;min-height:160px;padding:10px 14px;
+      border:1px solid var(--border);border-radius:0 0 8px 8px;
+      font-size:0.95rem;line-height:1.75;font-family:'Georgia',serif;
       resize:vertical;outline:none;transition:border-color .2s;
     }
     .block-textarea:focus{border-color:var(--primary);}
+
+    /* Preview toggle */
+    .md-preview-toggle{
+      display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-left:auto;
+    }
+    .md-preview-toggle button{
+      padding:4px 12px;font-size:0.75rem;font-weight:600;border:none;cursor:pointer;
+      background:var(--white);color:var(--muted);transition:all .15s;
+    }
+    .md-preview-toggle button.active{background:var(--primary);color:#fff;}
+    .md-preview-box{
+      min-height:120px;padding:10px 14px;
+      border:1px solid var(--border);border-radius:0 0 8px 8px;
+      font-size:0.95rem;line-height:1.75;
+      background:#fefefe;display:none;
+    }
+    .md-preview-box.show{display:block;}
 
     /* Image block */
     .img-upload-area{
@@ -200,6 +243,22 @@
       border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;
     }
     @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* Inline markdown preview styles */
+    .md-preview-box h1{font-size:1.6rem;margin-bottom:12px;color:#1a1a1a;}
+    .md-preview-box h2{font-size:1.3rem;margin-bottom:10px;color:#1a1a1a;}
+    .md-preview-box h3{font-size:1.1rem;margin-bottom:8px;color:#1a1a1a;}
+    .md-preview-box p{margin-bottom:12px;line-height:1.75;}
+    .md-preview-box strong{font-weight:700;}
+    .md-preview-box em{font-style:italic;}
+    .md-preview-box ul,.md-preview-box ol{margin:0 0 12px 24px;}
+    .md-preview-box li{margin-bottom:4px;line-height:1.6;}
+    .md-preview-box blockquote{border-left:4px solid #c8971f;padding:8px 16px;background:#fffbf0;margin:12px 0;color:#555;font-style:italic;}
+    .md-preview-box code{background:#f0f4f8;padding:2px 6px;border-radius:4px;font-family:monospace;font-size:0.88em;}
+    .md-preview-box pre{background:#1a1a2e;color:#e0e0e0;padding:14px;border-radius:8px;margin:12px 0;overflow-x:auto;}
+    .md-preview-box pre code{background:none;padding:0;color:inherit;}
+    .md-preview-box hr{border:none;border-top:2px solid var(--border);margin:20px 0;}
+    .md-preview-box a{color:var(--primary);text-decoration:underline;}
   </style>
 </head>
 <body>
@@ -243,7 +302,7 @@
       </div>
     </div>
 
-    <!-- ── Cover image (thumbnail shown on blog grid) ── -->
+    <!-- ── Cover image ── -->
     <div class="cover-section">
       <h3><i class="bi bi-image"></i> Cover Image <span style="font-weight:400;color:var(--muted)">(shown on blog grid & slider)</span></h3>
       <div class="img-upload-area" id="cover-drop">
@@ -258,13 +317,11 @@
     <div class="editor-label">
       <i class="bi bi-layout-text-sidebar"></i> Post Body
       <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;font-size:0.8rem">
-        — add text and media blocks in any order
+        — add text and media blocks in any order · text blocks support Markdown
       </span>
     </div>
 
-    <div id="blocks-container">
-      <!-- blocks injected here -->
-    </div>
+    <div id="blocks-container"></div>
 
     <!-- Add block buttons -->
     <div class="add-block-bar">
@@ -295,12 +352,14 @@
 
 <div id="toast"></div>
 
+<!-- marked.js for live preview only (no server dependency) -->
+<script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
 <script>
 // ── State ──────────────────────────────────────────────────────────────────────
-let blocks    = [];       // array of block objects
+let blocks    = [];
 let featured  = false;
-let editingId = null;     // post ID if editing
-let blockIdx  = 0;        // unique key for each block
+let editingId = null;
+let blockIdx  = 0;
 
 // ── Init ───────────────────────────────────────────────────────────────────────
 (async function init() {
@@ -313,11 +372,9 @@ let blockIdx  = 0;        // unique key for each block
     document.getElementById('save-btn').innerHTML   = '<i class="bi bi-cloud-upload"></i> Update Post';
     await loadExistingPost(editingId);
   } else {
-    // Start with one empty text block
     addBlock('text');
   }
 
-  // Cover image preview
   document.getElementById('cover-file').addEventListener('change', function () {
     previewCoverFile(this);
   });
@@ -337,18 +394,15 @@ async function loadExistingPost(id) {
     featured = post.featured || false;
     updateFeaturedBtn();
 
-    // Show existing cover image
     if (post.image) {
       const prev = document.getElementById('cover-preview');
       prev.src = post.image.startsWith('http') ? post.image : '/' + post.image;
       prev.style.display = 'block';
     }
 
-    // Load blocks — if post has blocks use them, else convert legacy content
     if (post.blocks && post.blocks.length) {
       post.blocks.forEach(b => addBlock(b.type, b));
     } else {
-      // Legacy post: convert to a single text block + top image
       if (post.content) addBlock('text', { text: post.content });
     }
   } catch (e) {
@@ -367,16 +421,16 @@ function addBlock(type, data) {
 function renderBlock(b) {
   const container = document.getElementById('blocks-container');
   const div = document.createElement('div');
-  div.className  = 'block-card block-' + b.type;
-  div.id         = 'card-' + b.id;
-  div.innerHTML  = blockHTML(b);
+  div.className = 'block-card block-' + b.type;
+  div.id        = 'card-' + b.id;
+  div.innerHTML = blockHTML(b);
   container.appendChild(div);
   attachBlockEvents(b.id, b.type, div);
 }
 
 function blockHTML(b) {
   const icons  = { text: 'bi-text-left', image: 'bi-image', video: 'bi-play-circle' };
-  const labels = { text: 'Text Block', image: 'Image / Photo', video: 'Video' };
+  const labels = { text: 'Text Block (Markdown)', image: 'Image / Photo', video: 'Video' };
   return `
     <div class="block-header">
       <span class="block-type-label">
@@ -395,9 +449,123 @@ function blockHTML(b) {
     </div>`;
 }
 
+// ── Text block with markdown toolbar + live preview ────────────────────────────
 function textBlockBody(b) {
-  return `<textarea class="block-textarea" id="text-${b.id}"
-    placeholder="Write your paragraph(s) here…">${esc(b.text || '')}</textarea>`;
+  const text = esc(b.text || '');
+  return `
+    <div class="md-toolbar">
+      <button class="md-btn" title="Heading 1"     onclick="mdWrap('${b.id}','# ','',true)">H1</button>
+      <button class="md-btn" title="Heading 2"     onclick="mdWrap('${b.id}','## ','',true)">H2</button>
+      <button class="md-btn" title="Heading 3"     onclick="mdWrap('${b.id}','### ','',true)">H3</button>
+      <span class="md-sep">|</span>
+      <button class="md-btn" title="Bold"          onclick="mdWrap('${b.id}','**','**')"><b>B</b></button>
+      <button class="md-btn" title="Italic"        onclick="mdWrap('${b.id}','*','*')"><i>I</i></button>
+      <button class="md-btn" title="Strikethrough" onclick="mdWrap('${b.id}','~~','~~')"><s>S</s></button>
+      <span class="md-sep">|</span>
+      <button class="md-btn" title="Bullet list"   onclick="mdWrap('${b.id}','- ','',true)">• List</button>
+      <button class="md-btn" title="Numbered list" onclick="mdWrap('${b.id}','1. ','',true)">1. List</button>
+      <button class="md-btn" title="Blockquote"    onclick="mdWrap('${b.id}','> ','',true)">❝ Quote</button>
+      <span class="md-sep">|</span>
+      <button class="md-btn" title="Inline code"   onclick="mdWrap('${b.id}','\`','\`')">Code</button>
+      <button class="md-btn" title="Divider"       onclick="mdInsert('${b.id}','\\n---\\n')">─ HR</button>
+      <button class="md-btn" title="Link"          onclick="mdLink('${b.id}')">🔗 Link</button>
+      <div class="md-preview-toggle">
+        <button id="tab-edit-${b.id}"    class="active" onclick="mdTab('${b.id}','edit')">Edit</button>
+        <button id="tab-preview-${b.id}" onclick="mdTab('${b.id}','preview')">Preview</button>
+      </div>
+    </div>
+    <textarea class="block-textarea" id="text-${b.id}"
+      placeholder="Write your content here using Markdown…&#10;&#10;# Heading&#10;**bold** *italic*&#10;- bullet list&#10;> blockquote"
+    >${text}</textarea>
+    <div class="md-preview-box" id="preview-${b.id}"></div>
+    <div class="md-hint">
+      <span>Markdown:</span>
+      <code># H1</code><code>**bold**</code><code>*italic*</code>
+      <code>- list</code><code>> quote</code><code>\`code\`</code>
+      <code>---</code>
+    </div>`;
+}
+
+// ── Markdown toolbar actions ───────────────────────────────────────────────────
+
+// Wrap selected text (or insert at cursor) with prefix/suffix
+// lineMode=true: applies prefix to the start of the line (for headings, lists)
+function mdWrap(id, prefix, suffix, lineMode) {
+  const ta    = document.getElementById('text-' + id);
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  const val   = ta.value;
+  let selected = val.substring(start, end);
+
+  let newText, cursorStart, cursorEnd;
+
+  if (lineMode) {
+    // Find start of line
+    const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+    const before    = val.substring(0, lineStart);
+    const line      = val.substring(lineStart, end || start);
+    const after     = val.substring(end || start);
+    newText = before + prefix + line + after;
+    ta.value = newText;
+    ta.selectionStart = lineStart + prefix.length;
+    ta.selectionEnd   = lineStart + prefix.length + line.length;
+  } else {
+    if (!selected) selected = 'text';
+    const before = val.substring(0, start);
+    const after  = val.substring(end);
+    newText = before + prefix + selected + suffix + after;
+    ta.value = newText;
+    ta.selectionStart = start + prefix.length;
+    ta.selectionEnd   = start + prefix.length + selected.length;
+  }
+
+  ta.focus();
+}
+
+function mdInsert(id, snippet) {
+  const ta    = document.getElementById('text-' + id);
+  const start = ta.selectionStart;
+  const val   = ta.value;
+  ta.value = val.substring(0, start) + snippet + val.substring(start);
+  ta.selectionStart = ta.selectionEnd = start + snippet.length;
+  ta.focus();
+}
+
+function mdLink(id) {
+  const ta    = document.getElementById('text-' + id);
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  const val   = ta.value;
+  const selected = val.substring(start, end) || 'link text';
+  const url      = prompt('Enter URL:', 'https://');
+  if (!url) return;
+  const snippet = '[' + selected + '](' + url + ')';
+  ta.value = val.substring(0, start) + snippet + val.substring(end);
+  ta.selectionStart = start;
+  ta.selectionEnd   = start + snippet.length;
+  ta.focus();
+}
+
+// Toggle between Edit and Preview tabs
+function mdTab(id, tab) {
+  const ta      = document.getElementById('text-' + id);
+  const preview = document.getElementById('preview-' + id);
+  const tabEdit = document.getElementById('tab-edit-' + id);
+  const tabPrev = document.getElementById('tab-preview-' + id);
+
+  if (tab === 'preview') {
+    preview.innerHTML = marked.parse(ta.value || '*Nothing to preview yet.*');
+    preview.classList.add('show');
+    ta.style.display = 'none';
+    tabEdit.classList.remove('active');
+    tabPrev.classList.add('active');
+  } else {
+    preview.classList.remove('show');
+    ta.style.display = 'block';
+    ta.focus();
+    tabEdit.classList.add('active');
+    tabPrev.classList.remove('active');
+  }
 }
 
 function imageBlockBody(b) {
@@ -417,8 +585,8 @@ function imageBlockBody(b) {
 }
 
 function videoBlockBody(b) {
-  const isYT   = b.videoType === 'youtube';
-  const isUp   = b.videoType === 'upload';
+  const isYT = b.videoType === 'youtube';
+  const isUp = b.videoType === 'upload';
   return `
     <div class="video-type-tabs">
       <button class="vtab ${isYT || (!isUp && !isYT) ? 'active' : ''}"
@@ -457,7 +625,7 @@ function attachBlockEvents(id, type, div) {
         const reader = new FileReader();
         reader.onload = e => {
           const prev = document.getElementById('imgprev-' + id);
-          prev.src          = e.target.result;
+          prev.src = e.target.result;
           prev.style.display = 'block';
         };
         reader.readAsDataURL(this.files[0]);
@@ -484,7 +652,7 @@ function setVideoTab(id, tab, btn) {
 }
 
 function moveBlock(id, dir) {
-  const idx = blocks.findIndex(b => b.id === id);
+  const idx    = blocks.findIndex(b => b.id === id);
   const newIdx = idx + dir;
   if (newIdx < 0 || newIdx >= blocks.length) return;
   [blocks[idx], blocks[newIdx]] = [blocks[newIdx], blocks[idx]];
@@ -517,10 +685,7 @@ function previewCoverFile(input) {
 }
 
 // ── Featured toggle ────────────────────────────────────────────────────────────
-function toggleFeatured() {
-  featured = !featured;
-  updateFeaturedBtn();
-}
+function toggleFeatured() { featured = !featured; updateFeaturedBtn(); }
 function updateFeaturedBtn() {
   const btn = document.getElementById('featured-btn');
   btn.classList.toggle('on', featured);
@@ -531,7 +696,7 @@ function updateFeaturedBtn() {
 
 // ── Collect blocks from DOM ────────────────────────────────────────────────────
 function collectBlocks() {
-  return blocks.map(b => {
+  return blocks.map((b, i) => {
     if (b.type === 'text') {
       return {
         type: 'text',
@@ -543,7 +708,6 @@ function collectBlocks() {
         type:    'image',
         image:   (document.getElementById('imgpath-' + b.id) || {}).value || b.image || '',
         caption: (document.getElementById('caption-' + b.id) || {}).value || ''
-        // actual file upload handled separately in FormData below
       };
     }
     if (b.type === 'video') {
@@ -583,11 +747,9 @@ async function savePost() {
     fd.append('date',     date);
     fd.append('featured', featured);
 
-    // Cover image file
     const coverFile = document.getElementById('cover-file').files[0];
     if (coverFile) fd.append('image', coverFile);
 
-    // Collect block data — attach image/video files with indexed keys
     const collectedBlocks = collectBlocks();
     let imgIdx = 0, vidIdx = 0;
 
@@ -612,7 +774,7 @@ async function savePost() {
 
     fd.append('blocks', JSON.stringify(collectedBlocks));
 
-    // Also build legacy content string (first text block) for backwards compat
+    // Legacy content fallback — first text block value
     const firstText = collectedBlocks.find(b => b.type === 'text');
     fd.append('content', firstText ? firstText.text : '');
 
@@ -625,7 +787,6 @@ async function savePost() {
       toast(editingId ? 'Post updated!' : 'Post published!', 'success');
       document.getElementById('save-status').textContent = 'Saved ✓';
       if (!editingId && data.postId) {
-        // Switch to edit mode after first save
         editingId = data.postId;
         history.replaceState(null, '', '/admin/posts/edit/' + editingId);
         document.getElementById('page-title').innerHTML = '<i class="bi bi-pencil"></i> Edit Post';
