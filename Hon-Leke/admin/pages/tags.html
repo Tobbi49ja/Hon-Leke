@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tags — Admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/admin/assets/css/admin.css">
+  <style>
+    .tag-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .tag-item {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: box-shadow .2s;
+    }
+    .tag-item:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+    .tag-name {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-weight: 600; font-size: 0.92rem; color: var(--sidebar);
+    }
+    .tag-name i { color: var(--accent); }
+    .tag-count {
+      font-size: 0.75rem; color: var(--muted);
+      background: #f0f4f8; padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .tag-actions { display: flex; gap: 6px; align-items: center; }
+    .empty-tags {
+      text-align: center; padding: 64px 20px; color: var(--muted);
+    }
+    .empty-tags i { font-size: 3rem; margin-bottom: 14px; display: block; opacity: .4; }
+    .search-bar {
+      display: flex; gap: 10px; margin-bottom: 20px;
+    }
+    .search-bar input {
+      flex: 1; padding: 9px 14px; border: 1px solid var(--border);
+      border-radius: 8px; font-size: 0.9rem; outline: none;
+      transition: border-color .2s;
+    }
+    .search-bar input:focus { border-color: var(--sidebar); }
+    .stats-row {
+      display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .stat-mini {
+      background: #fff; border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .stat-mini i { font-size: 1.4rem; color: var(--sidebar); }
+    .stat-mini strong { font-size: 1.4rem; font-weight: 700; color: var(--sidebar); }
+    .stat-mini span { font-size: 0.78rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+<div class="main-content" style="margin-left:240px">
+
+  <div class="topbar">
+    <h1><i class="bi bi-tags" style="color:var(--accent)"></i> Tags Manager</h1>
+    <div class="topbar-actions">
+      <a href="/admin/posts/new" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus"></i> New Post
+      </a>
+      <div class="admin-avatar">A</div>
+    </div>
+  </div>
+
+  <div class="page-body">
+
+    <!-- Stats row -->
+    <div class="stats-row" id="stats-row">
+      <div class="stat-mini">
+        <i class="bi bi-tags"></i>
+        <div>
+          <strong id="total-tags">—</strong>
+          <span style="display:block">Total Tags</span>
+        </div>
+      </div>
+      <div class="stat-mini">
+        <i class="bi bi-file-earmark-text"></i>
+        <div>
+          <strong id="tagged-posts">—</strong>
+          <span style="display:block">Posts with Tags</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="bi bi-tags"></i> All Tags</h3>
+        <span id="tag-count-label" style="font-size:0.82rem;color:var(--muted)">Loading…</span>
+      </div>
+      <div class="card-body">
+
+        <div class="search-bar">
+          <input type="text" id="tag-search" placeholder="Search tags…" oninput="filterTags(this.value)">
+        </div>
+
+        <div id="tags-grid" class="tag-grid">
+          <!-- Populated by JS -->
+          <div class="empty-tags" style="grid-column:1/-1">
+            <div class="spinner-dark" style="width:32px;height:32px;border-width:3px;margin:0 auto 12px"></div>
+            <p>Loading tags…</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="card-header">
+        <h3><i class="bi bi-info-circle"></i> About Tags</h3>
+      </div>
+      <div class="card-body" style="font-size:0.88rem;color:var(--muted);line-height:1.75">
+        <p>Tags are added when creating or editing posts. Each tag shown here is used by at least one post. To add new tags, edit a post and use the Tags field in the post editor.</p>
+        <p style="margin-top:8px">Deleting a tag here removes it from <strong>all posts</strong> that use it — this cannot be undone.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Sidebar -->
+<aside class="sidebar" style="position:fixed;top:0;left:0;bottom:0;width:240px;overflow-y:auto">
+  <div class="sidebar-brand" style="padding:20px;border-bottom:1px solid rgba(255,255,255,0.12);margin-bottom:12px">
+    <div style="font-size:1rem;font-weight:700"><i class="bi bi-person-badge"></i> Admin Panel</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/admin/dashboard" class="nav-link"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/admin/posts"     class="nav-link"><i class="bi bi-file-earmark-text"></i> Posts</a>
+    <a href="/admin/comments"  class="nav-link"><i class="bi bi-chat-left-text"></i> Comments</a>
+    <a href="/admin/messages"  class="nav-link"><i class="bi bi-envelope"></i> Messages</a>
+    <a href="/admin/subscribers" class="nav-link"><i class="bi bi-people"></i> Subscribers</a>
+    <a href="/admin/tags"      class="nav-link active"><i class="bi bi-tags"></i> Tags</a>
+    <a href="/admin/settings"  class="nav-link"><i class="bi bi-gear"></i> Settings</a>
+    <a href="/admin/about"     class="nav-link"><i class="bi bi-person"></i> About Page</a>
+    <a href="/" target="_blank" class="nav-link"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
+  </nav>
+</aside>
+
+<script>
+let allTagData = [];  // [{ tag, count }]
+
+async function loadTags() {
+  const grid = document.getElementById('tags-grid');
+  try {
+    // Get all posts to build tag frequency map
+    const res   = await fetch('/api/admin/posts');
+    const data  = await res.json();
+    const posts = data.posts || [];
+
+    // Count tag frequency
+    const freq = {};
+    let taggedCount = 0;
+    posts.forEach(p => {
+      if (p.tags && p.tags.length) {
+        taggedCount++;
+        p.tags.forEach(t => {
+          const key = t.trim();
+          if (key) freq[key] = (freq[key] || 0) + 1;
+        });
+      }
+    });
+
+    allTagData = Object.entries(freq)
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+
+    // Update stats
+    document.getElementById('total-tags').textContent   = allTagData.length;
+    document.getElementById('tagged-posts').textContent  = taggedCount;
+    document.getElementById('tag-count-label').textContent =
+      allTagData.length + ' tag' + (allTagData.length !== 1 ? 's' : '') + ' found';
+
+    renderTags(allTagData);
+  } catch(e) {
+    grid.innerHTML = '<div class="empty-tags" style="grid-column:1/-1"><i class="bi bi-exclamation-circle"></i><p>Failed to load tags.</p></div>';
+  }
+}
+
+function renderTags(tags) {
+  const grid = document.getElementById('tags-grid');
+  if (!tags.length) {
+    grid.innerHTML = '<div class="empty-tags" style="grid-column:1/-1"><i class="bi bi-tags"></i><p>No tags found. Add tags when creating posts.</p></div>';
+    return;
+  }
+  grid.innerHTML = tags.map(({ tag, count }) => `
+    <div class="tag-item" id="tag-${CSS.escape(tag)}">
+      <div>
+        <div class="tag-name"><i class="bi bi-hash"></i>${escHtml(tag)}</div>
+        <div class="tag-count" style="margin-top:4px">${count} post${count !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="tag-actions">
+        <a href="/?tag=${encodeURIComponent(tag)}" target="_blank"
+           class="btn btn-outline btn-sm btn-icon" title="View posts with this tag">
+          <i class="bi bi-eye"></i>
+        </a>
+        <button class="btn btn-danger btn-sm btn-icon" title="Delete tag from all posts"
+          onclick="deleteTag('${escHtml(tag)}', this)">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    </div>`).join('');
+}
+
+function filterTags(q) {
+  const filtered = allTagData.filter(({ tag }) =>
+    tag.toLowerCase().includes(q.toLowerCase())
+  );
+  renderTags(filtered);
+  document.getElementById('tag-count-label').textContent =
+    filtered.length + ' of ' + allTagData.length + ' tag' + (allTagData.length !== 1 ? 's' : '');
+}
+
+async function deleteTag(tag, btn) {
+  if (!confirm(`Remove tag "${tag}" from ALL posts? This cannot be undone.`)) return;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner spinner-dark" style="width:14px;height:14px;border-width:2px"></span>';
+
+  try {
+    const res    = await fetch('/api/admin/tags/' + encodeURIComponent(tag), { method: 'DELETE' });
+    const result = await res.json();
+    if (result.success) {
+      // Remove from local data and re-render
+      allTagData = allTagData.filter(t => t.tag !== tag);
+      renderTags(allTagData);
+      document.getElementById('total-tags').textContent = allTagData.length;
+      document.getElementById('tag-count-label').textContent =
+        allTagData.length + ' tag' + (allTagData.length !== 1 ? 's' : '') + ' found';
+      showToast(`Tag "${tag}" removed from ${result.updatedPosts} post(s).`, 'success');
+    } else {
+      showToast(result.message || 'Failed to delete tag.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-trash"></i>';
+    }
+  } catch(e) {
+    showToast('Network error.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-trash"></i>';
+  }
+}
+
+function escHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type) {
+  let toast = document.getElementById('admin-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'admin-toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 22px;border-radius:8px;color:#fff;font-size:0.88rem;font-weight:500;opacity:0;transition:opacity .3s,transform .3s;transform:translateY(8px)';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.background = type === 'success' ? '#2a7a4b' : '#dc3545';
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateY(0)';
+  setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(8px)'; }, 3200);
+}
+
+loadTags();
+</script>
+</body>
+</html>

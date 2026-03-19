@@ -1,10 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CDLN52QT44"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-CDLN52QT44');
+</script>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hon. Leke Abejide — Official Blog</title>
-  <meta name="description" content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives, Yagba Federal Constituency.">
+  <meta name="description" content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives, Yagba Federal Constituency, Kogi State, Nigeria.">
+  <meta name="keywords" content="Leke Abejide, Yagba Federal Constituency, Kogi State, House of Representatives, Nigeria legislature">
+  <link rel="canonical" href="https://leke-abejide.onrender.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:title"       content="Hon. Leke Abejide — Official Blog">
+  <meta property="og:description" content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives, Yagba Federal Constituency.">
+  <meta property="og:image"       content="https://leke-abejide.onrender.com/Logo.png">
+  <meta property="og:url"         content="https://leke-abejide.onrender.com/">
+  <meta property="og:type"        content="website">
+  <meta property="og:site_name"   content="Hon. Leke Abejide">
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="Hon. Leke Abejide — Official Blog">
+  <meta name="twitter:description" content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives, Yagba Federal Constituency.">
+  <meta name="twitter:image"       content="https://leke-abejide.onrender.com/Logo.png">
+
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Leke Joseph Abejide",
+    "url": "https://leke-abejide.onrender.com",
+    "image": "https://leke-abejide.onrender.com/image/leke abejide.jpg",
+    "jobTitle": "Member, House of Representatives",
+    "worksFor": { "@type": "Organization", "name": "House of Representatives, Nigeria" },
+    "description": "Rt. Hon. Elder Leke Joseph Abejide, Member of the House of Representatives, Yagba Federal Constituency, Kogi State, Nigeria.",
+    "sameAs": [
+      "https://www.facebook.com/profile.php?id=100051326707777",
+      "https://www.instagram.com/hon.lekeabejide"
+    ]
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -13,51 +57,24 @@
   <link rel="stylesheet" href="/css/style.css">
   <link rel="icon" href="/favicon.png">
   <style>
-    /* ── Video card: play overlay icon ── */
-    .post-card-video-wrap {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-    .post-card-video-wrap video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .post-card-video-wrap .play-icon {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.28);
-      transition: opacity 0.25s ease;
-      pointer-events: none;
-    }
-    .post-card-video-wrap .play-icon i {
-      font-size: 3rem;
-      color: #fff;
-      opacity: 0.9;
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
-    }
-    /* Hide play icon while video is playing */
-    .post-card-video-wrap.playing .play-icon {
-      opacity: 0;
-    }
+    .post-card-video-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    .post-card-video-wrap video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .post-card-video-wrap .play-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.28); transition: opacity 0.25s ease; pointer-events: none; }
+    .post-card-video-wrap .play-icon i { font-size: 3rem; color: #fff; opacity: 0.9; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
+    .post-card-video-wrap.playing .play-icon { opacity: 0; }
   </style>
 </head>
 <body>
 
+<!-- Reading Progress Bar -->
+<div id="reading-progress-bar"></div>
+
 <div class="nav-overlay" id="nav-overlay"></div>
 
-<!-- Header -->
 <header id="header">
   <div class="header-inner">
     <a href="/" class="logo">
-      <img src="/Logo.png" alt="Hon. Leke Abejide"
-           style="height:28px;width:auto;object-fit:contain;display:block;">
+      <img src="/Logo.png" alt="Hon. Leke Abejide" style="height:28px;width:auto;object-fit:contain;display:block;">
       <span id="site-logo-text">Hon. Leke Abejide</span>
     </a>
     <nav class="navbar" id="navbar">
@@ -83,7 +100,6 @@
   </div>
 </header>
 
-<!-- Search Overlay -->
 <div class="search-overlay">
   <form id="search-form">
     <input type="text" id="search-input" placeholder="Search posts..." autocomplete="off">
@@ -93,7 +109,6 @@
 </div>
 
 <main id="main">
-
   <!-- Hero Slider -->
   <section class="hero-slider-section">
     <div class="container-fluid px-0">
@@ -134,7 +149,6 @@
       </div>
     </div>
   </section>
-
 </main>
 
 <!-- Footer -->
@@ -168,7 +182,13 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span id="footer-copy">© 2024 Hon. Leke Abejide. All Rights Reserved.</span>
+      <span id="footer-copy">© 2025 Hon. Leke Abejide. All Rights Reserved.</span>
+      <div class="footer-legal">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="/cookie-policy">Cookie Policy</a>
+        <a href="/disclaimer">Disclaimer</a>
+      </div>
       <div class="footer-social">
         <a href="#" target="_blank" id="ft-fb"><i class="bi bi-facebook"></i></a>
         <a href="#" target="_blank" id="ft-ig"><i class="bi bi-instagram"></i></a>
@@ -197,21 +217,16 @@ document.addEventListener('DOMContentLoaded', async function () {
   } catch(e) {}
 
   function applySettings(settings) {
-    ['site-logo-text', 'footer-site-name'].forEach(id => {
+    ['site-logo-text','footer-site-name'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.textContent = settings.heroTitle || 'Hon. Leke Abejide';
     });
     const fa = document.getElementById('footer-about');
     if (fa) fa.textContent = settings.footerAbout || '';
-    const map = {
-      facebookUrl:  ['hdr-fb', 'ft-fb'],
-      instagramUrl: ['hdr-ig', 'ft-ig'],
-      twitterUrl:   ['hdr-tw', 'ft-tw']
-    };
+    const map = { facebookUrl: ['hdr-fb','ft-fb'], instagramUrl: ['hdr-ig','ft-ig'], twitterUrl: ['hdr-tw','ft-tw'] };
     Object.entries(map).forEach(([key, ids]) => {
       if (settings[key]) ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.href = settings[key];
+        const el = document.getElementById(id); if (el) el.href = settings[key];
       });
     });
   }
@@ -227,7 +242,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       }
       wrapper.innerHTML = data.slides.map(s => `
         <div class="swiper-slide">
-          <a href="${s.link}" class="slider-slide-link">
+          <a href="${s.link || '/'}" class="slider-slide-link">
             <div class="slider-bg-blur" style="background-image:url('${mediaUrl(s.image)}')"></div>
             <div class="slider-bg-main" style="background-image:url('${mediaUrl(s.image)}')"></div>
             <div class="slider-overlay">
@@ -257,7 +272,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       const data = await API.get('/api/posts/categories');
       const bar  = document.getElementById('category-filters');
       (data.categories || []).forEach(cat => {
-        const btn       = document.createElement('button');
+        const btn = document.createElement('button');
         btn.className   = 'cat-btn';
         btn.dataset.cat = cat.toLowerCase();
         btn.textContent = cat;
@@ -282,30 +297,25 @@ document.addEventListener('DOMContentLoaded', async function () {
     const grid    = document.getElementById('posts-grid');
     const noPosts = document.getElementById('no-posts');
     const lmWrap  = document.getElementById('load-more-wrap');
-    currentPage           = 1;
-    grid.innerHTML        = '<div class="loading-posts"><div class="spinner-lg"></div><p>Loading...</p></div>';
+    currentPage = 1;
+    grid.innerHTML = '<div class="loading-posts"><div class="spinner-lg"></div><p>Loading...</p></div>';
     noPosts.style.display = 'none';
     lmWrap.style.display  = 'none';
-
     try {
-      let url      = '/api/posts';
+      let url = '/api/posts';
       const params = [];
       if (cat !== 'all') params.push('category=' + encodeURIComponent(cat));
       if (search)        params.push('search='   + encodeURIComponent(search));
       if (params.length) url += '?' + params.join('&');
-
       const data = await API.get(url);
       allPosts = data.posts || [];
-
       if (!allPosts.length) {
         grid.innerHTML = '';
         noPosts.style.display = 'flex';
         return;
       }
-
       renderPosts(allPosts.slice(0, perPage), grid, true);
       if (allPosts.length > perPage) lmWrap.style.display = 'block';
-
       /* Footer recent posts */
       const fr = document.getElementById('footer-recent-posts');
       if (fr) fr.innerHTML = allPosts.slice(0, 3).map(p =>
@@ -316,26 +326,18 @@ document.addEventListener('DOMContentLoaded', async function () {
             <span class="footer-post-title">${p.title.substring(0, 55)}...</span>
           </div>
         </a></li>`).join('');
-
     } catch(e) {
       grid.innerHTML = '<div class="no-posts"><i class="bi bi-exclamation-circle"></i><p>Failed to load posts.</p></div>';
     }
   }
 
-  /* ── Card HTML ──
-     - Image post  → shows image
-     - Video post with image → shows image thumbnail + play icon; hovers autoplays video,
-                               mouseout pauses and resets to thumbnail
-     - Video post no image  → shows dark placeholder + play icon; hover autoplays            */
+  /* ── Card HTML with reading time, tags, view count ── */
   function cardHTML(p) {
     let media = '';
-
     if (p.hasVideo && p.videoSrc) {
-      // Video card: thumbnail image (if available) + autoplay-on-hover video
       const thumb = p.image
         ? `<img src="${mediaUrl(p.image)}" alt="${p.title}" class="post-card-img" loading="lazy"
-               style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`
-        : '';
+               style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">` : '';
       media = `
         <div class="post-card-video-wrap" data-video-src="${mediaUrl(p.videoSrc)}">
           ${thumb}
@@ -350,6 +352,20 @@ document.addEventListener('DOMContentLoaded', async function () {
       media = `<div class="post-card-img-placeholder"><i class="bi bi-newspaper"></i></div>`;
     }
 
+    /* Reading time — calculate from content or excerpt */
+    const textForRT  = p.content || p.excerpt || '';
+    const readTime   = calcReadingTime(textForRT);
+
+    /* Tags pills */
+    const tagsHtml = (p.tags && p.tags.length)
+      ? `<div class="post-tags">${p.tags.slice(0,3).map(t =>
+          `<span class="tag-pill">${t}</span>`).join('')}</div>`
+      : '';
+
+    /* View count */
+    const viewsHtml = p.views
+      ? `<span class="view-count-badge"><i class="bi bi-eye"></i> ${p.views}</span>` : '';
+
     return `
       <article class="post-card" onclick="window.location.href='/post/${p.id}'">
         <div class="post-card-media">
@@ -360,46 +376,39 @@ document.addEventListener('DOMContentLoaded', async function () {
           <span class="post-cat-badge">${p.category}</span>
           <h3>${p.title}</h3>
           <p>${p.excerpt}</p>
+          ${tagsHtml}
           <div class="post-meta-row">
-            <span><i class="bi bi-calendar3"></i> ${p.date}</span>
+            <div class="meta-left">
+              <span><i class="bi bi-calendar3"></i> ${p.date}</span>
+              <span class="read-time-badge"><i class="bi bi-clock"></i> ${readTime}</span>
+              ${viewsHtml}
+            </div>
             <span class="read-more">Read More <i class="bi bi-arrow-right"></i></span>
           </div>
         </div>
       </article>`;
   }
 
-  /* ── Render + animate ── */
   function renderPosts(posts, grid, replace) {
     const html = posts.map(cardHTML).join('');
-    if (replace) {
-      grid.innerHTML = html;
-    } else {
-      grid.insertAdjacentHTML('beforeend', html);
-    }
+    if (replace) { grid.innerHTML = html; } else { grid.insertAdjacentHTML('beforeend', html); }
     animateBlogCards();
     attachVideoHovers(grid);
   }
 
-  /* ── Video hover: autoplay on mouseenter, pause+reset on mouseleave ── */
   function attachVideoHovers(container) {
     container.querySelectorAll('.post-card-video-wrap').forEach(wrap => {
       const video = wrap.querySelector('video');
       const src   = wrap.dataset.videoSrc;
       if (!video || !src) return;
-
       wrap.addEventListener('mouseenter', () => {
-        // Lazy-load src only on first hover
-        if (!video.src || !video.src.includes(src.split('/').pop())) {
-          video.src = src;
-        }
+        if (!video.src || !video.src.includes(src.split('/').pop())) video.src = src;
         video.style.opacity = '1';
         wrap.classList.add('playing');
         video.play().catch(() => {});
       });
-
       wrap.addEventListener('mouseleave', () => {
-        video.pause();
-        video.currentTime = 0;
+        video.pause(); video.currentTime = 0;
         video.style.opacity = '0';
         wrap.classList.remove('playing');
       });
@@ -446,7 +455,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   /* ── Init ── */
   await Promise.all([loadSlider(), loadCategories()]);
   await loadPosts();
-
 });
 </script>
 </body>

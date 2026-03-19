@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-CDLN52QT44"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-CDLN52QT44');
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -13,7 +22,7 @@
   <meta id="og-site"        property="og:site_name"    content="Hon. Leke Abejide">
   <meta id="tw-card"        name="twitter:card"        content="summary_large_image">
   <meta id="tw-title"       name="twitter:title"       content="Hon. Leke Abejide">
-  <meta id="tw-description" name="twitter:description" content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives.">
+  <meta id="tw-description" name="twitter:description" content="Official blog of Rt. Hon. Leke Abejide.">
   <meta id="tw-image"       name="twitter:image"       content="/favicon.png">
   <meta name="description"  content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives.">
 
@@ -21,23 +30,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Highlight.js for code syntax highlighting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="icon" href="/favicon.png">
   <style>
     /* ── Skeleton loader ── */
-    .skeleton {
-      background: linear-gradient(90deg,
-        var(--border) 25%,
-        color-mix(in srgb, var(--border) 60%, transparent) 50%,
-        var(--border) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.4s infinite;
-      border-radius: 6px;
-    }
-    @keyframes shimmer {
-      0%   { background-position:  200% 0; }
-      100% { background-position: -200% 0; }
-    }
+    .skeleton { background: linear-gradient(90deg, var(--border) 25%, color-mix(in srgb, var(--border) 60%, transparent) 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     .skeleton-hero   { height: 400px; border-radius: 12px; margin-bottom: 28px; }
     .skeleton-badge  { height: 22px; width: 100px; margin-bottom: 14px; }
     .skeleton-title  { height: 40px; width: 85%; margin-bottom: 10px; }
@@ -46,151 +46,27 @@
     .skeleton-line   { height: 16px; margin-bottom: 10px; }
     .skeleton-line.short  { width: 70%; }
     .skeleton-line.xshort { width: 45%; }
+    img.lazy-img { transition: opacity 0.3s ease; }
+    img.lazy-img.skeleton { opacity: 0.5; }
+    .post-single-img, .post-card-img { -webkit-user-select: none; user-select: none; pointer-events: none; }
+    .img-protect-overlay { position: absolute; inset: 0; z-index: 10; cursor: zoom-in; }
+    .post-video-wrap { position: relative; width: 100%; border-radius: var(--radius-md); overflow: hidden; margin: 28px 0; background: #000; }
+    .post-video-wrap video { width: 100%; display: block; }
 
-    /* ── Cookie Banner ── */
-    #cookie-banner {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
-      background: var(--dark, #111); color: #eee;
-      padding: 16px 24px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 16px; flex-wrap: wrap;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
-      transform: translateY(100%);
-      transition: transform 0.4s ease;
-    }
+    /* ── Cookie Banner (post page only) ── */
+    #cookie-banner { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: var(--dark, #111); color: #eee; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); transform: translateY(100%); transition: transform 0.4s ease; }
     #cookie-banner.show { transform: translateY(0); }
     #cookie-banner p { margin: 0; font-size: 0.88rem; flex: 1; min-width: 200px; }
     #cookie-banner a { color: #90cdf4; }
     .cookie-btns { display: flex; gap: 10px; flex-shrink: 0; }
-    .cookie-btn-accept {
-      background: var(--primary, #1a56db); color: #fff;
-      border: none; padding: 8px 20px; border-radius: 6px;
-      cursor: pointer; font-size: 0.85rem; font-weight: 600;
-    }
-    .cookie-btn-decline {
-      background: transparent; color: #aaa;
-      border: 1px solid #555; padding: 8px 16px;
-      border-radius: 6px; cursor: pointer; font-size: 0.85rem;
-    }
-
-    img.lazy-img { transition: opacity 0.3s ease; }
-    img.lazy-img.skeleton { opacity: 0.5; }
-
-    /* ── Image right-click protection ── */
-    .post-single-img, .post-card-img {
-      -webkit-user-select: none;
-      user-select: none;
-      pointer-events: none;
-    }
-    .img-protect-overlay {
-      position: absolute; inset: 0; z-index: 10; cursor: default;
-    }
-
-    /* ── Video ── */
-    .post-video-wrap {
-      position: relative; width: 100%;
-      border-radius: var(--radius-md, 12px);
-      overflow: hidden; margin: 28px 0; background: #000;
-    }
-    .post-video-wrap video { width: 100%; display: block; }
-
-    /* ── Markdown rendered content ── */
-    .post-single-content { line-height: 1.85; }
-
-    .post-single-content h1,
-    .post-single-content h2,
-    .post-single-content h3,
-    .post-single-content h4 {
-      font-family: 'Playfair Display', Georgia, serif;
-      color: var(--heading, #1a1a1a);
-      margin: 1.6em 0 0.6em;
-      line-height: 1.3;
-    }
-    .post-single-content h1 { font-size: 2rem; }
-    .post-single-content h2 { font-size: 1.55rem; }
-    .post-single-content h3 { font-size: 1.25rem; }
-    .post-single-content h4 { font-size: 1.05rem; }
-
-    .post-single-content p { margin-bottom: 1.3em; }
-
-    .post-single-content strong { font-weight: 700; }
-    .post-single-content em    { font-style: italic; }
-
-    .post-single-content ul,
-    .post-single-content ol {
-      margin: 0 0 1.2em 1.6em;
-      padding: 0;
-    }
-    .post-single-content li { margin-bottom: 0.4em; line-height: 1.7; }
-
-    .post-single-content blockquote {
-      border-left: 4px solid var(--accent, #c8971f);
-      margin: 1.4em 0;
-      padding: 12px 20px;
-      background: color-mix(in srgb, var(--accent, #c8971f) 8%, transparent);
-      border-radius: 0 8px 8px 0;
-      font-style: italic;
-      color: var(--muted, #555);
-    }
-    .post-single-content blockquote p { margin-bottom: 0; }
-
-    .post-single-content code {
-      background: color-mix(in srgb, var(--primary, #1a3c5e) 10%, transparent);
-      padding: 2px 7px;
-      border-radius: 4px;
-      font-family: 'Courier New', monospace;
-      font-size: 0.88em;
-      color: var(--primary, #1a3c5e);
-    }
-    .post-single-content pre {
-      background: #1a1a2e;
-      color: #e0e0e0;
-      padding: 18px 20px;
-      border-radius: 10px;
-      margin: 1.4em 0;
-      overflow-x: auto;
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-    .post-single-content pre code {
-      background: none;
-      padding: 0;
-      color: inherit;
-      font-size: inherit;
-    }
-
-    .post-single-content hr {
-      border: none;
-      border-top: 2px solid var(--border, #e5ddd0);
-      margin: 2em 0;
-    }
-
-    .post-single-content a {
-      color: var(--primary, #1a3c5e);
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-    .post-single-content a:hover { opacity: 0.75; }
-
-    .post-single-content table {
-      width: 100%; border-collapse: collapse; margin: 1.4em 0;
-      font-size: 0.92rem;
-    }
-    .post-single-content th,
-    .post-single-content td {
-      border: 1px solid var(--border, #e5ddd0);
-      padding: 10px 14px; text-align: left;
-    }
-    .post-single-content th {
-      background: color-mix(in srgb, var(--primary, #1a3c5e) 8%, transparent);
-      font-weight: 700;
-    }
-    .post-single-content tr:nth-child(even) td {
-      background: color-mix(in srgb, var(--border, #e5ddd0) 30%, transparent);
-    }
+    .cookie-btn-accept { background: var(--primary, #1a56db); color: #fff; border: none; padding: 8px 20px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+    .cookie-btn-decline { background: transparent; color: #aaa; border: 1px solid #555; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
   </style>
 </head>
 <body>
+
+<!-- Reading Progress Bar -->
+<div id="reading-progress-bar"></div>
 
 <div class="nav-overlay" id="nav-overlay"></div>
 
@@ -203,8 +79,7 @@
 <header id="header">
   <div class="header-inner">
     <a href="/" class="logo">
-      <img src="/Logo.png" alt="Hon. Leke Abejide"
-           style="height:28px;width:auto;object-fit:contain;display:block;">
+      <img src="/Logo.png" alt="Hon. Leke Abejide" style="height:28px;width:auto;object-fit:contain;display:block;">
       <span id="site-logo-text">Hon. Leke Abejide</span>
     </a>
     <nav class="navbar" id="navbar">
@@ -219,10 +94,12 @@
         <a href="#" target="_blank" id="hdr-fb"><i class="bi bi-facebook"></i></a>
         <a href="#" target="_blank" id="hdr-ig"><i class="bi bi-instagram"></i></a>
       </div>
-      <button class="search-toggle" aria-label="Search"><i class="bi bi-search"></i></button>
-      <button class="mobile-nav-toggle" aria-label="Toggle menu" aria-expanded="false">
-        <i class="bi bi-list"></i>
+      <button class="theme-toggle" aria-label="Toggle dark mode">
+        <i class="bi bi-moon-fill icon-moon"></i>
+        <i class="bi bi-sun-fill icon-sun"></i>
       </button>
+      <button class="search-toggle" aria-label="Search"><i class="bi bi-search"></i></button>
+      <button class="mobile-nav-toggle" aria-label="Toggle menu" aria-expanded="false"><i class="bi bi-list"></i></button>
     </div>
   </div>
 </header>
@@ -243,6 +120,7 @@
         <div class="post-main">
           <a href="/" class="back-link"><i class="bi bi-arrow-left"></i> Back to Blog</a>
 
+          <!-- Skeleton -->
           <div id="post-skeleton">
             <div class="skeleton skeleton-hero"></div>
             <div class="skeleton skeleton-badge"></div>
@@ -254,12 +132,12 @@
             <div class="skeleton skeleton-line short"></div>
             <div class="skeleton skeleton-line"></div>
             <div class="skeleton skeleton-line xshort"></div>
-            <div class="skeleton skeleton-line"></div>
-            <div class="skeleton skeleton-line short"></div>
           </div>
 
+          <!-- Post Content -->
           <div id="post-content" style="display:none"></div>
 
+          <!-- Comments -->
           <div class="comments-section" id="comments-section" style="display:none">
             <h3 id="comments-title">Comments</h3>
             <div id="comments-list"></div>
@@ -285,44 +163,41 @@
               <div class="alert" id="comment-alert"></div>
             </div>
           </div>
+
+          <!-- Related Posts -->
+          <div class="related-posts-section" id="related-posts-section" style="display:none">
+            <h3><i class="bi bi-collection"></i> Related Posts</h3>
+            <div class="related-posts-grid" id="related-posts-grid"></div>
+          </div>
         </div>
 
+        <!-- Sidebar -->
         <aside class="sidebar">
           <div class="sidebar-widget">
             <h4><i class="bi bi-clock-history"></i> Recent Posts</h4>
             <div id="recent-posts">
               <div style="display:flex;flex-direction:column;gap:12px">
-                <div style="display:flex;gap:10px;align-items:center">
-                  <div class="skeleton" style="width:60px;height:60px;border-radius:8px;flex-shrink:0"></div>
-                  <div style="flex:1">
-                    <div class="skeleton" style="height:14px;margin-bottom:6px"></div>
-                    <div class="skeleton" style="height:12px;width:60%"></div>
-                  </div>
-                </div>
-                <div style="display:flex;gap:10px;align-items:center">
-                  <div class="skeleton" style="width:60px;height:60px;border-radius:8px;flex-shrink:0"></div>
-                  <div style="flex:1">
-                    <div class="skeleton" style="height:14px;margin-bottom:6px"></div>
-                    <div class="skeleton" style="height:12px;width:60%"></div>
-                  </div>
-                </div>
-                <div style="display:flex;gap:10px;align-items:center">
-                  <div class="skeleton" style="width:60px;height:60px;border-radius:8px;flex-shrink:0"></div>
-                  <div style="flex:1">
-                    <div class="skeleton" style="height:14px;margin-bottom:6px"></div>
-                    <div class="skeleton" style="height:12px;width:60%"></div>
-                  </div>
-                </div>
+                <div style="display:flex;gap:10px;align-items:center"><div class="skeleton" style="width:60px;height:60px;border-radius:8px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:14px;margin-bottom:6px"></div><div class="skeleton" style="height:12px;width:60%"></div></div></div>
+                <div style="display:flex;gap:10px;align-items:center"><div class="skeleton" style="width:60px;height:60px;border-radius:8px;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:14px;margin-bottom:6px"></div><div class="skeleton" style="height:12px;width:60%"></div></div></div>
               </div>
             </div>
           </div>
 
           <div class="sidebar-widget">
-            <h4><i class="bi bi-tags"></i> Categories</h4>
+            <h4><i class="bi bi-grid"></i> Categories</h4>
             <div id="sidebar-categories" class="sidebar-cats">
               <div class="skeleton" style="height:14px;margin-bottom:8px;width:80%"></div>
               <div class="skeleton" style="height:14px;margin-bottom:8px;width:60%"></div>
               <div class="skeleton" style="height:14px;width:70%"></div>
+            </div>
+          </div>
+
+          <div class="sidebar-widget">
+            <h4><i class="bi bi-tags"></i> Tags</h4>
+            <div class="tag-cloud" id="sidebar-tags">
+              <div class="skeleton" style="height:26px;width:60px;border-radius:14px"></div>
+              <div class="skeleton" style="height:26px;width:80px;border-radius:14px"></div>
+              <div class="skeleton" style="height:26px;width:50px;border-radius:14px"></div>
             </div>
           </div>
 
@@ -368,6 +243,15 @@
         </ul>
       </div>
       <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="/cookie-policy">Cookie Policy</a></li>
+          <li><a href="/disclaimer">Disclaimer</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
         <h4>Connect</h4>
         <ul>
           <li><a href="#" target="_blank" id="ft-fb"><i class="bi bi-facebook"></i> Facebook</a></li>
@@ -376,7 +260,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2024 Hon. Leke Abejide. All Rights Reserved.</span>
+      <span>© 2025 Hon. Leke Abejide. All Rights Reserved.</span>
     </div>
   </div>
 </footer>
@@ -384,27 +268,34 @@
 <a href="#" class="scroll-top"><i class="bi bi-arrow-up"></i></a>
 
 <div id="cookie-banner" role="dialog" aria-label="Cookie consent">
-  <p>
-    We use cookies to improve your experience.
-    By continuing, you agree to our use of cookies.
-    <a href="/about">Learn more</a>
-  </p>
+  <p>We use cookies to improve your experience. <a href="/cookie-policy">Learn more</a></p>
   <div class="cookie-btns">
     <button class="cookie-btn-decline" id="cookie-decline">Decline</button>
-    <button class="cookie-btn-accept" id="cookie-accept">Accept All</button>
+    <button class="cookie-btn-accept"  id="cookie-accept">Accept All</button>
   </div>
 </div>
 
-<!-- marked.js for markdown rendering -->
+<!-- marked.js + highlight.js -->
 <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/css.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/xml.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/bash.min.js"></script>
 <script src="/js/app.js"></script>
 <script>
 (async function () {
 
-  /* ── Configure marked ── */
+  /* ── Configure marked with highlight.js ── */
   marked.setOptions({
-    breaks: true,   // single newline = <br>
-    gfm:    true,   // GitHub Flavored Markdown (tables, strikethrough etc.)
+    breaks: true, gfm: true,
+    highlight: function(code, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        try { return hljs.highlight(code, { language: lang }).value; } catch(e) {}
+      }
+      return hljs.highlightAuto(code).value;
+    }
   });
 
   /* ── Helpers ── */
@@ -412,7 +303,6 @@
     if (!src) return '';
     return src.startsWith('http') ? src : '/' + src;
   }
-
   function toYouTubeEmbed(url) {
     if (!url) return '';
     if (url.includes('/embed/')) return url;
@@ -422,147 +312,138 @@
     if (watch) return 'https://www.youtube.com/embed/' + watch[1];
     return url;
   }
-
   function showAlert(el, type, msg) {
     el.className = 'alert alert-' + (type === 'success' ? 'success' : 'error') + ' show';
     el.textContent = msg;
     el.style.display = 'block';
     el.style.marginTop = '14px';
   }
-
   function lazyImg(src, cls, alt, onerrorCode) {
-    return `<img
-      data-src="${src}"
-      src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-      class="${cls} lazy-img skeleton"
-      alt="${alt || ''}"
-      loading="lazy"
-      onerror="${onerrorCode || "this.style.display='none'"}"
-    >`;
+    return `<img data-src="${src}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="${cls} lazy-img skeleton" alt="${alt||''}" loading="lazy" onerror="${onerrorCode||"this.style.display='none'"}">`;
   }
-
   function escHtml(str) {
-    return String(str || '')
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  /* ── Get post ID from URL ── */
+  /* ── Post ID from URL ── */
   const postId = window.location.pathname.split('/').pop();
   if (!postId || postId.length < 10) { window.location.href = '/'; return; }
 
   let siteOwnerName = 'Hon. Leke Abejide';
+  let currentPost   = null;
 
   /* ── Settings ── */
   try {
     const s = await API.get('/api/posts/site-settings');
     if (s.success && s.settings) {
       if (s.settings.heroTitle) siteOwnerName = s.settings.heroTitle;
-      if (s.settings.facebookUrl) {
-        ['hdr-fb', 'sb-fb', 'ft-fb'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.href = s.settings.facebookUrl;
-        });
-      }
-      if (s.settings.instagramUrl) {
-        ['hdr-ig', 'sb-ig', 'ft-ig'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.href = s.settings.instagramUrl;
-        });
-      }
+      if (s.settings.facebookUrl) { ['hdr-fb','sb-fb','ft-fb'].forEach(id => { const el=document.getElementById(id); if(el) el.href=s.settings.facebookUrl; }); }
+      if (s.settings.instagramUrl) { ['hdr-ig','sb-ig','ft-ig'].forEach(id => { const el=document.getElementById(id); if(el) el.href=s.settings.instagramUrl; }); }
     }
-  } catch (e) {}
+  } catch(e) {}
 
-  /* ── OG tag sync for browser tab (crawlers get server-injected values) ── */
+  /* ── OG tag sync ── */
   async function injectOGTags(postId) {
     try {
       const og = await API.get('/api/posts/' + postId + '/og');
       if (!og.success) return;
       document.title = og.title + ' — ' + og.siteName;
-      const setMeta = (id, val) => {
-        const el = document.getElementById(id);
-        if (el && val) el.setAttribute('content', val);
-      };
-      setMeta('og-title',       og.title);
-      setMeta('og-description', og.description);
-      setMeta('og-image',       og.image);
-      setMeta('og-url',         og.url || window.location.href);
-      setMeta('og-site',        og.siteName);
-      setMeta('tw-title',       og.title);
-      setMeta('tw-description', og.description);
-      setMeta('tw-image',       og.image);
+      const setMeta = (id, val) => { const el=document.getElementById(id); if(el&&val) el.setAttribute('content',val); };
+      setMeta('og-title',og.title); setMeta('og-description',og.description);
+      setMeta('og-image',og.image); setMeta('og-url',og.url||window.location.href);
+      setMeta('og-site',og.siteName); setMeta('tw-title',og.title);
+      setMeta('tw-description',og.description); setMeta('tw-image',og.image);
     } catch(e) {}
   }
 
-  /* ── Render markdown text block ── */
+  /* ── Render markdown with copy buttons on code blocks ── */
   function renderTextBlock(text) {
     if (!text) return '';
-    // marked.parse returns safe HTML from markdown
-    return marked.parse(text);
+    let html = marked.parse(text);
+    // Wrap pre>code blocks with copy button
+    html = html.replace(/<pre><code([^>]*)>([\s\S]*?)<\/code><\/pre>/g, (match, attrs, code) => {
+      const id = 'code-' + Math.random().toString(36).slice(2,8);
+      return `<div class="code-block-wrap">
+        <button class="copy-code-btn" onclick="copyCode('${id}',this)"><i class="bi bi-clipboard"></i> Copy</button>
+        <pre><code${attrs} id="${id}">${code}</code></pre>
+      </div>`;
+    });
+    return html;
   }
 
-  /* ── Image block with protection overlay ── */
+  /* ── Copy code to clipboard ── */
+  window.copyCode = function(id, btn) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    navigator.clipboard.writeText(el.textContent).then(() => {
+      btn.innerHTML = '<i class="bi bi-check-lg"></i> Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = '<i class="bi bi-clipboard"></i> Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  };
+
   function renderImageBlock(b) {
     if (!b.image) return '';
     return (
       '<figure style="margin:28px 0">' +
         '<div class="post-single-img-wrap" style="position:relative">' +
           '<div class="post-single-img-blur" data-bg-src="' + mediaUrl(b.image) + '"></div>' +
-          lazyImg(mediaUrl(b.image), 'post-single-img', b.caption || '', "this.parentElement.style.display='none'") +
+          lazyImg(mediaUrl(b.image), 'post-single-img', b.caption||'', "this.parentElement.style.display='none'") +
           '<div class="img-protect-overlay" oncontextmenu="return false"></div>' +
         '</div>' +
-        (b.caption
-          ? '<figcaption style="text-align:center;font-size:0.82rem;color:var(--muted);margin-top:8px;font-style:italic">'
-            + escHtml(b.caption) + '</figcaption>'
-          : '') +
+        (b.caption ? '<figcaption style="text-align:center;font-size:0.82rem;color:var(--muted);margin-top:8px;font-style:italic">' + escHtml(b.caption) + '</figcaption>' : '') +
       '</figure>'
     );
   }
 
-  /* ── Video block — full playback ── */
   function renderVideoBlock(b) {
     if (b.videoType === 'youtube' && b.videoUrl) {
       const embedUrl = toYouTubeEmbed(b.videoUrl) + '?rel=0&modestbranding=1';
-      return (
-        '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin:28px 0">' +
-        '<iframe src="' + embedUrl + '" ' +
-        'style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen loading="lazy"></iframe>' +
-        '</div>'
-      );
+      return '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;margin:28px 0"><iframe src="' + embedUrl + '" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allowfullscreen loading="lazy"></iframe></div>';
     }
     if (b.videoSrc) {
-      return (
-        '<div class="post-video-wrap">' +
-        '<video controls style="width:100%;display:block">' +
-        '<source src="' + mediaUrl(b.videoSrc) + '" type="video/mp4">' +
-        'Your browser does not support video.' +
-        '</video>' +
-        '</div>'
-      );
+      return '<div class="post-video-wrap"><video controls style="width:100%;display:block"><source src="' + mediaUrl(b.videoSrc) + '" type="video/mp4">Your browser does not support video.</video></div>';
     }
     return '';
   }
 
-  /* ── Load post ── */
+  /* ── Load & render post ── */
   async function loadPost() {
     const skeleton = document.getElementById('post-skeleton');
     const el       = document.getElementById('post-content');
     try {
       const data = await API.get('/api/posts/' + postId);
       if (!data.success || !data.post) throw new Error('Not found');
-      const p = data.post;
+      currentPost = data.post;
+      const p     = currentPost;
+
+      /* Collect all text for reading time */
+      let allText = p.content || '';
+      if (p.blocks) p.blocks.forEach(b => { if (b.type==='text') allText += ' ' + (b.text||''); });
+      const readTime = calcReadingTime(allText);
+
+      /* Tags HTML */
+      const tagsHtml = (p.tags && p.tags.length)
+        ? '<div class="post-tags" style="margin-bottom:16px">' +
+          p.tags.map(t => `<a href="/?tag=${encodeURIComponent(t)}" class="tag-pill">${escHtml(t)}</a>`).join('') +
+          '</div>' : '';
+
+      /* View count */
+      const viewsHtml = p.views
+        ? `<span class="view-count-badge"><i class="bi bi-eye"></i> ${p.views} views</span>` : '';
 
       let bodyHtml = '';
-
       if (p.blocks && p.blocks.length) {
         bodyHtml = p.blocks.map(b => {
-          if (b.type === 'text')  return '<div class="post-single-content">' + renderTextBlock(b.text || '') + '</div>';
+          if (b.type === 'text')  return '<div class="post-single-content">' + renderTextBlock(b.text||'') + '</div>';
           if (b.type === 'image') return renderImageBlock(b);
           if (b.type === 'video') return renderVideoBlock(b);
           return '';
         }).join('');
       } else {
-        // Legacy post
         let mediaHtml = '';
         if (p.hasVideo && p.videoType === 'youtube' && p.videoUrl) {
           mediaHtml = renderVideoBlock({ videoType:'youtube', videoUrl: p.videoUrl });
@@ -574,46 +455,120 @@
               '<div class="post-single-img-wrap" style="margin-bottom:0;position:relative">' +
               '<div class="post-single-img-blur" data-bg-src="' + mediaUrl(img) + '"></div>' +
               lazyImg(mediaUrl(img), 'post-single-img', p.title, "this.parentElement.style.display='none'") +
-              '<div class="img-protect-overlay" oncontextmenu="return false"></div>' +
-              '</div>'
+              '<div class="img-protect-overlay" oncontextmenu="return false"></div></div>'
             ).join('') + '</div>';
         } else if (p.image) {
           mediaHtml = renderImageBlock({ image: p.image });
         }
-        bodyHtml = mediaHtml + '<div class="post-single-content">' + renderTextBlock(p.content || '') + '</div>';
+        bodyHtml = mediaHtml + '<div class="post-single-content">' + renderTextBlock(p.content||'') + '</div>';
       }
 
       el.innerHTML =
         '<div class="post-single-header page-fade">' +
-        '<span class="post-cat-badge">' + escHtml(p.category) + '</span>' +
-        '<h1>' + escHtml(p.title) + '</h1>' +
-        '<div class="post-meta-row" style="margin-bottom:28px">' +
-        '<span><i class="bi bi-calendar3"></i> ' + escHtml(p.date) + '</span>' +
-        '<span><i class="bi bi-person"></i> ' + escHtml(siteOwnerName) + '</span>' +
-        '</div>' +
-        bodyHtml +
-        '<div class="share-row"><strong>Share:</strong><div class="social-links">' +
-        '<a href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href) + '" target="_blank" class="social-link"><i class="bi bi-facebook"></i></a>' +
-        '<a href="https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent(p.title) + '" target="_blank" class="social-link"><i class="bi bi-twitter-x"></i></a>' +
-        '<a href="https://wa.me/?text=' + encodeURIComponent(p.title + ' ' + window.location.href) + '" target="_blank" class="social-link" style="color:#25d366"><i class="bi bi-whatsapp"></i></a>' +
-        '</div></div></div>';
+          '<span class="post-cat-badge">' + escHtml(p.category) + '</span>' +
+          '<h1>' + escHtml(p.title) + '</h1>' +
+          /* Reading time + meta row */
+          '<div class="post-header-meta">' +
+            '<span><i class="bi bi-calendar3"></i> ' + escHtml(p.date) + '</span>' +
+            '<span><i class="bi bi-person"></i> ' + escHtml(siteOwnerName) + '</span>' +
+            '<span class="read-time-pill"><i class="bi bi-clock"></i> ' + readTime + '</span>' +
+            viewsHtml +
+          '</div>' +
+          tagsHtml +
+          bodyHtml +
+          /* Like / Clap row */
+          '<div class="like-row">' +
+            '<button class="like-btn" id="like-btn" onclick="toggleLike()">' +
+              '<span class="like-icon">👏</span> <span id="like-label">Clap</span>' +
+            '</button>' +
+            '<span class="like-count" id="like-count"></span>' +
+          '</div>' +
+          /* Share row */
+          '<div class="share-row"><strong>Share:</strong><div class="social-links">' +
+            '<a href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href) + '" target="_blank" class="social-link"><i class="bi bi-facebook"></i></a>' +
+            '<a href="https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent(p.title) + '" target="_blank" class="social-link"><i class="bi bi-twitter-x"></i></a>' +
+            '<a href="https://wa.me/?text=' + encodeURIComponent(p.title + ' ' + window.location.href) + '" target="_blank" class="social-link" style="color:#25d366"><i class="bi bi-whatsapp"></i></a>' +
+          '</div></div>' +
+        '</div>';
 
       injectOGTags(postId);
-
       skeleton.style.display = 'none';
       el.style.display = 'block';
       LazyLoader.observe(el);
 
+      /* Init lightbox after content renders */
+      initLightbox(el);
+
+      /* Init like button */
+      initLikes(p.id, p.likes || 0);
+
+      /* Increment view count */
+      try { await API.post('/api/posts/' + postId + '/view', {}); } catch(e) {}
+
       document.getElementById('comments-section').style.display = 'block';
       loadComments();
-    } catch (e) {
-      skeleton.style.display = 'none';
+      loadRelatedPosts(p.category, p.id);
+
+    } catch(e) {
+      document.getElementById('post-skeleton').style.display = 'none';
+      const el = document.getElementById('post-content');
       el.style.display = 'block';
-      el.innerHTML =
-        '<div class="no-posts"><i class="bi bi-exclamation-circle"></i>' +
-        '<p>Post not found.</p>' +
-        '<a href="/" class="btn btn-primary" style="margin-top:16px">← Back to Blog</a></div>';
+      el.innerHTML = '<div class="no-posts"><i class="bi bi-exclamation-circle"></i><p>Post not found.</p><a href="/" class="btn btn-primary" style="margin-top:16px">← Back to Blog</a></div>';
     }
+  }
+
+  /* ── Like / Clap system ── */
+  function initLikes(id, serverCount) {
+    const liked     = localStorage.getItem('liked_' + id) === '1';
+    const localAdds = parseInt(localStorage.getItem('likeCount_' + id) || '0');
+    const count     = serverCount + localAdds;
+    updateLikeUI(liked, count);
+  }
+
+  window.toggleLike = async function() {
+    if (!currentPost) return;
+    const id      = currentPost.id;
+    const wasLiked = localStorage.getItem('liked_' + id) === '1';
+    if (wasLiked) return; // can only clap once
+    localStorage.setItem('liked_' + id, '1');
+    const prev  = parseInt(localStorage.getItem('likeCount_' + id) || '0');
+    localStorage.setItem('likeCount_' + id, prev + 1);
+    const count = (currentPost.likes || 0) + prev + 1;
+    updateLikeUI(true, count);
+    try { await API.post('/api/posts/' + id + '/like', {}); } catch(e) {}
+  };
+
+  function updateLikeUI(liked, count) {
+    const btn   = document.getElementById('like-btn');
+    const label = document.getElementById('like-label');
+    const countEl = document.getElementById('like-count');
+    if (!btn) return;
+    btn.classList.toggle('liked', liked);
+    if (label) label.textContent = liked ? 'Clapped!' : 'Clap';
+    if (countEl) countEl.textContent = count > 0 ? count + ' clap' + (count !== 1 ? 's' : '') : '';
+  }
+
+  /* ── Related Posts ── */
+  async function loadRelatedPosts(category, currentId) {
+    const section = document.getElementById('related-posts-section');
+    const grid    = document.getElementById('related-posts-grid');
+    try {
+      const data    = await API.get('/api/posts?category=' + encodeURIComponent(category));
+      const related = (data.posts || []).filter(p => p.id !== currentId).slice(0, 4);
+      if (!related.length) return;
+      section.style.display = 'block';
+      grid.innerHTML = related.map(p => `
+        <div class="related-post-card" onclick="window.location.href='/post/${p.id}'">
+          ${p.image
+            ? `<img src="${mediaUrl(p.image)}" class="related-post-thumb" alt="${escHtml(p.title)}" loading="lazy" onerror="this.style.display='none'">`
+            : `<div class="related-post-thumb-placeholder"><i class="bi bi-newspaper"></i></div>`}
+          <div class="related-post-info">
+            <span class="related-cat">${escHtml(p.category)}</span>
+            <h5>${escHtml(p.title)}</h5>
+            <span><i class="bi bi-calendar3"></i> ${escHtml(p.date)}</span>
+          </div>
+        </div>`).join('');
+    } catch(e) {}
   }
 
   /* ── Comments ── */
@@ -639,9 +594,7 @@
             '<p style="margin:0;font-size:0.95rem;line-height:1.7">' + escHtml(c.message) + '</p>' +
             (hasReply
               ? '<div style="margin-top:14px;padding:12px 16px;background:#f0f7ee;border-left:3px solid #2a7a4b;border-radius:6px">' +
-                  '<div style="font-size:0.75rem;font-weight:700;color:#2a7a4b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">' +
-                    '<i class="bi bi-reply-fill"></i> Reply from ' + escHtml(siteOwnerName) +
-                  '</div>' +
+                  '<div style="font-size:0.75rem;font-weight:700;color:#2a7a4b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px"><i class="bi bi-reply-fill"></i> Reply from ' + escHtml(siteOwnerName) + '</div>' +
                   '<p style="margin:0;font-size:0.9rem;line-height:1.65;color:#333">' + escHtml(c.reply) + '</p>' +
                   (c.repliedAt ? '<div style="font-size:0.75rem;color:#6c757d;margin-top:6px">' + escHtml(c.repliedAt) + '</div>' : '') +
                 '</div>'
@@ -649,71 +602,76 @@
           '</div>'
         );
       }).join('');
-    } catch (e) { list.innerHTML = ''; }
+    } catch(e) { list.innerHTML = ''; }
   }
 
-  document.getElementById('post-comment-btn').addEventListener('click', async function () {
+  document.getElementById('post-comment-btn').addEventListener('click', async function() {
     const name    = document.getElementById('comment-name').value.trim();
     const email   = document.getElementById('comment-email').value.trim();
     const message = document.getElementById('comment-message').value.trim();
     const alertEl = document.getElementById('comment-alert');
     const btn     = this;
-    if (!name || !email || !message) { showAlert(alertEl, 'error', 'Please fill in all fields.'); return; }
+    if (!name || !email || !message) { showAlert(alertEl,'error','Please fill in all fields.'); return; }
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Posting…';
     try {
       const res = await API.post('/api/posts/' + postId + '/comments', { name, email, message });
       if (res.success) {
-        showAlert(alertEl, 'success', res.message);
-        document.getElementById('comment-name').value    = '';
-        document.getElementById('comment-email').value   = '';
+        showAlert(alertEl,'success',res.message);
+        document.getElementById('comment-name').value = '';
+        document.getElementById('comment-email').value = '';
         document.getElementById('comment-message').value = '';
         loadComments();
-      } else {
-        showAlert(alertEl, 'error', res.message);
-      }
-    } catch (e) {
-      showAlert(alertEl, 'error', 'Something went wrong.');
-    } finally {
+      } else { showAlert(alertEl,'error',res.message); }
+    } catch(e) { showAlert(alertEl,'error','Something went wrong.'); }
+    finally {
       btn.disabled = false;
       btn.innerHTML = '<i class="bi bi-chat-left-text"></i> Post Comment';
     }
   });
 
-  /* ── Sidebar: recent posts ── */
+  /* ── Sidebar ── */
   async function loadRecentPosts() {
     const el = document.getElementById('recent-posts');
     try {
       const data  = await API.get('/api/posts');
-      const posts = (data.posts || []).filter(p => p.id !== postId).slice(0, 5);
+      const posts = (data.posts||[]).filter(p => p.id !== postId).slice(0,5);
       if (!posts.length) { el.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">No other posts.</p>'; return; }
       el.innerHTML = posts.map(p =>
         '<div class="recent-post-item" onclick="window.location.href=\'/post/' + p.id + '\'" style="cursor:pointer">' +
         (p.image
-          ? '<img class="recent-post-thumb lazy-img skeleton" data-src="' + mediaUrl(p.image) + '" ' +
-            'src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" ' +
-            'alt="' + escHtml(p.title) + '" loading="lazy" onerror="this.style.display=\'none\'">'
+          ? '<img class="recent-post-thumb lazy-img skeleton" data-src="' + mediaUrl(p.image) + '" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="' + escHtml(p.title) + '" loading="lazy" onerror="this.style.display=\'none\'">'
           : '<div class="recent-post-thumb recent-post-thumb-placeholder"><i class="bi bi-newspaper"></i></div>') +
-        '<div class="recent-post-info"><h6>' + escHtml(p.title.substring(0, 55)) + (p.title.length > 55 ? '…' : '') + '</h6><span>' + escHtml(p.date) + '</span></div>' +
+        '<div class="recent-post-info"><h6>' + escHtml(p.title.substring(0,55)) + (p.title.length>55?'…':'') + '</h6><span>' + escHtml(p.date) + '</span></div>' +
         '</div>'
       ).join('');
       LazyLoader.observe(el);
-    } catch (e) {}
+    } catch(e) {}
   }
 
-  /* ── Sidebar: categories ── */
   async function loadSidebarCategories() {
     const el = document.getElementById('sidebar-categories');
     try {
       const data = await API.get('/api/posts/categories');
-      el.innerHTML = (data.categories || []).map(cat =>
+      el.innerHTML = (data.categories||[]).map(cat =>
         '<a href="/?category=' + encodeURIComponent(cat.toLowerCase()) + '" class="sidebar-cat-link">' + escHtml(cat) + '</a>'
       ).join('');
-    } catch (e) { el.innerHTML = ''; }
+    } catch(e) { el.innerHTML = ''; }
+  }
+
+  async function loadSidebarTags() {
+    const el = document.getElementById('sidebar-tags');
+    try {
+      const data = await API.get('/api/posts/tags');
+      if (!data.tags || !data.tags.length) { el.innerHTML = '<p style="font-size:0.82rem;color:var(--muted)">No tags yet.</p>'; return; }
+      el.innerHTML = data.tags.map(tag =>
+        '<a href="/?tag=' + encodeURIComponent(tag) + '" class="tag-cloud-item">' + escHtml(tag) + '</a>'
+      ).join('');
+    } catch(e) { el.innerHTML = ''; }
   }
 
   /* ── Newsletter ── */
-  document.getElementById('newsletter-form').addEventListener('submit', async function (e) {
+  document.getElementById('newsletter-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const email = e.target.querySelector('input').value.trim();
     const msg   = document.getElementById('newsletter-msg');
@@ -721,11 +679,11 @@
       const res = await API.post('/api/subscribe', { email });
       msg.textContent = res.message;
       if (res.success) e.target.querySelector('input').value = '';
-    } catch (e) { msg.textContent = 'Something went wrong.'; }
+    } catch(e) { msg.textContent = 'Something went wrong.'; }
   });
 
   /* ── Search ── */
-  document.getElementById('search-form').addEventListener('submit', function (e) {
+  document.getElementById('search-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const q = document.getElementById('search-input').value.trim();
     if (q) window.location.href = '/?search=' + encodeURIComponent(q);
@@ -735,6 +693,7 @@
   await loadPost();
   loadRecentPosts();
   loadSidebarCategories();
+  loadSidebarTags();
 
 })();
 </script>

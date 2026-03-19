@@ -42,7 +42,7 @@ app.use('/api/subscribe', (req, res, next) => {
 });
 app.use('/api/admin', adminRouter);
 
-// ── Cloudinary helpers (for OG tag injection) ──────────────────────────────────
+// ── Cloudinary helpers ─────────────────────────────────────────────────────────
 function signedCloudinaryUrl(publicId, resourceType = 'image', transformation = '') {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey    = process.env.CLOUDINARY_API_KEY;
@@ -75,27 +75,35 @@ app.get('/',        (req, res) => res.sendFile(path.join(clientPages, 'home',   
 app.get('/about',   (req, res) => res.sendFile(path.join(clientPages, 'about',   'index.html')));
 app.get('/contact', (req, res) => res.sendFile(path.join(clientPages, 'contact', 'index.html')));
 
-// ── /post/:id — inject OG tags into HTML before sending ───────────────────────
-// WhatsApp, Facebook, Twitter bots don't run JS. They read raw HTML only.
-// We intercept this route, look up the post, inject the real OG meta values
-// into the static HTML file, then send it. Bots get correct preview data.
-// Regular browsers also benefit (title updates instantly without waiting for JS).
-app.get('/post/:id', async (req, res) => {
+// ── Legal Pages ────────────────────────────────────────────────────────────────
+app.get('/privacy',       (req, res) => res.sendFile(path.join(clientPages, 'privacy',       'index.html')));
+app.get('/terms',         (req, res) => res.sendFile(path.join(clientPages, 'terms',         'index.html')));
+app.get('/cookie-policy', (req, res) => res.sendFile(path.join(clientPages, 'cookie-policy', 'index.html')));
+app.get('/disclaimer',    (req, res) => res.sendFile(path.join(clientPages, 'disclaimer',    'index.html')));
+
+// ── /post/:slugOrId — inject OG tags + support slug-based URLs ────────────────
+// Accepts BOTH /post/my-post-title-slug AND /post/64abc123objectid
+// WhatsApp, Facebook, Twitter bots get server-injected OG tags.
+// Regular browsers also benefit from instant title updates.
+app.get('/post/:slugOrId', async (req, res) => {
   const htmlPath = path.join(clientPages, 'post', 'index.html');
 
   try {
-    const post = await store.getPostById(req.params.id);
+    // getPostBySlugOrId tries slug first, falls back to ObjectId
+    const post = await store.getPostBySlugOrId(req.params.slugOrId);
 
-    // If post not found, still serve the page — JS will show the 404 UI
+    // If post not found, serve the page — JS will show the 404 UI
     if (!post) return res.sendFile(htmlPath);
 
     const siteUrl  = process.env.SITE_URL || `${req.protocol}://${req.headers.host}`;
-    const postUrl  = `${siteUrl}/post/${post.id}`;
+    // Canonical URL always uses slug if available
+    const postSlug = post.slug || post.id;
+    const postUrl  = `${siteUrl}/post/${postSlug}`;
     const siteName = 'Hon. Leke Abejide';
     const title    = post.title   || siteName;
     const desc     = post.excerpt || 'Read the latest from Hon. Leke Abejide';
 
-    // Build OG image: signed Cloudinary 1200×630, fallback to raw image or favicon
+    // Build OG image
     let ogImage = post.image || `${siteUrl}/favicon.png`;
     if (post.image && process.env.CLOUDINARY_CLOUD_NAME) {
       const publicId = extractPublicId(post.image);
@@ -105,7 +113,28 @@ app.get('/post/:id', async (req, res) => {
       }
     }
 
-    // Read the static HTML, inject real values into the placeholder meta tags
+    // Schema.org JSON-LD for this specific article
+    const schemaLD = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type":    "NewsArticle",
+      "headline": title,
+      "description": desc,
+      "image":    ogImage,
+      "datePublished": post.createdAt || post.date,
+      "author": {
+        "@type": "Person",
+        "name":  "Leke Joseph Abejide",
+        "url":   siteUrl
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name":  "Hon. Leke Abejide",
+        "logo":  { "@type": "ImageObject", "url": `${siteUrl}/Logo.png` }
+      },
+      "mainEntityOfPage": { "@type": "WebPage", "@id": postUrl }
+    });
+
+    // Read the static HTML and inject meta values
     let html = fs.readFileSync(htmlPath, 'utf8');
 
     html = html
@@ -127,15 +156,17 @@ app.get('/post/:id', async (req, res) => {
         `$1${escHtml(desc)}"`)
       .replace(/(<meta[^>]*id="tw-image"[^>]*content=")[^"]*"/,
         `$1${escHtml(ogImage)}"`)
+      // Inject canonical + JSON-LD schema before </head>
       .replace('</head>',
-        `  <link rel="canonical" href="${escHtml(postUrl)}">\n</head>`);
+        `  <link rel="canonical" href="${escHtml(postUrl)}">\n` +
+        `  <script type="application/ld+json">${schemaLD}</script>\n` +
+        `</head>`);
 
     res.setHeader('Content-Type', 'text/html');
     res.send(html);
 
   } catch (err) {
-    console.error('OG injection error for /post/:id:', err);
-    // Fall back to plain static file on any error
+    console.error('OG injection error for /post/:slugOrId:', err);
     res.sendFile(htmlPath);
   }
 });
@@ -143,17 +174,19 @@ app.get('/post/:id', async (req, res) => {
 // ── Admin Pages ────────────────────────────────────────────────────────────────
 const adminPages = path.join(__dirname, '..', 'admin', 'pages');
 
-app.get('/admin',                     (req, res) => res.redirect('/admin/login'));
-app.get('/admin/login',               (req, res) => res.sendFile(path.join(adminPages, 'login.html')));
-app.get('/admin/about',     requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'about.html')));
-app.get('/admin/dashboard', requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'dashboard.html')));
-app.get('/admin/posts',     requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'posts.html')));
-app.get('/admin/posts/new', requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'post-form.html')));
+app.get('/admin',                       (req, res) => res.redirect('/admin/login'));
+app.get('/admin/login',                 (req, res) => res.sendFile(path.join(adminPages, 'login.html')));
+app.get('/admin/about',       requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'about.html')));
+app.get('/admin/dashboard',   requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'dashboard.html')));
+app.get('/admin/posts',       requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'posts.html')));
+app.get('/admin/posts/new',   requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'post-form.html')));
 app.get('/admin/posts/edit/:id', requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'post-form.html')));
-app.get('/admin/comments',  requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'comments.html')));
-app.get('/admin/messages',  requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'messages.html')));
+app.get('/admin/comments',    requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'comments.html')));
+app.get('/admin/messages',    requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'messages.html')));
 app.get('/admin/subscribers', requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'subscribers.html')));
-app.get('/admin/settings',  requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'settings.html')));
+app.get('/admin/settings',    requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'settings.html')));
+// ── NEW: Tags management page ──────────────────────────────────────────────────
+app.get('/admin/tags',        requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'tags.html')));
 
 // ── 404 ────────────────────────────────────────────────────────────────────────
 app.use((req, res) => {

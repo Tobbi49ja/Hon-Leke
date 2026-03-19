@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /admin/dashboard
+Disallow: /admin/posts
+Disallow: /admin/comments
+Disallow: /admin/messages
+Disallow: /admin/subscribers
+Disallow: /admin/settings
+Disallow: /admin/about
+Disallow: /api/admin/
+
+Sitemap: https://leke-abejide.onrender.com/sitemap.xml

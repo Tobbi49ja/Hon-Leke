@@ -8,14 +8,18 @@ const Subscriber = require('../models/Subscriber');
 const Message    = require('../models/Message');
 const Settings   = require('../models/Settings');
 
+// ─────────────────────────────────────────────────────────────────────────────
 // Admin credentials
+// ─────────────────────────────────────────────────────────────────────────────
 const adminUser = {
   username: process.env.ADMIN_USERNAME || 'admin',
   password: process.env.ADMIN_PASSWORD || 'changeme',
   name:     process.env.ADMIN_NAME     || 'Site Administrator'
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
 // Default site settings
+// ─────────────────────────────────────────────────────────────────────────────
 const DEFAULT_SETTINGS = {
   heroTitle:    'Hon. Leke Abejide',
   heroSubtitle: 'Member, House of Representatives - Yagba Federal Constituency - Chairman, House Committee on Customs & Excise',
@@ -31,11 +35,16 @@ const DEFAULT_SETTINGS = {
   ]
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Seed posts — keep your existing SEED_POSTS array here unchanged
+// ─────────────────────────────────────────────────────────────────────────────
 const SEED_POSTS = [
   // ... (Keep your existing SEED_POSTS array here)
 ];
 
+// ─────────────────────────────────────────────────────────────────────────────
 // Seed on first boot
+// ─────────────────────────────────────────────────────────────────────────────
 async function seedIfEmpty() {
   const count = await Post.countDocuments();
   if (count === 0) {
@@ -49,31 +58,42 @@ async function seedIfEmpty() {
   }
 }
 
-/**
- * Robustly convert Mongoose docs to plain objects with string IDs
- */
+// ─────────────────────────────────────────────────────────────────────────────
+// Slug helper — mirrors the one in the Post model
+// ─────────────────────────────────────────────────────────────────────────────
+function slugify(text) {
+  return String(text || '')
+    .toLowerCase().trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 80);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper — convert Mongoose docs to plain objects with string IDs
+// ─────────────────────────────────────────────────────────────────────────────
 function toPlain(doc) {
   if (!doc) return null;
-  
-  // Handle arrays
   if (Array.isArray(doc)) return doc.map(toPlain);
-
-  // Convert Mongoose document to object if necessary
-  let obj = doc.toObject ? doc.toObject() : doc;
-
-  // Flatten the object to remove MongoDB-specific types (Dates, ObjectIds)
-  // and ensure 'id' is a simple string.
+  let obj   = doc.toObject ? doc.toObject() : doc;
   const plain = JSON.parse(JSON.stringify(obj));
-  
-  if (obj._id) {
-    plain.id = obj._id.toString();
-  }
-  
+  if (obj._id) plain.id = obj._id.toString();
   return plain;
 }
 
-// Posts
+// ─────────────────────────────────────────────────────────────────────────────
+// POSTS
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function getAllPosts() {
+  const docs = await Post.find({ status: { $ne: 'draft' } })
+    .sort({ createdAt: -1 }).lean();
+  return toPlain(docs);
+}
+
+// Get ALL posts including drafts — used by admin panel only
+async function getAllPostsAdmin() {
   const docs = await Post.find().sort({ createdAt: -1 }).lean();
   return toPlain(docs);
 }
@@ -87,30 +107,75 @@ async function getPostById(id) {
   }
 }
 
+// Find by slug OR id — supports both /post/my-slug and /post/objectid
+async function getPostBySlugOrId(slugOrId) {
+  try {
+    // Try slug first
+    let doc = await Post.findOne({ slug: slugOrId }).lean();
+    if (doc) return toPlain(doc);
+    // Fall back to MongoDB ObjectId
+    doc = await Post.findById(slugOrId).lean();
+    return toPlain(doc);
+  } catch (e) {
+    return null;
+  }
+}
+
 async function createPost(data) {
   const dateStr = data.date ||
     new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-  
+
+  // Parse tags
+  let tags = [];
+  if (Array.isArray(data.tags)) {
+    tags = data.tags.map(t => t.trim()).filter(Boolean);
+  } else if (typeof data.tags === 'string' && data.tags.trim()) {
+    tags = data.tags.split(',').map(t => t.trim()).filter(Boolean);
+  }
+
+  // Generate slug from title
+  const slug = slugify(data.title);
+
   const doc = await Post.create({
     ...data,
-    date: dateStr,
+    slug,
+    date:     dateStr,
     featured: data.featured === true || data.featured === 'true',
     hasVideo: data.hasVideo === true || data.hasVideo === 'true',
-    images: data.images || (data.image ? [data.image] : [])
+    images:   data.images || (data.image ? [data.image] : []),
+    status:   data.status || 'published',
+    tags,
+    views:    0,
+    likes:    0,
   });
   return toPlain(doc);
 }
 
 async function updatePost(id, data) {
   try {
-    // Explicitly handle booleans from form-data
     if (data.featured !== undefined) data.featured = (data.featured === true || data.featured === 'true');
     if (data.hasVideo !== undefined) data.hasVideo = (data.hasVideo === true || data.hasVideo === 'true');
+
+    // Parse tags if present
+    if (data.tags !== undefined) {
+      if (Array.isArray(data.tags)) {
+        data.tags = data.tags.map(t => t.trim()).filter(Boolean);
+      } else if (typeof data.tags === 'string' && data.tags.trim()) {
+        data.tags = data.tags.split(',').map(t => t.trim()).filter(Boolean);
+      } else {
+        data.tags = [];
+      }
+    }
+
+    // Regenerate slug if title changed
+    if (data.title) {
+      data.slug = slugify(data.title);
+    }
 
     const doc = await Post.findByIdAndUpdate(id, data, { new: true }).lean();
     return toPlain(doc);
   } catch (e) {
-    console.error("Store Update Error:", e);
+    console.error('Store updatePost error:', e);
     return null;
   }
 }
@@ -138,20 +203,67 @@ async function toggleFeatured(id) {
 }
 
 async function getCategories() {
-  return Post.distinct('category');
+  return Post.distinct('category', { status: { $ne: 'draft' } });
 }
 
 async function getSliderPosts() {
-  const docs = await Post.find({ featured: true }).sort({ createdAt: -1 }).lean();
+  const docs = await Post.find({ featured: true, status: { $ne: 'draft' } })
+    .sort({ createdAt: -1 }).lean();
   return toPlain(docs).map(p => ({
-    id: p.id,
+    id:    p.id,
     image: p.image,
     title: p.title,
-    link: '/post/' + p.id
+    link:  '/post/' + (p.slug || p.id)
   }));
 }
 
-// Comments
+// ── Popular posts — sorted by views descending ────────────────────────────────
+async function getPopularPosts(limit = 5) {
+  const docs = await Post.find({ status: { $ne: 'draft' } })
+    .sort({ views: -1 })
+    .limit(limit)
+    .lean();
+  return toPlain(docs);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST VIEW COUNTER
+// ─────────────────────────────────────────────────────────────────────────────
+async function incrementViews(postId) {
+  try {
+    const doc = await Post.findByIdAndUpdate(
+      postId,
+      { $inc: { views: 1 } },
+      { new: true }
+    ).lean();
+    return toPlain(doc);
+  } catch (e) {
+    console.error('incrementViews error:', e);
+    return null;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST LIKE / CLAP COUNTER
+// ─────────────────────────────────────────────────────────────────────────────
+async function incrementLikes(postId) {
+  try {
+    const doc = await Post.findByIdAndUpdate(
+      postId,
+      { $inc: { likes: 1 } },
+      { new: true }
+    ).lean();
+    return toPlain(doc);
+  } catch (e) {
+    console.error('incrementLikes error:', e);
+    return null;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COMMENTS
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function getCommentsByPost(postId) {
   try {
     const docs = await Comment.find({ postId }).sort({ createdAt: 1 }).lean();
@@ -162,13 +274,15 @@ async function getCommentsByPost(postId) {
 }
 
 async function addComment(postId, name, email, message) {
-  const dateStr = new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+  const dateStr = new Date().toLocaleDateString('en-GB', {
+    year: 'numeric', month: 'long', day: 'numeric'
+  });
   const doc = await Comment.create({
     postId,
-    name: name.trim(),
-    email: email.trim(),
-    message: message.trim(),
-    date: dateStr,
+    name:     name.trim(),
+    email:    email.trim(),
+    message:  message.trim(),
+    date:     dateStr,
     approved: true
   });
   return toPlain(doc);
@@ -187,13 +301,21 @@ async function getAllComments() {
   return toPlain(docs);
 }
 
-// Contact messages
+// ─────────────────────────────────────────────────────────────────────────────
+// CONTACT MESSAGES
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function addContactMessage(name, email, subject, message) {
-  const dateStr = new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+  const dateStr = new Date().toLocaleDateString('en-GB', {
+    year: 'numeric', month: 'long', day: 'numeric'
+  });
   const doc = await Message.create({
-    name: name.trim(), email: email.trim(),
-    subject: subject.trim(), message: message.trim(),
-    date: dateStr, read: false
+    name:    name.trim(),
+    email:   email.trim(),
+    subject: subject.trim(),
+    message: message.trim(),
+    date:    dateStr,
+    read:    false
   });
   return toPlain(doc);
 }
@@ -220,7 +342,10 @@ async function deleteMessage(id) {
   }
 }
 
-// Subscribers
+// ─────────────────────────────────────────────────────────────────────────────
+// SUBSCRIBERS
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function addSubscriber(email) {
   const exists = await Subscriber.findOne({ email: email.toLowerCase() });
   if (exists) return { exists: true };
@@ -242,42 +367,114 @@ async function deleteSubscriber(id) {
   }
 }
 
-// Settings (Remains as is since it doesn't use ObjectIds for identification)
+// ─────────────────────────────────────────────────────────────────────────────
+// SETTINGS
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function getSettings() {
   const doc = await Settings.findOne({ key: 'site' }).lean();
-  return doc ? Object.assign({}, DEFAULT_SETTINGS, doc.value) : Object.assign({}, DEFAULT_SETTINGS);
+  return doc
+    ? Object.assign({}, DEFAULT_SETTINGS, doc.value)
+    : Object.assign({}, DEFAULT_SETTINGS);
 }
 
 async function updateSettings(data) {
   const current = await getSettings();
   const merged  = Object.assign({}, current, data);
-  await Settings.findOneAndUpdate({ key: 'site' }, { value: merged }, { upsert: true });
+  await Settings.findOneAndUpdate(
+    { key: 'site' },
+    { value: merged },
+    { upsert: true }
+  );
   return merged;
 }
 
-// Stats
+// ─────────────────────────────────────────────────────────────────────────────
+// STATS — admin dashboard
+// ─────────────────────────────────────────────────────────────────────────────
+
 async function getStats() {
-  const [totalPosts, featuredPosts, totalComments, totalMessages, unreadMessages, totalSubscribers, catList] =
-    await Promise.all([
-      Post.countDocuments(),
-      Post.countDocuments({ featured: true }),
-      Comment.countDocuments(),
-      Message.countDocuments(),
-      Message.countDocuments({ read: false }),
-      Subscriber.countDocuments(),
-      Post.distinct('category')
-    ]);
-  return { totalPosts, featuredPosts, totalComments, totalMessages, unreadMessages, totalSubscribers, categories: catList.length };
+  const [
+    totalPosts,
+    featuredPosts,
+    draftPosts,
+    totalComments,
+    totalMessages,
+    unreadMessages,
+    totalSubscribers,
+    catList,
+    totalViewsAgg,
+    totalLikesAgg
+  ] = await Promise.all([
+    Post.countDocuments({ status: { $ne: 'draft' } }),
+    Post.countDocuments({ featured: true }),
+    Post.countDocuments({ status: 'draft' }),
+    Comment.countDocuments(),
+    Message.countDocuments(),
+    Message.countDocuments({ read: false }),
+    Subscriber.countDocuments(),
+    Post.distinct('category'),
+    Post.aggregate([{ $group: { _id: null, total: { $sum: '$views' } } }]),
+    Post.aggregate([{ $group: { _id: null, total: { $sum: '$likes' } } }]),
+  ]);
+
+  return {
+    totalPosts,
+    featuredPosts,
+    draftPosts,
+    totalComments,
+    totalMessages,
+    unreadMessages,
+    totalSubscribers,
+    categories:  catList.length,
+    totalViews:  totalViewsAgg[0]  ? totalViewsAgg[0].total  : 0,
+    totalLikes:  totalLikesAgg[0]  ? totalLikesAgg[0].total  : 0,
+  };
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// EXPORTS
+// ─────────────────────────────────────────────────────────────────────────────
 module.exports = {
   adminUser,
   seedIfEmpty,
-  getAllPosts, getPostById, createPost, updatePost, deletePost, toggleFeatured,
-  getCategories, getSliderPosts,
-  getCommentsByPost, addComment, deleteComment, getAllComments,
-  addContactMessage, getAllMessages, markMessageRead, deleteMessage,
-  addSubscriber, getAllSubscribers, deleteSubscriber,
-  getSettings, updateSettings,
-  getStats
+
+  // Posts
+  getAllPosts,
+  getAllPostsAdmin,
+  getPostById,
+  getPostBySlugOrId,
+  createPost,
+  updatePost,
+  deletePost,
+  toggleFeatured,
+  getCategories,
+  getSliderPosts,
+  getPopularPosts,
+  incrementViews,
+  incrementLikes,
+
+  // Comments
+  getCommentsByPost,
+  addComment,
+  deleteComment,
+  getAllComments,
+
+  // Messages
+  addContactMessage,
+  getAllMessages,
+  markMessageRead,
+  deleteMessage,
+
+  // Subscribers
+  addSubscriber,
+  getAllSubscribers,
+  deleteSubscriber,
+
+  // Settings
+  getSettings,
+  updateSettings,
+
+  // Stats
+  getStats,
 };

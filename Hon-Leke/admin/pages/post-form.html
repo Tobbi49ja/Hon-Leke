@@ -14,7 +14,6 @@
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;}
 
-    /* ── Layout ── */
     .admin-wrap{display:flex;min-height:100vh;}
     .sidebar{width:240px;background:var(--primary);color:#fff;padding:24px 0;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
     .sidebar-brand{padding:0 20px 24px;font-size:1rem;font-weight:700;border-bottom:1px solid rgba(255,255,255,0.12);margin-bottom:12px;}
@@ -22,11 +21,9 @@
     .sidebar a:hover,.sidebar a.active{background:rgba(255,255,255,0.12);color:#fff;}
     .main{flex:1;padding:32px;max-width:900px;}
 
-    /* ── Page header ── */
     .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;}
     .page-header h1{font-size:1.5rem;color:var(--primary);}
 
-    /* ── Meta fields ── */
     .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
     .form-group{display:flex;flex-direction:column;gap:6px;}
     .form-group label{font-size:0.83rem;font-weight:600;color:var(--muted);}
@@ -38,186 +35,107 @@
     .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--primary);}
     .form-group textarea{resize:vertical;min-height:80px;}
     .full-width{grid-column:1/-1;}
+    .form-hint{font-size:0.75rem;color:var(--muted);margin-top:4px;}
 
-    /* ── Block editor ── */
-    .editor-label{
-      font-size:0.83rem;font-weight:700;color:var(--primary);
-      text-transform:uppercase;letter-spacing:0.8px;
-      margin-bottom:12px;display:flex;align-items:center;gap:8px;
+    /* Tags input */
+    .tags-input-wrap{
+      display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+      padding:8px 12px;border:1px solid var(--border);border-radius:8px;
+      background:var(--white);min-height:44px;cursor:text;
+      transition:border-color .2s;
     }
+    .tags-input-wrap:focus-within{border-color:var(--primary);}
+    .tag-chip{
+      display:inline-flex;align-items:center;gap:4px;
+      background:#deeaf7;color:var(--primary);
+      padding:3px 10px;border-radius:14px;font-size:0.78rem;font-weight:600;
+    }
+    .tag-chip button{
+      background:none;border:none;cursor:pointer;color:var(--primary);
+      font-size:0.85rem;padding:0;line-height:1;display:flex;align-items:center;
+    }
+    .tag-chip button:hover{color:var(--red);}
+    #tag-input-field{
+      border:none;outline:none;font-size:0.88rem;
+      flex:1;min-width:120px;background:transparent;
+      font-family:inherit;padding:2px 0;
+    }
+
+    /* Block editor */
+    .editor-label{font-size:0.83rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
     #blocks-container{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
-
-    /* Individual block card */
-    .block-card{
-      background:var(--white);border:1px solid var(--border);
-      border-radius:var(--radius);overflow:hidden;
-      transition:box-shadow .2s;
-    }
+    .block-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow .2s;}
     .block-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08);}
     .block-card.block-text  {border-left:4px solid var(--primary);}
     .block-card.block-image {border-left:4px solid var(--accent);}
     .block-card.block-video {border-left:4px solid var(--green);}
-
-    .block-header{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:10px 16px;background:#fafafa;border-bottom:1px solid var(--border);
-      gap:8px;
-    }
-    .block-type-label{
-      font-size:0.75rem;font-weight:700;text-transform:uppercase;
-      letter-spacing:0.8px;display:flex;align-items:center;gap:6px;
-    }
+    .block-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#fafafa;border-bottom:1px solid var(--border);gap:8px;}
+    .block-type-label{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;display:flex;align-items:center;gap:6px;}
     .block-card.block-text  .block-type-label{color:var(--primary);}
     .block-card.block-image .block-type-label{color:var(--accent);}
     .block-card.block-video .block-type-label{color:var(--green);}
-
     .block-controls{display:flex;gap:4px;}
-    .block-btn{
-      background:none;border:none;cursor:pointer;padding:5px 8px;
-      border-radius:6px;font-size:0.85rem;color:var(--muted);
-      transition:background .15s,color .15s;
-    }
+    .block-btn{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:6px;font-size:0.85rem;color:var(--muted);transition:background .15s,color .15s;}
     .block-btn:hover{background:var(--light);color:var(--primary);}
     .block-btn.del:hover{background:#fde8ea;color:var(--red);}
-
     .block-body{padding:14px 16px;}
 
-    /* ── Markdown toolbar ── */
-    .md-toolbar{
-      display:flex;gap:4px;flex-wrap:wrap;
-      padding:6px 8px;background:#f0f4f8;
-      border:1px solid var(--border);border-bottom:none;
-      border-radius:8px 8px 0 0;
-    }
-    .md-btn{
-      background:var(--white);border:1px solid var(--border);
-      border-radius:5px;padding:4px 8px;
-      font-size:0.78rem;font-weight:700;cursor:pointer;
-      color:var(--primary);transition:all .15s;
-      display:inline-flex;align-items:center;gap:3px;
-      font-family: 'Georgia', serif;
-    }
+    /* Markdown toolbar */
+    .md-toolbar{display:flex;gap:4px;flex-wrap:wrap;padding:6px 8px;background:#f0f4f8;border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;}
+    .md-btn{background:var(--white);border:1px solid var(--border);border-radius:5px;padding:4px 8px;font-size:0.78rem;font-weight:700;cursor:pointer;color:var(--primary);transition:all .15s;display:inline-flex;align-items:center;gap:3px;font-family:'Georgia',serif;}
     .md-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
     .md-btn.md-sep{background:none;border:none;color:var(--border);cursor:default;padding:4px 2px;}
-    .md-hint{
-      font-size:0.72rem;color:var(--muted);margin-top:6px;
-      display:flex;align-items:center;gap:6px;flex-wrap:wrap;
-    }
-    .md-hint code{
-      background:#f0f4f8;padding:1px 5px;border-radius:3px;
-      font-size:0.7rem;color:var(--primary);
-    }
-
-    /* Text block textarea — connects flush to toolbar */
-    .block-textarea{
-      width:100%;min-height:160px;padding:10px 14px;
-      border:1px solid var(--border);border-radius:0 0 8px 8px;
-      font-size:0.95rem;line-height:1.75;font-family:'Georgia',serif;
-      resize:vertical;outline:none;transition:border-color .2s;
-    }
+    .md-hint{font-size:0.72rem;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+    .md-hint code{background:#f0f4f8;padding:1px 5px;border-radius:3px;font-size:0.7rem;color:var(--primary);}
+    .block-textarea{width:100%;min-height:160px;padding:10px 14px;border:1px solid var(--border);border-radius:0 0 8px 8px;font-size:0.95rem;line-height:1.75;font-family:'Georgia',serif;resize:vertical;outline:none;transition:border-color .2s;}
     .block-textarea:focus{border-color:var(--primary);}
-
-    /* Preview toggle */
-    .md-preview-toggle{
-      display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-left:auto;
-    }
-    .md-preview-toggle button{
-      padding:4px 12px;font-size:0.75rem;font-weight:600;border:none;cursor:pointer;
-      background:var(--white);color:var(--muted);transition:all .15s;
-    }
+    .md-preview-toggle{display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-left:auto;}
+    .md-preview-toggle button{padding:4px 12px;font-size:0.75rem;font-weight:600;border:none;cursor:pointer;background:var(--white);color:var(--muted);transition:all .15s;}
     .md-preview-toggle button.active{background:var(--primary);color:#fff;}
-    .md-preview-box{
-      min-height:120px;padding:10px 14px;
-      border:1px solid var(--border);border-radius:0 0 8px 8px;
-      font-size:0.95rem;line-height:1.75;
-      background:#fefefe;display:none;
-    }
+    .md-preview-box{min-height:120px;padding:10px 14px;border:1px solid var(--border);border-radius:0 0 8px 8px;font-size:0.95rem;line-height:1.75;background:#fefefe;display:none;}
     .md-preview-box.show{display:block;}
 
     /* Image block */
-    .img-upload-area{
-      border:2px dashed var(--border);border-radius:8px;
-      padding:20px;text-align:center;cursor:pointer;
-      transition:border-color .2s,background .2s;position:relative;
-    }
+    .img-upload-area{border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;}
     .img-upload-area:hover{border-color:var(--accent);background:#fffbf0;}
-    .img-upload-area input[type=file]{
-      position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
-    }
+    .img-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
     .img-upload-area .upload-icon{font-size:2rem;color:var(--muted);margin-bottom:8px;}
     .img-upload-area p{font-size:0.85rem;color:var(--muted);}
-    .img-preview{
-      max-height:200px;border-radius:8px;object-fit:cover;
-      width:100%;margin-top:10px;display:none;
-    }
-    .img-caption-input{
-      width:100%;margin-top:10px;padding:8px 12px;
-      border:1px solid var(--border);border-radius:6px;
-      font-size:0.85rem;font-family:inherit;outline:none;
-    }
+    .img-preview{max-height:200px;border-radius:8px;object-fit:cover;width:100%;margin-top:10px;display:none;}
+    .img-caption-input{width:100%;margin-top:10px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem;font-family:inherit;outline:none;}
     .img-caption-input:focus{border-color:var(--accent);}
 
     /* Video block */
     .video-type-tabs{display:flex;gap:8px;margin-bottom:12px;}
-    .vtab{
-      padding:6px 18px;border-radius:20px;border:2px solid var(--border);
-      background:var(--white);font-size:0.82rem;font-weight:600;
-      color:var(--muted);cursor:pointer;transition:all .2s;
-    }
+    .vtab{padding:6px 18px;border-radius:20px;border:2px solid var(--border);background:var(--white);font-size:0.82rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;}
     .vtab.active{background:var(--green);border-color:var(--green);color:#fff;}
     .video-youtube-input,.video-file-input{display:none;}
     .video-youtube-input.show,.video-file-input.show{display:block;}
-    .video-url-field{
-      width:100%;padding:10px 14px;border:1px solid var(--border);
-      border-radius:8px;font-size:0.93rem;outline:none;
-      transition:border-color .2s;
-    }
+    .video-url-field{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:0.93rem;outline:none;transition:border-color .2s;}
     .video-url-field:focus{border-color:var(--green);}
-    .video-file-area{
-      border:2px dashed var(--border);border-radius:8px;
-      padding:20px;text-align:center;cursor:pointer;
-      transition:border-color .2s;position:relative;
-    }
+    .video-file-area{border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative;}
     .video-file-area:hover{border-color:var(--green);}
     .video-file-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
     .video-file-name{font-size:0.85rem;color:var(--green);margin-top:6px;font-weight:600;}
 
-    /* ── Add block buttons ── */
-    .add-block-bar{
-      display:flex;gap:10px;flex-wrap:wrap;
-      padding:16px;background:var(--light);
-      border:1px dashed var(--border);border-radius:var(--radius);
-      margin-bottom:28px;
-    }
+    /* Add block bar */
+    .add-block-bar{display:flex;gap:10px;flex-wrap:wrap;padding:16px;background:var(--light);border:1px dashed var(--border);border-radius:var(--radius);margin-bottom:28px;}
     .add-block-bar span{font-size:0.8rem;color:var(--muted);font-weight:600;align-self:center;margin-right:4px;}
-    .add-btn{
-      display:inline-flex;align-items:center;gap:6px;
-      padding:8px 18px;border-radius:8px;border:none;
-      font-size:0.83rem;font-weight:700;cursor:pointer;
-      transition:all .2s;
-    }
-    .add-btn-text {background:#deeaf7;color:var(--primary);}
+    .add-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;border:none;font-size:0.83rem;font-weight:700;cursor:pointer;transition:all .2s;}
+    .add-btn-text{background:#deeaf7;color:var(--primary);}
     .add-btn-text:hover{background:var(--primary);color:#fff;}
     .add-btn-image{background:#fff4e0;color:var(--accent);}
     .add-btn-image:hover{background:var(--accent);color:#fff;}
     .add-btn-video{background:#e6f4ed;color:var(--green);}
     .add-btn-video:hover{background:var(--green);color:#fff;}
 
-    /* ── Cover image ── */
-    .cover-section{
-      background:var(--white);border:1px solid var(--border);
-      border-radius:var(--radius);padding:20px;margin-bottom:24px;
-    }
+    /* Cover image */
+    .cover-section{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:24px;}
     .cover-section h3{font-size:0.95rem;color:var(--primary);margin-bottom:14px;font-weight:700;}
     .cover-preview{max-height:160px;border-radius:8px;object-fit:cover;width:100%;display:none;margin-top:10px;}
 
-    /* ── Submit bar ── */
-    .submit-bar{
-      display:flex;gap:12px;align-items:center;
-      padding:20px;background:var(--white);
-      border:1px solid var(--border);border-radius:var(--radius);
-      margin-top:8px;
-    }
+    /* Submit bar */
+    .submit-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:20px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);margin-top:8px;}
     .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 26px;border-radius:8px;font-weight:700;font-size:0.92rem;cursor:pointer;border:none;transition:all .2s;}
     .btn-primary{background:var(--primary);color:#fff;}
     .btn-primary:hover{background:#2d5f8a;transform:translateY(-1px);}
@@ -226,25 +144,28 @@
     .btn-outline:hover{border-color:var(--muted);}
     .btn-featured{background:#fff4e0;color:var(--accent);border:2px solid var(--accent);}
     .btn-featured.on{background:var(--accent);color:#fff;}
+    .btn-draft{background:#f0f4f8;color:var(--muted);border:2px solid var(--border);}
+    .btn-draft.on{background:#6c757d;color:#fff;border-color:#6c757d;}
 
-    /* ── Toast ── */
-    #toast{
-      position:fixed;bottom:28px;right:28px;z-index:9999;
-      color:#fff;padding:12px 22px;border-radius:8px;
-      font-size:0.88rem;font-weight:500;pointer-events:none;
-      opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s;
+    /* Slug preview */
+    .slug-preview{
+      font-size:0.75rem;color:var(--muted);margin-top:5px;
+      display:flex;align-items:center;gap:5px;
     }
+    .slug-preview span{
+      background:#f0f4f8;padding:2px 8px;border-radius:4px;
+      font-family:monospace;color:var(--primary);
+    }
+
+    #toast{position:fixed;bottom:28px;right:28px;z-index:9999;color:#fff;padding:12px 22px;border-radius:8px;font-size:0.88rem;font-weight:500;pointer-events:none;opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s;}
     #toast.show{opacity:1;transform:translateY(0);}
     #toast.success{background:var(--green);}
     #toast.error{background:var(--red);}
 
-    .spinner-inline{
-      width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);
-      border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;
-    }
+    .spinner-inline{width:18px;height:18px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;}
     @keyframes spin{to{transform:rotate(360deg);}}
 
-    /* Inline markdown preview styles */
+    /* Preview styles */
     .md-preview-box h1{font-size:1.6rem;margin-bottom:12px;color:#1a1a1a;}
     .md-preview-box h2{font-size:1.3rem;margin-bottom:10px;color:#1a1a1a;}
     .md-preview-box h3{font-size:1.1rem;margin-bottom:8px;color:#1a1a1a;}
@@ -271,6 +192,7 @@
     <a href="/admin/comments"><i class="bi bi-chat-left-text"></i> Comments</a>
     <a href="/admin/messages"><i class="bi bi-envelope"></i> Messages</a>
     <a href="/admin/subscribers"><i class="bi bi-people"></i> Subscribers</a>
+    <a href="/admin/tags"><i class="bi bi-tags"></i> Tags</a>
     <a href="/admin/settings"><i class="bi bi-gear"></i> Settings</a>
     <a href="/admin/about"><i class="bi bi-person"></i> About Page</a>
     <a href="/" target="_blank"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
@@ -282,11 +204,14 @@
       <a href="/admin/posts" class="btn btn-outline"><i class="bi bi-arrow-left"></i> Back</a>
     </div>
 
-    <!-- ── Meta ── -->
+    <!-- ── Meta fields ── -->
     <div class="meta-grid">
       <div class="form-group full-width">
         <label>Post Title *</label>
-        <input type="text" id="post-title" placeholder="Enter post title…">
+        <input type="text" id="post-title" placeholder="Enter post title…" oninput="updateSlugPreview(this.value)">
+        <div class="slug-preview">
+          URL: /post/<span id="slug-preview">your-post-title</span>
+        </div>
       </div>
       <div class="form-group full-width">
         <label>Excerpt / Summary *</label>
@@ -299,6 +224,18 @@
       <div class="form-group">
         <label>Date (leave blank for today)</label>
         <input type="text" id="post-date" placeholder="e.g. 13 March 2026">
+      </div>
+
+      <!-- ── Tags ── -->
+      <div class="form-group full-width">
+        <label><i class="bi bi-tags"></i> Tags</label>
+        <div class="tags-input-wrap" id="tags-wrap" onclick="document.getElementById('tag-input-field').focus()">
+          <!-- Tag chips rendered here by JS -->
+          <input type="text" id="tag-input-field"
+            placeholder="Type a tag and press Enter or comma…"
+            onkeydown="handleTagInput(event)">
+        </div>
+        <div class="form-hint">Press <strong>Enter</strong> or <strong>,</strong> to add a tag. Click × to remove.</div>
       </div>
     </div>
 
@@ -323,24 +260,20 @@
 
     <div id="blocks-container"></div>
 
-    <!-- Add block buttons -->
     <div class="add-block-bar">
       <span>Insert:</span>
-      <button class="add-btn add-btn-text"  onclick="addBlock('text')">
-        <i class="bi bi-text-left"></i> Text
-      </button>
-      <button class="add-btn add-btn-image" onclick="addBlock('image')">
-        <i class="bi bi-image"></i> Image
-      </button>
-      <button class="add-btn add-btn-video" onclick="addBlock('video')">
-        <i class="bi bi-play-circle"></i> Video
-      </button>
+      <button class="add-btn add-btn-text"  onclick="addBlock('text')"><i class="bi bi-text-left"></i> Text</button>
+      <button class="add-btn add-btn-image" onclick="addBlock('image')"><i class="bi bi-image"></i> Image</button>
+      <button class="add-btn add-btn-video" onclick="addBlock('video')"><i class="bi bi-play-circle"></i> Video</button>
     </div>
 
-    <!-- ── Submit ── -->
+    <!-- ── Submit bar ── -->
     <div class="submit-bar">
-      <button class="btn btn-primary" id="save-btn" onclick="savePost()">
+      <button class="btn btn-primary" id="save-btn" onclick="savePost('published')">
         <i class="bi bi-cloud-upload"></i> Publish Post
+      </button>
+      <button class="btn btn-draft" id="draft-btn" onclick="savePost('draft')">
+        <i class="bi bi-file-earmark"></i> Save as Draft
       </button>
       <button class="btn btn-featured" id="featured-btn" onclick="toggleFeatured()">
         <i class="bi bi-star"></i> Featured
@@ -352,7 +285,6 @@
 
 <div id="toast"></div>
 
-<!-- marked.js for live preview only (no server dependency) -->
 <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
 <script>
 // ── State ──────────────────────────────────────────────────────────────────────
@@ -360,12 +292,58 @@ let blocks    = [];
 let featured  = false;
 let editingId = null;
 let blockIdx  = 0;
+let postTags  = [];
+
+// ── Slug preview ───────────────────────────────────────────────────────────────
+function slugify(text) {
+  return String(text || '').toLowerCase().trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-').replace(/-+/g, '-').slice(0, 80);
+}
+function updateSlugPreview(val) {
+  document.getElementById('slug-preview').textContent = slugify(val) || 'your-post-title';
+}
+
+// ── Tags input ─────────────────────────────────────────────────────────────────
+function handleTagInput(e) {
+  const input = e.target;
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = input.value.replace(/,/g, '').trim();
+    if (val && !postTags.includes(val)) {
+      postTags.push(val);
+      renderTagChips();
+    }
+    input.value = '';
+  }
+  if (e.key === 'Backspace' && input.value === '' && postTags.length) {
+    postTags.pop();
+    renderTagChips();
+  }
+}
+
+function renderTagChips() {
+  const wrap = document.getElementById('tags-wrap');
+  // Remove existing chips
+  wrap.querySelectorAll('.tag-chip').forEach(c => c.remove());
+  const input = document.getElementById('tag-input-field');
+  postTags.forEach((tag, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'tag-chip';
+    chip.innerHTML = `${tag} <button type="button" onclick="removeTag(${i})"><i class="bi bi-x"></i></button>`;
+    wrap.insertBefore(chip, input);
+  });
+}
+
+function removeTag(index) {
+  postTags.splice(index, 1);
+  renderTagChips();
+}
 
 // ── Init ───────────────────────────────────────────────────────────────────────
 (async function init() {
   const path  = window.location.pathname;
   const match = path.match(/\/admin\/posts\/edit\/([^/]+)/);
-
   if (match) {
     editingId = match[1];
     document.getElementById('page-title').innerHTML = '<i class="bi bi-pencil"></i> Edit Post';
@@ -374,7 +352,6 @@ let blockIdx  = 0;
   } else {
     addBlock('text');
   }
-
   document.getElementById('cover-file').addEventListener('change', function () {
     previewCoverFile(this);
   });
@@ -391,8 +368,22 @@ async function loadExistingPost(id) {
     document.getElementById('post-excerpt').value  = post.excerpt  || '';
     document.getElementById('post-category').value = post.category || '';
     document.getElementById('post-date').value     = post.date     || '';
+    updateSlugPreview(post.title || '');
+
+    // Load tags
+    if (post.tags && post.tags.length) {
+      postTags = [...post.tags];
+      renderTagChips();
+    }
+
     featured = post.featured || false;
     updateFeaturedBtn();
+
+    // Show draft status
+    if (post.status === 'draft') {
+      document.getElementById('draft-btn').classList.add('on');
+      document.getElementById('draft-btn').innerHTML = '<i class="bi bi-file-earmark-check"></i> Saved as Draft';
+    }
 
     if (post.image) {
       const prev = document.getElementById('cover-preview');
@@ -410,7 +401,7 @@ async function loadExistingPost(id) {
   }
 }
 
-// ── Block management ────────────────────────────────────────────────────────────
+// ── Block management ───────────────────────────────────────────────────────────
 function addBlock(type, data) {
   const id  = 'blk-' + (blockIdx++);
   const obj = { id, type, ...(data || {}) };
@@ -429,13 +420,11 @@ function renderBlock(b) {
 }
 
 function blockHTML(b) {
-  const icons  = { text: 'bi-text-left', image: 'bi-image', video: 'bi-play-circle' };
-  const labels = { text: 'Text Block (Markdown)', image: 'Image / Photo', video: 'Video' };
+  const icons  = { text:'bi-text-left', image:'bi-image', video:'bi-play-circle' };
+  const labels = { text:'Text Block (Markdown)', image:'Image / Photo', video:'Video' };
   return `
     <div class="block-header">
-      <span class="block-type-label">
-        <i class="bi ${icons[b.type]}"></i> ${labels[b.type]}
-      </span>
+      <span class="block-type-label"><i class="bi ${icons[b.type]}"></i> ${labels[b.type]}</span>
       <div class="block-controls">
         <button class="block-btn" title="Move up"   onclick="moveBlock('${b.id}',-1)"><i class="bi bi-arrow-up"></i></button>
         <button class="block-btn" title="Move down" onclick="moveBlock('${b.id}',1)"><i class="bi bi-arrow-down"></i></button>
@@ -449,84 +438,69 @@ function blockHTML(b) {
     </div>`;
 }
 
-// ── Text block with markdown toolbar + live preview ────────────────────────────
 function textBlockBody(b) {
   const text = esc(b.text || '');
   return `
     <div class="md-toolbar">
-      <button class="md-btn" title="Heading 1"     onclick="mdWrap('${b.id}','# ','',true)">H1</button>
-      <button class="md-btn" title="Heading 2"     onclick="mdWrap('${b.id}','## ','',true)">H2</button>
-      <button class="md-btn" title="Heading 3"     onclick="mdWrap('${b.id}','### ','',true)">H3</button>
+      <button class="md-btn" onclick="mdWrap('${b.id}','# ','',true)">H1</button>
+      <button class="md-btn" onclick="mdWrap('${b.id}','## ','',true)">H2</button>
+      <button class="md-btn" onclick="mdWrap('${b.id}','### ','',true)">H3</button>
       <span class="md-sep">|</span>
-      <button class="md-btn" title="Bold"          onclick="mdWrap('${b.id}','**','**')"><b>B</b></button>
-      <button class="md-btn" title="Italic"        onclick="mdWrap('${b.id}','*','*')"><i>I</i></button>
-      <button class="md-btn" title="Strikethrough" onclick="mdWrap('${b.id}','~~','~~')"><s>S</s></button>
+      <button class="md-btn" onclick="mdWrap('${b.id}','**','**')"><b>B</b></button>
+      <button class="md-btn" onclick="mdWrap('${b.id}','*','*')"><i>I</i></button>
+      <button class="md-btn" onclick="mdWrap('${b.id}','~~','~~')"><s>S</s></button>
       <span class="md-sep">|</span>
-      <button class="md-btn" title="Bullet list"   onclick="mdWrap('${b.id}','- ','',true)">• List</button>
-      <button class="md-btn" title="Numbered list" onclick="mdWrap('${b.id}','1. ','',true)">1. List</button>
-      <button class="md-btn" title="Blockquote"    onclick="mdWrap('${b.id}','> ','',true)">❝ Quote</button>
+      <button class="md-btn" onclick="mdWrap('${b.id}','- ','',true)">• List</button>
+      <button class="md-btn" onclick="mdWrap('${b.id}','1. ','',true)">1. List</button>
+      <button class="md-btn" onclick="mdWrap('${b.id}','> ','',true)">❝ Quote</button>
       <span class="md-sep">|</span>
-      <button class="md-btn" title="Inline code"   onclick="mdWrap('${b.id}','\`','\`')">Code</button>
-      <button class="md-btn" title="Divider"       onclick="mdInsert('${b.id}','\\n---\\n')">─ HR</button>
-      <button class="md-btn" title="Link"          onclick="mdLink('${b.id}')">🔗 Link</button>
+      <button class="md-btn" onclick="mdWrap('${b.id}','\`','\`')">Code</button>
+      <button class="md-btn" onclick="mdInsert('${b.id}','\\n---\\n')">─ HR</button>
+      <button class="md-btn" onclick="mdLink('${b.id}')">🔗 Link</button>
       <div class="md-preview-toggle">
-        <button id="tab-edit-${b.id}"    class="active" onclick="mdTab('${b.id}','edit')">Edit</button>
+        <button id="tab-edit-${b.id}" class="active" onclick="mdTab('${b.id}','edit')">Edit</button>
         <button id="tab-preview-${b.id}" onclick="mdTab('${b.id}','preview')">Preview</button>
       </div>
     </div>
     <textarea class="block-textarea" id="text-${b.id}"
-      placeholder="Write your content here using Markdown…&#10;&#10;# Heading&#10;**bold** *italic*&#10;- bullet list&#10;> blockquote"
+      placeholder="Write content here using Markdown…"
     >${text}</textarea>
     <div class="md-preview-box" id="preview-${b.id}"></div>
     <div class="md-hint">
       <span>Markdown:</span>
       <code># H1</code><code>**bold**</code><code>*italic*</code>
-      <code>- list</code><code>> quote</code><code>\`code\`</code>
-      <code>---</code>
+      <code>- list</code><code>> quote</code><code>\`code\`</code><code>---</code>
     </div>`;
 }
 
-// ── Markdown toolbar actions ───────────────────────────────────────────────────
-
-// Wrap selected text (or insert at cursor) with prefix/suffix
-// lineMode=true: applies prefix to the start of the line (for headings, lists)
 function mdWrap(id, prefix, suffix, lineMode) {
   const ta    = document.getElementById('text-' + id);
   const start = ta.selectionStart;
   const end   = ta.selectionEnd;
   const val   = ta.value;
-  let selected = val.substring(start, end);
-
-  let newText, cursorStart, cursorEnd;
-
   if (lineMode) {
-    // Find start of line
     const lineStart = val.lastIndexOf('\n', start - 1) + 1;
-    const before    = val.substring(0, lineStart);
-    const line      = val.substring(lineStart, end || start);
-    const after     = val.substring(end || start);
-    newText = before + prefix + line + after;
-    ta.value = newText;
+    const before = val.substring(0, lineStart);
+    const line   = val.substring(lineStart, end || start);
+    const after  = val.substring(end || start);
+    ta.value = before + prefix + line + after;
     ta.selectionStart = lineStart + prefix.length;
     ta.selectionEnd   = lineStart + prefix.length + line.length;
   } else {
-    if (!selected) selected = 'text';
-    const before = val.substring(0, start);
-    const after  = val.substring(end);
-    newText = before + prefix + selected + suffix + after;
-    ta.value = newText;
+    const selected = val.substring(start, end) || 'text';
+    const before   = val.substring(0, start);
+    const after    = val.substring(end);
+    ta.value = before + prefix + selected + suffix + after;
     ta.selectionStart = start + prefix.length;
     ta.selectionEnd   = start + prefix.length + selected.length;
   }
-
   ta.focus();
 }
 
 function mdInsert(id, snippet) {
   const ta    = document.getElementById('text-' + id);
   const start = ta.selectionStart;
-  const val   = ta.value;
-  ta.value = val.substring(0, start) + snippet + val.substring(start);
+  ta.value = ta.value.substring(0, start) + snippet + ta.value.substring(start);
   ta.selectionStart = ta.selectionEnd = start + snippet.length;
   ta.focus();
 }
@@ -546,13 +520,11 @@ function mdLink(id) {
   ta.focus();
 }
 
-// Toggle between Edit and Preview tabs
 function mdTab(id, tab) {
   const ta      = document.getElementById('text-' + id);
   const preview = document.getElementById('preview-' + id);
   const tabEdit = document.getElementById('tab-edit-' + id);
   const tabPrev = document.getElementById('tab-preview-' + id);
-
   if (tab === 'preview') {
     preview.innerHTML = marked.parse(ta.value || '*Nothing to preview yet.*');
     preview.classList.add('show');
@@ -579,9 +551,8 @@ function imageBlockBody(b) {
     <img class="img-preview" id="imgprev-${b.id}"
       src="${hasImg ? (b.image.startsWith('http') ? b.image : '/' + b.image) : ''}"
       style="${hasImg ? 'display:block' : 'display:none'}" alt="">
-    <input class="img-caption-input" id="caption-${b.id}"
-      placeholder="Optional caption…" value="${esc(b.caption || '')}">
-    <input type="hidden" id="imgpath-${b.id}" value="${esc(b.image || '')}">`;
+    <input class="img-caption-input" id="caption-${b.id}" placeholder="Optional caption…" value="${esc(b.caption||'')}">
+    <input type="hidden" id="imgpath-${b.id}" value="${esc(b.image||'')}">`;
 }
 
 function videoBlockBody(b) {
@@ -589,19 +560,15 @@ function videoBlockBody(b) {
   const isUp = b.videoType === 'upload';
   return `
     <div class="video-type-tabs">
-      <button class="vtab ${isYT || (!isUp && !isYT) ? 'active' : ''}"
-        onclick="setVideoTab('${b.id}','youtube',this)">
+      <button class="vtab ${isYT || (!isUp && !isYT) ? 'active' : ''}" onclick="setVideoTab('${b.id}','youtube',this)">
         <i class="bi bi-youtube"></i> YouTube URL
       </button>
-      <button class="vtab ${isUp ? 'active' : ''}"
-        onclick="setVideoTab('${b.id}','upload',this)">
+      <button class="vtab ${isUp ? 'active' : ''}" onclick="setVideoTab('${b.id}','upload',this)">
         <i class="bi bi-upload"></i> Upload Video
       </button>
     </div>
     <div class="video-youtube-input ${isUp ? '' : 'show'}" id="yt-${b.id}">
-      <input class="video-url-field" id="yturl-${b.id}"
-        placeholder="https://www.youtube.com/watch?v=..."
-        value="${esc(b.videoUrl || '')}">
+      <input class="video-url-field" id="yturl-${b.id}" placeholder="https://www.youtube.com/watch?v=..." value="${esc(b.videoUrl||'')}">
     </div>
     <div class="video-file-input ${isUp ? 'show' : ''}" id="vfile-${b.id}">
       <div class="video-file-area">
@@ -609,123 +576,84 @@ function videoBlockBody(b) {
         <i class="bi bi-camera-video" style="font-size:2rem;color:var(--muted)"></i>
         <p style="font-size:0.85rem;color:var(--muted);margin-top:6px">Click to upload video file</p>
       </div>
-      <div class="video-file-name" id="vfilename-${b.id}">
-        ${b.videoSrc ? '✓ ' + b.videoSrc.split('/').pop() : ''}
-      </div>
-      <input type="hidden" id="vsrc-${b.id}" value="${esc(b.videoSrc || '')}">
+      <div class="video-file-name" id="vfilename-${b.id}">${b.videoSrc ? '✓ ' + b.videoSrc.split('/').pop() : ''}</div>
+      <input type="hidden" id="vsrc-${b.id}" value="${esc(b.videoSrc||'')}">
     </div>`;
 }
 
 function attachBlockEvents(id, type, div) {
   if (type === 'image') {
-    const fileInput = div.querySelector('#imgfile-' + id);
-    if (fileInput) {
-      fileInput.addEventListener('change', function () {
-        if (!this.files[0]) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-          const prev = document.getElementById('imgprev-' + id);
-          prev.src = e.target.result;
-          prev.style.display = 'block';
-        };
-        reader.readAsDataURL(this.files[0]);
-      });
-    }
+    const fi = div.querySelector('#imgfile-' + id);
+    if (fi) fi.addEventListener('change', function() {
+      if (!this.files[0]) return;
+      const reader = new FileReader();
+      reader.onload = e => { const p=document.getElementById('imgprev-'+id); p.src=e.target.result; p.style.display='block'; };
+      reader.readAsDataURL(this.files[0]);
+    });
   }
   if (type === 'video') {
     const vf = div.querySelector('#videofile-' + id);
-    if (vf) {
-      vf.addEventListener('change', function () {
-        if (this.files[0]) {
-          document.getElementById('vfilename-' + id).textContent = '✓ ' + this.files[0].name;
-        }
-      });
-    }
+    if (vf) vf.addEventListener('change', function() {
+      if (this.files[0]) document.getElementById('vfilename-'+id).textContent='✓ '+this.files[0].name;
+    });
   }
 }
 
 function setVideoTab(id, tab, btn) {
   btn.closest('.block-body').querySelectorAll('.vtab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('yt-' + id).classList.toggle('show', tab === 'youtube');
-  document.getElementById('vfile-' + id).classList.toggle('show', tab === 'upload');
+  document.getElementById('yt-'+id).classList.toggle('show', tab==='youtube');
+  document.getElementById('vfile-'+id).classList.toggle('show', tab==='upload');
 }
 
 function moveBlock(id, dir) {
-  const idx    = blocks.findIndex(b => b.id === id);
-  const newIdx = idx + dir;
-  if (newIdx < 0 || newIdx >= blocks.length) return;
-  [blocks[idx], blocks[newIdx]] = [blocks[newIdx], blocks[idx]];
+  const idx = blocks.findIndex(b => b.id === id);
+  const ni  = idx + dir;
+  if (ni < 0 || ni >= blocks.length) return;
+  [blocks[idx], blocks[ni]] = [blocks[ni], blocks[idx]];
   rebuildDOM();
 }
 
 function deleteBlock(id) {
   if (!confirm('Remove this block?')) return;
   blocks = blocks.filter(b => b.id !== id);
-  const card = document.getElementById('card-' + id);
-  if (card) card.remove();
+  document.getElementById('card-'+id)?.remove();
 }
 
 function rebuildDOM() {
-  const container = document.getElementById('blocks-container');
-  container.innerHTML = '';
+  document.getElementById('blocks-container').innerHTML = '';
   blocks.forEach(b => renderBlock(b));
 }
 
-// ── Cover image preview ────────────────────────────────────────────────────────
 function previewCoverFile(input) {
   if (!input.files[0]) return;
   const reader = new FileReader();
-  reader.onload = e => {
-    const prev = document.getElementById('cover-preview');
-    prev.src = e.target.result;
-    prev.style.display = 'block';
-  };
+  reader.onload = e => { const p=document.getElementById('cover-preview'); p.src=e.target.result; p.style.display='block'; };
   reader.readAsDataURL(input.files[0]);
 }
 
-// ── Featured toggle ────────────────────────────────────────────────────────────
 function toggleFeatured() { featured = !featured; updateFeaturedBtn(); }
 function updateFeaturedBtn() {
   const btn = document.getElementById('featured-btn');
   btn.classList.toggle('on', featured);
-  btn.innerHTML = featured
-    ? '<i class="bi bi-star-fill"></i> Featured ✓'
-    : '<i class="bi bi-star"></i> Featured';
+  btn.innerHTML = featured ? '<i class="bi bi-star-fill"></i> Featured ✓' : '<i class="bi bi-star"></i> Featured';
 }
 
-// ── Collect blocks from DOM ────────────────────────────────────────────────────
 function collectBlocks() {
   return blocks.map((b, i) => {
-    if (b.type === 'text') {
-      return {
-        type: 'text',
-        text: (document.getElementById('text-' + b.id) || {}).value || b.text || ''
-      };
-    }
-    if (b.type === 'image') {
-      return {
-        type:    'image',
-        image:   (document.getElementById('imgpath-' + b.id) || {}).value || b.image || '',
-        caption: (document.getElementById('caption-' + b.id) || {}).value || ''
-      };
-    }
+    if (b.type === 'text')  return { type:'text',  text: (document.getElementById('text-'+b.id)||{}).value || b.text || '' };
+    if (b.type === 'image') return { type:'image', image: (document.getElementById('imgpath-'+b.id)||{}).value || b.image || '', caption: (document.getElementById('caption-'+b.id)||{}).value || '' };
     if (b.type === 'video') {
-      const ytShow = document.getElementById('yt-' + b.id);
+      const ytShow = document.getElementById('yt-'+b.id);
       const tab    = ytShow && ytShow.classList.contains('show') ? 'youtube' : 'upload';
-      return {
-        type:      'video',
-        videoType: tab,
-        videoUrl:  tab === 'youtube' ? ((document.getElementById('yturl-' + b.id) || {}).value || '') : '',
-        videoSrc:  tab === 'upload'  ? ((document.getElementById('vsrc-' + b.id)  || {}).value || '') : ''
-      };
+      return { type:'video', videoType:tab, videoUrl: tab==='youtube' ? ((document.getElementById('yturl-'+b.id)||{}).value||'') : '', videoSrc: tab==='upload' ? ((document.getElementById('vsrc-'+b.id)||{}).value||'') : '' };
     }
     return b;
   });
 }
 
-// ── Save post ──────────────────────────────────────────────────────────────────
-async function savePost() {
+// ── Save post — accepts status param ('published' or 'draft') ──────────────────
+async function savePost(status) {
   const title    = document.getElementById('post-title').value.trim();
   const excerpt  = document.getElementById('post-excerpt').value.trim();
   const category = document.getElementById('post-category').value.trim();
@@ -735,9 +663,11 @@ async function savePost() {
     toast('Title, excerpt and category are required.', 'error'); return;
   }
 
-  const btn = document.getElementById('save-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-inline"></span> Saving…';
+  const btn    = document.getElementById('save-btn');
+  const draftBtn = document.getElementById('draft-btn');
+  const activeBtn = status === 'draft' ? draftBtn : btn;
+  activeBtn.disabled = true;
+  activeBtn.innerHTML = '<span class="spinner-inline"></span> Saving…';
 
   try {
     const fd = new FormData();
@@ -746,35 +676,26 @@ async function savePost() {
     fd.append('category', category);
     fd.append('date',     date);
     fd.append('featured', featured);
+    fd.append('status',   status);
+    fd.append('tags',     JSON.stringify(postTags));   // ← send tags array
 
     const coverFile = document.getElementById('cover-file').files[0];
     if (coverFile) fd.append('image', coverFile);
 
     const collectedBlocks = collectBlocks();
     let imgIdx = 0, vidIdx = 0;
-
     collectedBlocks.forEach((b, i) => {
       if (b.type === 'image') {
-        const fileInput = document.getElementById('imgfile-' + blocks[i].id);
-        if (fileInput && fileInput.files[0]) {
-          fd.append('block_image_' + imgIdx, fileInput.files[0]);
-          b._fileKey = 'block_image_' + imgIdx;
-          imgIdx++;
-        }
+        const fi = document.getElementById('imgfile-'+blocks[i].id);
+        if (fi && fi.files[0]) { fd.append('block_image_'+imgIdx, fi.files[0]); b._fileKey='block_image_'+imgIdx; imgIdx++; }
       }
       if (b.type === 'video' && b.videoType === 'upload') {
-        const fileInput = document.getElementById('videofile-' + blocks[i].id);
-        if (fileInput && fileInput.files[0]) {
-          fd.append('block_video_' + vidIdx, fileInput.files[0]);
-          b._fileKey = 'block_video_' + vidIdx;
-          vidIdx++;
-        }
+        const fi = document.getElementById('videofile-'+blocks[i].id);
+        if (fi && fi.files[0]) { fd.append('block_video_'+vidIdx, fi.files[0]); b._fileKey='block_video_'+vidIdx; vidIdx++; }
       }
     });
 
     fd.append('blocks', JSON.stringify(collectedBlocks));
-
-    // Legacy content fallback — first text block value
     const firstText = collectedBlocks.find(b => b.type === 'text');
     fd.append('content', firstText ? firstText.text : '');
 
@@ -784,8 +705,19 @@ async function savePost() {
     const data   = await res.json();
 
     if (data.success) {
-      toast(editingId ? 'Post updated!' : 'Post published!', 'success');
-      document.getElementById('save-status').textContent = 'Saved ✓';
+      const label = status === 'draft' ? 'Draft saved!' : (editingId ? 'Post updated!' : 'Post published!');
+      toast(label, 'success');
+      document.getElementById('save-status').textContent = status === 'draft' ? 'Draft ✓' : 'Published ✓';
+
+      // Update draft button appearance
+      if (status === 'draft') {
+        draftBtn.classList.add('on');
+        draftBtn.innerHTML = '<i class="bi bi-file-earmark-check"></i> Saved as Draft';
+      } else {
+        draftBtn.classList.remove('on');
+        draftBtn.innerHTML = '<i class="bi bi-file-earmark"></i> Save as Draft';
+      }
+
       if (!editingId && data.postId) {
         editingId = data.postId;
         history.replaceState(null, '', '/admin/posts/edit/' + editingId);
@@ -799,19 +731,20 @@ async function savePost() {
     toast('Network error: ' + e.message, 'error');
   } finally {
     btn.disabled = false;
+    draftBtn.disabled = false;
     if (btn.innerHTML.includes('spinner')) {
       btn.innerHTML = editingId
         ? '<i class="bi bi-cloud-upload"></i> Update Post'
         : '<i class="bi bi-cloud-upload"></i> Publish Post';
     }
+    if (draftBtn.innerHTML.includes('spinner')) {
+      draftBtn.innerHTML = '<i class="bi bi-file-earmark"></i> Save as Draft';
+    }
   }
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
 function esc(str) {
-  return String(str || '')
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function toast(msg, type) {
