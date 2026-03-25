@@ -277,6 +277,86 @@ router.get("/me", requireAdmin, (req, res) => {
   res.json({ success: true, name: req.session.adminName || "Admin" });
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ── Categories (NEWLY ADDED) ─────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+
+// GET /api/admin/categories  — return the managed category list
+router.get('/categories', requireAdmin, async (req, res) => {
+  try {
+    const categories = await store.getCategories();
+    res.json({ success: true, categories });
+  } catch (err) {
+    console.error('GET /admin/categories error:', err);
+    res.status(500).json({ success: false, message: 'Failed to load categories.' });
+  }
+});
+
+// POST /api/admin/categories  — add a new category
+// Body: { name: "Sports" }
+router.post('/categories', requireAdmin, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name || !name.trim())
+      return res.status(400).json({ success: false, message: 'Category name is required.' });
+
+    const categories = await store.addCategory(name);
+    res.json({ success: true, message: `Category "${name.trim()}" added.`, categories });
+  } catch (err) {
+    console.error('POST /admin/categories error:', err);
+    const status = err.message.includes('already exists') ? 409 : 500;
+    res.status(status).json({ success: false, message: err.message });
+  }
+});
+
+// PUT /api/admin/categories/:name  — rename a category (updates all posts too)
+// Body: { newName: "Athletics" }
+router.put('/categories/:name', requireAdmin, async (req, res) => {
+  try {
+    const oldName = decodeURIComponent(req.params.name).trim();
+    const { newName } = req.body;
+
+    if (!newName || !newName.trim())
+      return res.status(400).json({ success: false, message: 'New category name is required.' });
+
+    const categories = await store.renameCategory(oldName, newName);
+    res.json({
+      success: true,
+      message: `Category renamed from "${oldName}" to "${newName.trim()}". All posts updated.`,
+      categories
+    });
+  } catch (err) {
+    console.error('PUT /admin/categories/:name error:', err);
+    const status = err.message.includes('not found') ? 404
+                 : err.message.includes('already exists') ? 409 : 500;
+    res.status(status).json({ success: false, message: err.message });
+  }
+});
+
+// DELETE /api/admin/categories/:name  — remove a category from the list
+// Query param: ?force=true  → also clears the category field on affected posts
+router.delete('/categories/:name', requireAdmin, async (req, res) => {
+  try {
+    const name  = decodeURIComponent(req.params.name).trim();
+    const force = req.query.force === 'true';
+
+    const categories = await store.deleteCategory(name, { force });
+    const note = force
+      ? ' Affected posts have had their category cleared.'
+      : ' Existing posts keep their category value.';
+
+    res.json({
+      success: true,
+      message: `Category "${name}" deleted.${note}`,
+      categories
+    });
+  } catch (err) {
+    console.error('DELETE /admin/categories/:name error:', err);
+    const status = err.message.includes('not found') ? 404 : 500;
+    res.status(status).json({ success: false, message: err.message });
+  }
+});
+
 // ── Stats ──────────────────────────────────────────────────────────────────────
 router.get("/stats", requireAdmin, async (req, res) => {
   try {

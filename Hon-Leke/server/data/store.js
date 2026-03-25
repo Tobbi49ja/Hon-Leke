@@ -36,11 +36,9 @@ const DEFAULT_SETTINGS = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Seed posts — keep your existing SEED_POSTS array here unchanged
+// Seed posts
 // ─────────────────────────────────────────────────────────────────────────────
-const SEED_POSTS = [
-  // ... (Keep your existing SEED_POSTS array here)
-];
+const SEED_POSTS = [];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Seed on first boot
@@ -59,7 +57,7 @@ async function seedIfEmpty() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Slug helper — mirrors the one in the Post model
+// Slug helper & toPlain
 // ─────────────────────────────────────────────────────────────────────────────
 function slugify(text) {
   return String(text || '')
@@ -70,9 +68,6 @@ function slugify(text) {
     .slice(0, 80);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Helper — convert Mongoose docs to plain objects with string IDs
-// ─────────────────────────────────────────────────────────────────────────────
 function toPlain(doc) {
   if (!doc) return null;
   if (Array.isArray(doc)) return doc.map(toPlain);
@@ -92,7 +87,6 @@ async function getAllPosts() {
   return toPlain(docs);
 }
 
-// Get ALL posts including drafts — used by admin panel only
 async function getAllPostsAdmin() {
   const docs = await Post.find().sort({ createdAt: -1 }).lean();
   return toPlain(docs);
@@ -107,13 +101,10 @@ async function getPostById(id) {
   }
 }
 
-// Find by slug OR id — supports both /post/my-slug and /post/objectid
 async function getPostBySlugOrId(slugOrId) {
   try {
-    // Try slug first
     let doc = await Post.findOne({ slug: slugOrId }).lean();
     if (doc) return toPlain(doc);
-    // Fall back to MongoDB ObjectId
     doc = await Post.findById(slugOrId).lean();
     return toPlain(doc);
   } catch (e) {
@@ -125,7 +116,6 @@ async function createPost(data) {
   const dateStr = data.date ||
     new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  // Parse tags
   let tags = [];
   if (Array.isArray(data.tags)) {
     tags = data.tags.map(t => t.trim()).filter(Boolean);
@@ -133,7 +123,6 @@ async function createPost(data) {
     tags = data.tags.split(',').map(t => t.trim()).filter(Boolean);
   }
 
-  // Generate slug from title
   const slug = slugify(data.title);
 
   const doc = await Post.create({
@@ -156,7 +145,6 @@ async function updatePost(id, data) {
     if (data.featured !== undefined) data.featured = (data.featured === true || data.featured === 'true');
     if (data.hasVideo !== undefined) data.hasVideo = (data.hasVideo === true || data.hasVideo === 'true');
 
-    // Parse tags if present
     if (data.tags !== undefined) {
       if (Array.isArray(data.tags)) {
         data.tags = data.tags.map(t => t.trim()).filter(Boolean);
@@ -167,7 +155,6 @@ async function updatePost(id, data) {
       }
     }
 
-    // Regenerate slug if title changed
     if (data.title) {
       data.slug = slugify(data.title);
     }
@@ -202,10 +189,6 @@ async function toggleFeatured(id) {
   }
 }
 
-async function getCategories() {
-  return Post.distinct('category', { status: { $ne: 'draft' } });
-}
-
 async function getSliderPosts() {
   const docs = await Post.find({ featured: true, status: { $ne: 'draft' } })
     .sort({ createdAt: -1 }).lean();
@@ -217,7 +200,6 @@ async function getSliderPosts() {
   }));
 }
 
-// ── Popular posts — sorted by views descending ────────────────────────────────
 async function getPopularPosts(limit = 5) {
   const docs = await Post.find({ status: { $ne: 'draft' } })
     .sort({ views: -1 })
@@ -227,7 +209,98 @@ async function getPopularPosts(limit = 5) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST VIEW COUNTER
+// NEW CATEGORY MANAGEMENT METHODS
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function getCategories() {
+  const settings = await getSettings();
+  if (settings.categories && settings.categories.length) {
+    return settings.categories;
+  }
+  // first-run fallback: seed from existing posts
+  const posts = await getAllPosts();
+  const derived = [...new Set(posts.map(p => p.category).filter(Boolean))].sort();
+  return derived;
+}
+
+async function addCategory(name) {
+  const trimmed = (name || '').trim();
+  if (!trimmed) throw new Error('Category name is required.');
+
+  const current = await getSettings();
+  const cats    = current.categories ? [...current.categories] : await getCategories();
+
+  if (cats.some(c => c.toLowerCase() === trimmed.toLowerCase())) {
+    throw new Error(`Category "${trimmed}" already exists.`);
+  }
+
+  cats.push(trimmed);
+  cats.sort((a, b) => a.localeCompare(b));
+
+  await updateSettings({ ...current, categories: cats }); 
+  return cats;
+}
+
+async function renameCategory(oldName, newName) {
+  const old     = (oldName || '').trim();
+  const next    = (newName || '').trim();
+  if (!old || !next) throw new Error('Both old and new names are required.');
+  if (old.toLowerCase() === next.toLowerCase()) return; // no-op
+
+  const current = await getSettings();
+  const cats    = current.categories ? [...current.categories] : await getCategories();
+
+  const idx = cats.findIndex(c => c.toLowerCase() === old.toLowerCase());
+  if (idx === -1) throw new Error(`Category "${old}" not found.`);
+
+  if (cats.some((c, i) => i !== idx && c.toLowerCase() === next.toLowerCase())) {
+    throw new Error(`Category "${next}" already exists.`);
+  }
+
+  cats[idx] = next;
+  cats.sort((a, b) => a.localeCompare(b));
+
+  // Bulk-update all posts that had the old category name
+  const Post = require('../models/post'); // NOTE: lowercase 'post' matches your existing requires
+  await Post.updateMany(
+    { category: { $regex: new RegExp(`^${escapeRegex(old)}$`, 'i') } },
+    { $set: { category: next } }
+  );
+
+  await updateSettings({ ...current, categories: cats });
+  return cats;
+}
+
+async function deleteCategory(name, { force = false } = {}) {
+  const trimmed = (name || '').trim();
+  if (!trimmed) throw new Error('Category name is required.');
+
+  const current = await getSettings();
+  const cats    = current.categories ? [...current.categories] : await getCategories();
+
+  const idx = cats.findIndex(c => c.toLowerCase() === trimmed.toLowerCase());
+  if (idx === -1) throw new Error(`Category "${trimmed}" not found.`);
+
+  cats.splice(idx, 1);
+
+  if (force) {
+    const Post = require('../models/post'); // NOTE: lowercase 'post'
+    await Post.updateMany(
+      { category: { $regex: new RegExp(`^${escapeRegex(trimmed)}$`, 'i') } },
+      { $set: { category: '' } }
+    );
+  }
+
+  await updateSettings({ ...current, categories: cats });
+  return cats;
+}
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COUNTERS
 // ─────────────────────────────────────────────────────────────────────────────
 async function incrementViews(postId) {
   try {
@@ -243,9 +316,6 @@ async function incrementViews(postId) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// POST LIKE / CLAP COUNTER
-// ─────────────────────────────────────────────────────────────────────────────
 async function incrementLikes(postId) {
   try {
     const doc = await Post.findByIdAndUpdate(
@@ -263,7 +333,6 @@ async function incrementLikes(postId) {
 // ─────────────────────────────────────────────────────────────────────────────
 // COMMENTS
 // ─────────────────────────────────────────────────────────────────────────────
-
 async function getCommentsByPost(postId) {
   try {
     const docs = await Comment.find({ postId }).sort({ createdAt: 1 }).lean();
@@ -304,7 +373,6 @@ async function getAllComments() {
 // ─────────────────────────────────────────────────────────────────────────────
 // CONTACT MESSAGES
 // ─────────────────────────────────────────────────────────────────────────────
-
 async function addContactMessage(name, email, subject, message) {
   const dateStr = new Date().toLocaleDateString('en-GB', {
     year: 'numeric', month: 'long', day: 'numeric'
@@ -345,7 +413,6 @@ async function deleteMessage(id) {
 // ─────────────────────────────────────────────────────────────────────────────
 // SUBSCRIBERS
 // ─────────────────────────────────────────────────────────────────────────────
-
 async function addSubscriber(email) {
   const exists = await Subscriber.findOne({ email: email.toLowerCase() });
   if (exists) return { exists: true };
@@ -370,7 +437,6 @@ async function deleteSubscriber(id) {
 // ─────────────────────────────────────────────────────────────────────────────
 // SETTINGS
 // ─────────────────────────────────────────────────────────────────────────────
-
 async function getSettings() {
   const doc = await Settings.findOne({ key: 'site' }).lean();
   return doc
@@ -392,7 +458,6 @@ async function updateSettings(data) {
 // ─────────────────────────────────────────────────────────────────────────────
 // STATS — admin dashboard
 // ─────────────────────────────────────────────────────────────────────────────
-
 async function getStats() {
   const [
     totalPosts,
@@ -448,7 +513,14 @@ module.exports = {
   updatePost,
   deletePost,
   toggleFeatured,
+  
+  // Categories (Updated)
   getCategories,
+  addCategory,
+  renameCategory,
+  deleteCategory,
+
+  // Slider & Popular
   getSliderPosts,
   getPopularPosts,
   incrementViews,

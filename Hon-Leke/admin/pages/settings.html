@@ -6,158 +6,449 @@
   <title>Settings — Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="/admin/assets/css/admin.css" rel="stylesheet">
+  <style>
+    /* ── Categories section ─────────────────────────────────── */
+    .category-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .category-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--bg-secondary, #f8f9fb);
+      border: 1px solid var(--border, #e2e8f0);
+      border-radius: 8px;
+      transition: border-color 0.15s;
+    }
+
+    .category-item:hover { border-color: #a0aec0; }
+
+    .category-item .cat-name {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-primary, #1a202c);
+    }
+
+    .cat-rename-input {
+      flex: 1;
+      padding: 4px 10px;
+      border: 1px solid #4299e1;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      outline: none;
+      display: none;
+    }
+
+    .cat-rename-input.visible { display: block; }
+    .cat-name.hidden           { display: none; }
+
+    .cat-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .cat-badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #e8f0f8;
+      color: #1a3c5e;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .add-category-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .add-category-row input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border, #e2e8f0);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      outline: none;
+    }
+
+    .add-category-row input:focus { border-color: #4299e1; }
+
+    .empty-cats {
+      text-align: center;
+      padding: 20px;
+      color: #a0aec0;
+      font-size: 0.875rem;
+    }
+  </style>
 </head>
 <body>
+
+<!-- ── Sidebar (same as all admin pages) ──────────────────────────────────── -->
 <aside class="sidebar">
   <div class="sidebar-brand"><h2>Hon. Leke Abejide</h2><p>Admin Panel</p></div>
   <nav class="sidebar-nav">
     <div class="nav-section">Main</div>
-    <a href="/admin/dashboard" class="nav-link" data-page="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/admin/dashboard"  class="nav-link" data-page="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
     <div class="nav-section">Content</div>
     <div class="nav-section">Pages</div>
-<a href="/admin/about" class="nav-link" data-page="about"><i class="bi bi-person-lines-fill"></i> About Page</a>
-    <a href="/admin/posts" class="nav-link" data-page="posts"><i class="bi bi-newspaper"></i> Blog Posts</a>
-    <a href="/admin/posts/new" class="nav-link" data-page="new-post"><i class="bi bi-plus-circle"></i> New Post</a>
+    <a href="/admin/about"      class="nav-link" data-page="about"><i class="bi bi-person-lines-fill"></i> About Page</a>
+    <a href="/admin/posts"      class="nav-link" data-page="posts"><i class="bi bi-newspaper"></i> Blog Posts</a>
+    <a href="/admin/posts/new"  class="nav-link" data-page="new-post"><i class="bi bi-plus-circle"></i> New Post</a>
     <div class="nav-section">Engagement</div>
-    <a href="/admin/comments" class="nav-link" data-page="comments"><i class="bi bi-chat-left-text"></i> Comments</a>
-    <a href="/admin/messages" class="nav-link" data-page="messages"><i class="bi bi-envelope"></i> Messages</a>
+    <a href="/admin/comments"   class="nav-link" data-page="comments"><i class="bi bi-chat-left-text"></i> Comments</a>
+    <a href="/admin/messages"   class="nav-link" data-page="messages"><i class="bi bi-envelope"></i> Messages</a>
     <a href="/admin/subscribers" class="nav-link" data-page="subscribers"><i class="bi bi-people"></i> Subscribers</a>
     <div class="nav-section">Site</div>
-    <a href="/admin/settings" class="nav-link" data-page="settings"><i class="bi bi-gear"></i> Settings</a>
+    <a href="/admin/settings"   class="nav-link" data-page="settings"><i class="bi bi-gear"></i> Settings</a>
     <a href="/" target="_blank" class="nav-link"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
   </nav>
-  <div class="sidebar-footer"><span id="admin-name">Admin</span> &nbsp;·&nbsp; <a href="#" id="logout-btn">Logout</a></div>
+  <div class="sidebar-footer">
+    <span id="admin-name">Admin</span> &nbsp;·&nbsp;
+    <a href="#" id="logout-btn">Logout</a>
+  </div>
 </aside>
 
+<!-- ── Main content ────────────────────────────────────────────────────────── -->
 <div class="main-content">
   <div class="topbar">
-    <h1 id="page-title">Site Settings</h1>
+    <h1 id="page-title">Settings</h1>
     <div class="topbar-actions">
       <div class="admin-avatar" id="admin-avatar">A</div>
     </div>
   </div>
 
   <div class="page-body">
-    <div class="alert alert-success" id="settings-success"></div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
-
-      <div>
-        <div class="card">
-          <div class="card-header"><h3><i class="bi bi-info-circle"></i> Site Identity</h3></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label class="form-label">Site Title / Name</label>
-              <input type="text" class="form-control" id="s-heroTitle" placeholder="Hon. Leke Abejide">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Hero Subtitle</label>
-              <input type="text" class="form-control" id="s-heroSubtitle" placeholder="Member, House of Representatives…">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Footer About Text</label>
-              <textarea class="form-control" id="s-footerAbout" rows="3" placeholder="Short description for footer…"></textarea>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Contact Email</label>
-              <input type="email" class="form-control" id="s-contactEmail" placeholder="email@example.com">
-            </div>
-          </div>
-        </div>
+    <!-- ── Site Settings card ──────────────────────────────────────────────── -->
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-header">
+        <h3><i class="bi bi-sliders"></i> Site Settings</h3>
       </div>
+      <div class="card-body">
+        <form id="settings-form">
 
-      <div>
-        <div class="card">
-          <div class="card-header"><h3><i class="bi bi-share"></i> Social Media Links</h3></div>
-          <div class="card-body">
-            <div class="form-group">
-              <label class="form-label"><i class="bi bi-facebook" style="color:#1877f2"></i> Facebook URL</label>
-              <input type="url" class="form-control" id="s-facebookUrl" placeholder="https://facebook.com/…">
-            </div>
-            <div class="form-group">
-              <label class="form-label"><i class="bi bi-instagram" style="color:#c13584"></i> Instagram URL</label>
-              <input type="url" class="form-control" id="s-instagramUrl" placeholder="https://instagram.com/…">
-            </div>
-            <div class="form-group">
-              <label class="form-label"><i class="bi bi-twitter-x"></i> Twitter/X URL</label>
-              <input type="url" class="form-control" id="s-twitterUrl" placeholder="https://x.com/…">
-            </div>
+          <div class="form-group">
+            <label class="form-label">Site Title</label>
+            <input type="text" class="form-control" id="site-title" placeholder="Hon. Leke Abejide">
           </div>
-        </div>
 
-        <div class="card">
-          <div class="card-header"><h3><i class="bi bi-list-ul"></i> Navigation Links</h3></div>
-          <div class="card-body">
-            <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">Current navigation links. Edit the page files to change navigation structure.</p>
-            <div style="display:flex;flex-direction:column;gap:8px" id="nav-preview">
-              <div style="display:flex;gap:8px;align-items:center;font-size:0.875rem"><span class="badge badge-info">Blog</span><span style="color:#718096">→</span><code>/</code></div>
-              <div style="display:flex;gap:8px;align-items:center;font-size:0.875rem"><span class="badge badge-info">About</span><span style="color:#718096">→</span><code>/about</code></div>
-              <div style="display:flex;gap:8px;align-items:center;font-size:0.875rem"><span class="badge badge-info">Contact</span><span style="color:#718096">→</span><code>/contact</code></div>
-            </div>
+          <div class="form-group">
+            <label class="form-label">Site Tagline / Description</label>
+            <input type="text" class="form-control" id="site-tagline" placeholder="Official website of…">
           </div>
-        </div>
+
+          <div class="form-group">
+            <label class="form-label">Contact Email</label>
+            <input type="email" class="form-control" id="contact-email" placeholder="info@example.com">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Twitter URL</label>
+            <input type="url" class="form-control" id="social-twitter" placeholder="https://twitter.com/…">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Facebook URL</label>
+            <input type="url" class="form-control" id="social-facebook" placeholder="https://facebook.com/…">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Instagram URL</label>
+            <input type="url" class="form-control" id="social-instagram" placeholder="https://instagram.com/…">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">YouTube URL</label>
+            <input type="url" class="form-control" id="social-youtube" placeholder="https://youtube.com/…">
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save"></i> Save Settings
+          </button>
+        </form>
       </div>
-
     </div>
 
-    <div style="margin-top:8px">
-      <button class="btn btn-primary" id="save-settings-btn" style="padding:12px 32px">
-        <i class="bi bi-check-lg"></i> Save Settings
-      </button>
+    <!-- ── Categories card ─────────────────────────────────────────────────── -->
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="bi bi-tags"></i> Post Categories</h3>
+        <span id="cat-count" class="badge badge-info">0 categories</span>
+      </div>
+      <div class="card-body">
+
+        <p style="font-size:0.85rem;color:#718096;margin-bottom:16px">
+          Manage the categories available when creating or editing posts.
+          Renaming a category will automatically update <strong>all posts</strong> that use it.
+        </p>
+
+        <!-- List of existing categories -->
+        <div class="category-list" id="category-list">
+          <div class="empty-cats"><i class="bi bi-folder2-open" style="font-size:1.5rem;display:block;margin-bottom:6px"></i>No categories yet.</div>
+        </div>
+
+        <!-- Add new category -->
+        <div class="add-category-row">
+          <input type="text" id="new-cat-input" placeholder="New category name…" maxlength="60"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();addCategory()}">
+          <button class="btn btn-primary" onclick="addCategory()">
+            <i class="bi bi-plus-lg"></i> Add
+          </button>
+        </div>
+
+      </div>
     </div>
-  </div>
-</div>
+
+  </div><!-- /page-body -->
+</div><!-- /main-content -->
 
 <script src="/admin/assets/js/layout.js"></script>
 <script>
-initAdminLayout('Site Settings', 'settings');
+initAdminLayout('Settings', 'settings');
 
-async function loadSettings() {
-  const data = await adminAPI.get('/api/admin/settings');
-  if (!data || !data.settings) return;
-  const s = data.settings;
-  document.getElementById('s-heroTitle').value = s.heroTitle || '';
-  document.getElementById('s-heroSubtitle').value = s.heroSubtitle || '';
-  document.getElementById('s-footerAbout').value = s.footerAbout || '';
-  document.getElementById('s-contactEmail').value = s.contactEmail || '';
-  document.getElementById('s-facebookUrl').value = s.facebookUrl || '';
-  document.getElementById('s-instagramUrl').value = s.instagramUrl || '';
-  document.getElementById('s-twitterUrl').value = s.twitterUrl || '';
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+let categories = [];        // current list from server
+let postCounts = {};        // { categoryName: count } — for badges
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────────────────────────────────────
+async function loadAll() {
+  // load site settings and categories in parallel
+  const [settingsRes, catRes, postsRes] = await Promise.all([
+    adminAPI.get('/api/admin/settings'),
+    adminAPI.get('/api/admin/categories'),
+    adminAPI.get('/api/admin/posts')
+  ]);
+
+  if (settingsRes && settingsRes.success) populateSettingsForm(settingsRes.settings);
+  if (catRes      && catRes.success)      { categories = catRes.categories || []; }
+  if (postsRes    && postsRes.success)    buildPostCounts(postsRes.posts || []);
+
+  renderCategories();
 }
 
-document.getElementById('save-settings-btn').addEventListener('click', async () => {
-  const btn = document.getElementById('save-settings-btn');
-  const successEl = document.getElementById('settings-success');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Saving…';
-
-  const payload = {
-    heroTitle: document.getElementById('s-heroTitle').value.trim(),
-    heroSubtitle: document.getElementById('s-heroSubtitle').value.trim(),
-    footerAbout: document.getElementById('s-footerAbout').value.trim(),
-    contactEmail: document.getElementById('s-contactEmail').value.trim(),
-    facebookUrl: document.getElementById('s-facebookUrl').value.trim(),
-    instagramUrl: document.getElementById('s-instagramUrl').value.trim(),
-    twitterUrl: document.getElementById('s-twitterUrl').value.trim()
-  };
-
-  try {
-    const data = await adminAPI.put('/api/admin/settings', payload);
-    if (data && data.success) {
-      showToast('Settings saved!', 'success');
-      successEl.textContent = 'Settings updated successfully.';
-      successEl.classList.add('show');
-      setTimeout(() => successEl.classList.remove('show'), 3000);
+function buildPostCounts(posts) {
+  postCounts = {};
+  posts.forEach(p => {
+    if (p.category) {
+      postCounts[p.category] = (postCounts[p.category] || 0) + 1;
     }
-  } catch(e) {
-    showToast('Error saving settings', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="bi bi-check-lg"></i> Save Settings';
+  });
+}
+
+function populateSettingsForm(s) {
+  document.getElementById('site-title').value       = s.siteTitle      || '';
+  document.getElementById('site-tagline').value     = s.siteTagline    || '';
+  document.getElementById('contact-email').value    = s.contactEmail   || '';
+  document.getElementById('social-twitter').value   = s.socialTwitter  || '';
+  document.getElementById('social-facebook').value  = s.socialFacebook || '';
+  document.getElementById('social-instagram').value = s.socialInstagram|| '';
+  document.getElementById('social-youtube').value   = s.socialYoutube  || '';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER CATEGORY LIST
+// ─────────────────────────────────────────────────────────────────────────────
+function renderCategories() {
+  const list    = document.getElementById('category-list');
+  const countEl = document.getElementById('cat-count');
+  countEl.textContent = categories.length + ' categor' + (categories.length === 1 ? 'y' : 'ies');
+
+  if (!categories.length) {
+    list.innerHTML = `
+      <div class="empty-cats">
+        <i class="bi bi-folder2-open" style="font-size:1.5rem;display:block;margin-bottom:6px"></i>
+        No categories yet. Add one below.
+      </div>`;
+    return;
   }
+
+  list.innerHTML = categories.map(cat => {
+    const count = postCounts[cat] || 0;
+    const safe  = escAttr(cat);
+    return `
+      <div class="category-item" id="cat-item-${safe}" data-name="${safe}">
+        <span class="cat-name" id="cat-label-${safe}">${escHTML(cat)}</span>
+        <input class="cat-rename-input" id="cat-input-${safe}"
+               value="${safe}" maxlength="60"
+               onkeydown="handleRenameKey(event, '${safe}')"
+               onfocusout="cancelRename('${safe}')">
+        <span class="cat-badge">${count} post${count !== 1 ? 's' : ''}</span>
+        <div class="cat-actions">
+          <button class="btn btn-outline btn-sm btn-icon" title="Rename"
+                  id="cat-rename-btn-${safe}"
+                  onclick="startRename('${safe}')">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn btn-outline btn-sm btn-icon" title="Save rename"
+                  id="cat-save-btn-${safe}" style="display:none"
+                  onclick="confirmRename('${safe}')">
+            <i class="bi bi-check-lg" style="color:#28a745"></i>
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon" title="Delete"
+                  onclick="deleteCategory('${safe}')">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD CATEGORY
+// ─────────────────────────────────────────────────────────────────────────────
+async function addCategory() {
+  const input = document.getElementById('new-cat-input');
+  const name  = input.value.trim();
+  if (!name) { input.focus(); return; }
+
+  const data = await adminAPI.post('/api/admin/categories', { name });
+  if (!data) return;
+  if (!data.success) { showToast(data.message, 'error'); return; }
+
+  categories = data.categories;
+  renderCategories();
+  input.value = '';
+  input.focus();
+  showToast(data.message, 'success');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENAME CATEGORY — inline edit
+// ─────────────────────────────────────────────────────────────────────────────
+function startRename(safeName) {
+  const label     = document.getElementById('cat-label-'       + safeName);
+  const inp       = document.getElementById('cat-input-'       + safeName);
+  const renameBtn = document.getElementById('cat-rename-btn-'  + safeName);
+  const saveBtn   = document.getElementById('cat-save-btn-'    + safeName);
+
+  label.classList.add('hidden');
+  inp.classList.add('visible');
+  renameBtn.style.display = 'none';
+  saveBtn.style.display   = '';
+
+  inp.focus();
+  inp.select();
+}
+
+function cancelRename(safeName) {
+  // small delay so confirmRename click fires first
+  setTimeout(() => {
+    const label     = document.getElementById('cat-label-'      + safeName);
+    const inp       = document.getElementById('cat-input-'      + safeName);
+    const renameBtn = document.getElementById('cat-rename-btn-' + safeName);
+    const saveBtn   = document.getElementById('cat-save-btn-'   + safeName);
+    if (!label || !inp) return;
+    // restore original value in case user typed but didn't confirm
+    inp.value = safeName;
+    label.classList.remove('hidden');
+    inp.classList.remove('visible');
+    renameBtn.style.display = '';
+    saveBtn.style.display   = 'none';
+  }, 200);
+}
+
+function handleRenameKey(e, safeName) {
+  if (e.key === 'Enter')  { e.preventDefault(); confirmRename(safeName); }
+  if (e.key === 'Escape') { e.preventDefault(); cancelRename(safeName);  }
+}
+
+async function confirmRename(safeName) {
+  const inp     = document.getElementById('cat-input-' + safeName);
+  const newName = inp ? inp.value.trim() : '';
+  if (!newName || newName === safeName) { cancelRename(safeName); return; }
+
+  const data = await adminAPI.put(
+    '/api/admin/categories/' + encodeURIComponent(safeName),
+    { newName }
+  );
+  if (!data) return;
+  if (!data.success) { showToast(data.message, 'error'); cancelRename(safeName); return; }
+
+  categories = data.categories;
+  // Refresh post counts key
+  const old = safeName;
+  if (postCounts[old] !== undefined) {
+    postCounts[newName] = postCounts[old];
+    delete postCounts[old];
+  }
+  renderCategories();
+  showToast(data.message, 'success');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DELETE CATEGORY
+// ─────────────────────────────────────────────────────────────────────────────
+function deleteCategory(safeName) {
+  const count = postCounts[safeName] || 0;
+  const msg   = count
+    ? `Delete "${safeName}"? This category is used by ${count} post${count > 1 ? 's' : ''}.\n\nPosts will keep their current category value but it will no longer appear in the dropdown.`
+    : `Delete category "${safeName}"?`;
+
+  confirmDelete(msg, async () => {
+    const data = await adminAPI.delete(
+      '/api/admin/categories/' + encodeURIComponent(safeName)
+    );
+    if (!data) return;
+    if (!data.success) { showToast(data.message, 'error'); return; }
+
+    categories = data.categories;
+    renderCategories();
+    showToast(data.message, 'success');
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SAVE SITE SETTINGS
+// ─────────────────────────────────────────────────────────────────────────────
+document.getElementById('settings-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const payload = {
+    siteTitle:       document.getElementById('site-title').value.trim(),
+    siteTagline:     document.getElementById('site-tagline').value.trim(),
+    contactEmail:    document.getElementById('contact-email').value.trim(),
+    socialTwitter:   document.getElementById('social-twitter').value.trim(),
+    socialFacebook:  document.getElementById('social-facebook').value.trim(),
+    socialInstagram: document.getElementById('social-instagram').value.trim(),
+    socialYoutube:   document.getElementById('social-youtube').value.trim(),
+  };
+  const data = await adminAPI.put('/api/admin/settings', payload);
+  if (data) showToast(data.message, data.success ? 'success' : 'error');
 });
 
-loadSettings();
+// ─────────────────────────────────────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────────────────────────────────────
+function escHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function escAttr(str) {
+  // safe for use inside single-quoted HTML attribute values & JS string literals
+  return String(str)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g,  "\\'")
+    .replace(/"/g,  '&quot;');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+loadAll();
 </script>
 </body>
 </html>

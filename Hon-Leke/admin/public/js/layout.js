@@ -8,7 +8,7 @@ const adminAPI = {
       const data = await res.json();
       if (!res.ok) {
         console.error('API error [GET ' + url + ']:', data.message || res.status);
-        return data; // still return so caller can check data.success
+        return data; 
       }
       return data;
     } catch(err) {
