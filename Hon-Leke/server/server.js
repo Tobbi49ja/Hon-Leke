@@ -68,6 +68,54 @@ function escHtml(s) {
     .replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// ── Dynamic robots.txt ────────────────────────────────────────────────────────
+app.get('/robots.txt', (req, res) => {
+  const siteUrl = process.env.SITE_URL || `${req.protocol}://${req.headers.host}`;
+  res.setHeader('Content-Type', 'text/plain');
+  res.send(
+`User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/admin/
+
+Sitemap: ${siteUrl}/sitemap.xml`
+  );
+});
+
+// ── Dynamic Sitemap ────────────────────────────────────────────────────────────
+app.get('/sitemap.xml', async (req, res) => {
+  const siteUrl = process.env.SITE_URL || `${req.protocol}://${req.headers.host}`;
+  const staticPages = [
+    { loc: '/',             changefreq: 'daily',   priority: '1.0' },
+    { loc: '/about',        changefreq: 'monthly', priority: '0.8' },
+    { loc: '/contact',      changefreq: 'monthly', priority: '0.7' },
+    { loc: '/privacy',      changefreq: 'yearly',  priority: '0.3' },
+    { loc: '/terms',        changefreq: 'yearly',  priority: '0.3' },
+    { loc: '/cookie-policy',changefreq: 'yearly',  priority: '0.3' },
+    { loc: '/disclaimer',   changefreq: 'yearly',  priority: '0.3' },
+  ];
+
+  let postUrls = '';
+  try {
+    const posts = await store.getAllPosts();
+    postUrls = posts.map(p => {
+      const slug    = p.slug || p._id;
+      const lastmod = (p.updatedAt || p.createdAt || '').toString().slice(0, 10);
+      return `  <url>\n    <loc>${siteUrl}/post/${slug}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''}\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>`;
+    }).join('\n');
+  } catch (e) {
+    console.error('Sitemap post fetch error:', e);
+  }
+
+  const staticUrls = staticPages.map(p =>
+    `  <url>\n    <loc>${siteUrl}${p.loc}</loc>\n    <changefreq>${p.changefreq}</changefreq>\n    <priority>${p.priority}</priority>\n  </url>`
+  ).join('\n');
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${staticUrls}\n${postUrls}\n</urlset>`;
+  res.setHeader('Content-Type', 'application/xml');
+  res.send(xml);
+});
+
 // ── Client Pages ───────────────────────────────────────────────────────────────
 const clientPages = path.join(__dirname, '..', 'client', 'pages');
 
