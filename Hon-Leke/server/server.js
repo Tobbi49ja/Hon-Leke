@@ -151,10 +151,12 @@ app.get('/post/:slugOrId', async (req, res) => {
     const title    = post.title   || siteName;
     const desc     = post.excerpt || 'Read the latest from Hon. Leke Abejide';
 
-    // Build OG image
-    let ogImage = post.image || `${siteUrl}/favicon.png`;
-    if (post.image && process.env.CLOUDINARY_CLOUD_NAME) {
-      const publicId = extractPublicId(post.image);
+    // Build OG image — try cover image, then first image block, then Logo fallback
+    const firstBlockImage = (post.blocks || []).find(b => b.type === 'image' && b.image)?.image;
+    const rawImage = post.image || firstBlockImage || `${siteUrl}/Logo.png`;
+    let ogImage = rawImage;
+    if ((post.image || firstBlockImage) && process.env.CLOUDINARY_CLOUD_NAME) {
+      const publicId = extractPublicId(post.image || firstBlockImage);
       if (publicId) {
         const signed = signedCloudinaryUrl(publicId, 'image', 'c_fill,w_1200,h_630,q_auto,f_jpg');
         if (signed) ogImage = signed;
