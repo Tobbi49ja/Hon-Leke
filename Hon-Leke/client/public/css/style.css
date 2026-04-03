@@ -233,7 +233,7 @@ main { padding-top: var(--header-height); min-height: 80vh; }
 }
 .slider-bg-main {
   position: absolute; inset: 0;
-  background-size: contain; background-repeat: no-repeat;
+  background-size: cover; background-repeat: no-repeat;
   background-position: center; z-index: 1;
 }
 .slider-overlay {
