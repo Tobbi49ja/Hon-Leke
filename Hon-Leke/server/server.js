@@ -18,6 +18,8 @@ const adminRouter   = require('./routes/admin');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1); // trust Nginx reverse proxy
+
 // ── Middleware ─────────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
