@@ -160,7 +160,7 @@ app.get('/post/:slugOrId', async (req, res) => {
     if ((post.image || firstBlockImage) && process.env.CLOUDINARY_CLOUD_NAME) {
       const publicId = extractPublicId(post.image || firstBlockImage);
       if (publicId) {
-        const signed = signedCloudinaryUrl(publicId, 'image', 'c_fill,w_1200,h_630,q_auto,f_jpg');
+        const signed = signedCloudinaryUrl(publicId, 'image', 'c_fill,g_auto,w_1200,h_630,q_auto,f_jpg');
         if (signed) ogImage = signed;
       }
     }
