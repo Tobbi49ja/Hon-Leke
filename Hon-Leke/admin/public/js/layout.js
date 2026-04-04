@@ -95,6 +95,49 @@ function initAdminLayout(pageTitle, activeNav) {
       window.location.href = '/admin/login';
     });
   }
+
+  // ── Mobile drawer ──────────────────────────────────────────────────────────
+  const sidebar  = document.querySelector('.sidebar');
+  const topbar   = document.querySelector('.topbar');
+  const topbarH1 = topbar ? topbar.querySelector('h1') : null;
+
+  // Inject hamburger button
+  const burger = document.createElement('button');
+  burger.id = 'drawer-toggle';
+  burger.setAttribute('aria-label', 'Open menu');
+  burger.innerHTML = '<i class="bi bi-list"></i>';
+  if (topbar && topbarH1) topbar.insertBefore(burger, topbarH1);
+
+  // Inject overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'drawer-overlay';
+  document.body.appendChild(overlay);
+
+  function openDrawer() {
+    sidebar.classList.add('open');
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  burger.addEventListener('click', openDrawer);
+  overlay.addEventListener('click', closeDrawer);
+
+  // Close drawer when a nav link is tapped on mobile
+  sidebar.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 768) closeDrawer();
+    });
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeDrawer();
+  });
 }
 
 function showToast(message, type = 'success') {
