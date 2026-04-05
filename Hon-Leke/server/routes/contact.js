@@ -16,25 +16,28 @@ router.post('/', async (req, res) => {
 
   store.addContactMessage(name, email, subject, message);
 
-  // Optionally send email if SMTP configured
-  if (process.env.SMTP_HOST) {
+  // Send email via Resend if API key is configured
+  if (process.env.RESEND_API_KEY) {
     try {
-      const nodemailer = require('nodemailer');
-      const transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT) || 587,
-        secure: false,
-        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
-      });
-      await transporter.sendMail({
-        from: `"${name}" <${process.env.SMTP_USER}>`,
+      const { Resend } = require('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      await resend.emails.send({
+        from: `Hon. Leke Abejide Blog <no-reply@lekejosephabejide.com>`,
         replyTo: email,
         to: process.env.RECEIVING_EMAIL || 'ayanisolomon1@gmail.com',
         subject: `[Blog Contact] ${subject}`,
-        html: `<h2>New Contact Message</h2><p><b>From:</b> ${name} &lt;${email}&gt;</p><p><b>Subject:</b> ${subject}</p><p><b>Message:</b><br>${message.replace(/\n/g, '<br>')}</p>`
+        html: `
+          <h2 style="color:#1a3c5e">New Contact Message</h2>
+          <p><b>From:</b> ${name} &lt;${email}&gt;</p>
+          <p><b>Subject:</b> ${subject}</p>
+          <hr>
+          <p><b>Message:</b><br>${message.replace(/\n/g, '<br>')}</p>
+          <hr>
+          <p style="color:#718096;font-size:12px">Sent from lekejosephabejide.com contact form</p>
+        `
       });
     } catch (err) {
-      console.error('Email error:', err.message);
+      console.error('Resend email error:', err.message);
     }
   }
 
