@@ -79,9 +79,14 @@ let allPosts = [];
 
 async function loadPosts() {
   const data = await adminAPI.get('/api/admin/posts');
-  if (!data) return;
+  if (!data) {
+    document.getElementById('posts-table').innerHTML =
+      '<tr><td colspan="7" style="text-align:center;padding:32px;color:#dc3545"><i class="bi bi-wifi-off"></i> Could not load posts. Please check your connection and refresh.</td></tr>';
+    return;
+  }
   if (!data.success) {
-    console.error('API error loading posts:', data.message);
+    document.getElementById('posts-table').innerHTML =
+      '<tr><td colspan="7" style="text-align:center;padding:32px;color:#dc3545">' + (data.message || 'Failed to load posts.') + '</td></tr>';
     return;
   }
   allPosts = Array.isArray(data.posts) ? data.posts : [];

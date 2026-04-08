@@ -1,5 +1,13 @@
 // admin/public/js/layout.js — Shared admin utilities
 
+/* ── Network-error toast deduplication ────────────────────────────────────── */
+let _netToastTimer = null;
+function _showNetworkToast() {
+  if (_netToastTimer) return;
+  showToast('Network problem. Please check your connection.', 'error');
+  _netToastTimer = setTimeout(() => { _netToastTimer = null; }, 5000);
+}
+
 const adminAPI = {
   async get(url) {
     try {
@@ -8,11 +16,12 @@ const adminAPI = {
       const data = await res.json();
       if (!res.ok) {
         console.error('API error [GET ' + url + ']:', data.message || res.status);
-        return data; 
+        return data;
       }
       return data;
     } catch(err) {
       console.error('Network error [GET ' + url + ']:', err.message);
+      _showNetworkToast();
       return null;
     }
   },
@@ -27,6 +36,7 @@ const adminAPI = {
       return res.json();
     } catch(err) {
       console.error('Network error [POST ' + url + ']:', err.message);
+      _showNetworkToast();
       return null;
     }
   },
@@ -41,6 +51,7 @@ const adminAPI = {
       return res.json();
     } catch(err) {
       console.error('Network error [PUT ' + url + ']:', err.message);
+      _showNetworkToast();
       return null;
     }
   },
@@ -55,6 +66,7 @@ const adminAPI = {
       return res.json();
     } catch(err) {
       console.error('Network error [PATCH ' + url + ']:', err.message);
+      _showNetworkToast();
       return null;
     }
   },
@@ -65,6 +77,7 @@ const adminAPI = {
       return res.json();
     } catch(err) {
       console.error('Network error [DELETE ' + url + ']:', err.message);
+      _showNetworkToast();
       return null;
     }
   }

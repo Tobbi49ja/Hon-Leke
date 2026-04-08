@@ -625,7 +625,7 @@
         document.getElementById('comment-message').value = '';
         loadComments();
       } else { showAlert(alertEl,'error',res.message); }
-    } catch(e) { showAlert(alertEl,'error','Something went wrong.'); }
+    } catch(e) { showAlert(alertEl,'error', e.message || 'Something went wrong. Please try again.'); }
     finally {
       btn.disabled = false;
       btn.innerHTML = '<i class="bi bi-chat-left-text"></i> Post Comment';
@@ -681,7 +681,7 @@
       const res = await API.post('/api/subscribe', { email });
       msg.textContent = res.message;
       if (res.success) e.target.querySelector('input').value = '';
-    } catch(e) { msg.textContent = 'Something went wrong.'; }
+    } catch(e) { msg.textContent = e.message || 'Something went wrong. Please try again.'; }
   });
 
   /* ── Search ── */

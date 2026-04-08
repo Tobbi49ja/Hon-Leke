@@ -69,7 +69,11 @@ let allSubs = [];
 
 async function loadSubscribers() {
   const data = await adminAPI.get('/api/admin/subscribers');
-  if (!data) return;
+  if (!data) {
+    document.getElementById('subscribers-table').innerHTML =
+      '<tr><td colspan="4" style="text-align:center;padding:32px;color:#dc3545"><i class="bi bi-wifi-off"></i> Could not load subscribers. Please check your connection and refresh.</td></tr>';
+    return;
+  }
   allSubs = data.subscribers;
   document.getElementById('sub-count').textContent = `(${allSubs.length})`;
   const tbody = document.getElementById('subscribers-table');

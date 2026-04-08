@@ -195,7 +195,12 @@
   async function api(method, url, body) {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
     if (body) opts.body = JSON.stringify(body);
-    const res = await fetch(url, opts);
+    let res;
+    try {
+      res = await fetch(url, opts);
+    } catch(e) {
+      throw new Error('Network problem. Please check your connection.');
+    }
     return res.json();
   }
 
@@ -213,7 +218,7 @@
       renderComments();
     } catch (e) {
       document.getElementById('comments-list').innerHTML =
-        '<div class="empty"><i class="bi bi-exclamation-circle"></i><p>Failed to load.</p></div>';
+        '<div class="empty"><i class="bi bi-wifi-off"></i><p>' + (e.message || 'Could not load comments. Please check your connection and refresh.') + '</p></div>';
     }
   }
 
@@ -338,7 +343,15 @@
         this.disabled = true;
         this.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving…';
 
-        const res = await api('PATCH', '/api/admin/comments/' + id + '/reply', { reply });
+        let res;
+        try {
+          res = await api('PATCH', '/api/admin/comments/' + id + '/reply', { reply });
+        } catch(err) {
+          toast(err.message || 'Network problem. Please check your connection.', 'error');
+          this.disabled = false;
+          this.innerHTML = orig;
+          return;
+        }
         if (res.success) {
           toast('Reply saved successfully!');
           const idx = allComments.findIndex(c => c.id === id);
@@ -356,8 +369,13 @@
     document.querySelectorAll('[data-del-reply]').forEach(btn => {
       btn.addEventListener('click', async function () {
         if (!confirm('Remove this reply? The comment will show as unanswered.')) return;
-        const id  = this.dataset.delReply;
-        const res = await api('PATCH', '/api/admin/comments/' + id + '/reply/delete');
+        const id = this.dataset.delReply;
+        let res;
+        try {
+          res = await api('PATCH', '/api/admin/comments/' + id + '/reply/delete');
+        } catch(err) {
+          toast(err.message || 'Network problem. Please check your connection.', 'error'); return;
+        }
         if (res.success) {
           toast('Reply removed.');
           const idx = allComments.findIndex(c => c.id === id);
@@ -371,8 +389,13 @@
     document.querySelectorAll('[data-delete]').forEach(btn => {
       btn.addEventListener('click', async function () {
         if (!confirm('Delete this comment permanently?')) return;
-        const id  = this.dataset.delete;
-        const res = await api('DELETE', '/api/admin/comments/' + id);
+        const id = this.dataset.delete;
+        let res;
+        try {
+          res = await api('DELETE', '/api/admin/comments/' + id);
+        } catch(err) {
+          toast(err.message || 'Network problem. Please check your connection.', 'error'); return;
+        }
         if (res.success) {
           toast('Comment deleted.');
           allComments = allComments.filter(c => c.id !== id);

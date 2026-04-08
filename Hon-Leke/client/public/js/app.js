@@ -18,22 +18,52 @@
    ================================================================ */
 const API = {
   async get(url) {
-    const res = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    let res;
+    try {
+      res = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+    } catch(e) {
+      throw new Error('Network problem. Please check your connection and try again.');
+    }
+    if (!res.ok) {
+      let msg;
+      try { const d = await res.json(); msg = d.message; } catch(_) {}
+      if (res.status === 404) throw new Error(msg || 'Content not found.');
+      if (res.status === 429) throw new Error('Too many requests. Please wait a moment and try again.');
+      throw new Error(msg || 'Something went wrong. Please try again.');
+    }
     return res.json();
   },
   async post(url, body) {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    let res;
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    } catch(e) {
+      throw new Error('Network problem. Please check your connection and try again.');
+    }
+    if (!res.ok) {
+      let msg;
+      try { const d = await res.json(); msg = d.message; } catch(_) {}
+      if (res.status === 429) throw new Error('Too many requests. Please wait a moment and try again.');
+      throw new Error(msg || 'Something went wrong. Please try again.');
+    }
     return res.json();
   },
   async postForm(url, formData) {
-    const res = await fetch(url, { method: 'POST', body: formData });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    let res;
+    try {
+      res = await fetch(url, { method: 'POST', body: formData });
+    } catch(e) {
+      throw new Error('Network problem. Please check your connection and try again.');
+    }
+    if (!res.ok) {
+      let msg;
+      try { const d = await res.json(); msg = d.message; } catch(_) {}
+      throw new Error(msg || 'Something went wrong. Please try again.');
+    }
     return res.json();
   },
 };

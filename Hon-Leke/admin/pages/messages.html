@@ -50,7 +50,11 @@ initAdminLayout('Messages', 'messages');
 
 async function loadMessages() {
   const data = await adminAPI.get('/api/admin/messages');
-  if (!data) return;
+  if (!data) {
+    document.getElementById('messages-list').innerHTML =
+      '<div class="empty-state" style="color:#dc3545"><i class="bi bi-wifi-off"></i><p>Could not load messages. Please check your connection and refresh.</p></div>';
+    return;
+  }
 
   const messages = data.messages;
   const container = document.getElementById('messages-list');

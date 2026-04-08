@@ -265,7 +265,7 @@ router.post("/login", (req, res) => {
       name: admin.name,
     });
   }
-  res.status(401).json({ success: false, message: "Invalid credentials." });
+  res.status(401).json({ success: false, message: "Wrong username or password. Please try again." });
 });
 
 router.post("/logout", (req, res) => {

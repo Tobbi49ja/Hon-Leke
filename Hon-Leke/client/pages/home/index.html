@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', async function () {
           </div>
         </a></li>`).join('');
     } catch(e) {
-      grid.innerHTML = '<div class="no-posts"><i class="bi bi-exclamation-circle"></i><p>Failed to load posts.</p></div>';
+      grid.innerHTML = '<div class="no-posts"><i class="bi bi-wifi-off"></i><p>' + (e.message || 'Failed to load posts. Please check your connection and refresh.') + '</p></div>';
     }
   }
 
@@ -478,7 +478,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       msg.style.color = res.success ? '#90ee90' : '#ff6b6b';
       if (res.success) e.target.querySelector('input').value = '';
     } catch(err) {
-      msg.textContent = 'Something went wrong.';
+      msg.textContent = err.message || 'Something went wrong. Please try again.';
       msg.style.color = '#ff6b6b';
     }
   });
