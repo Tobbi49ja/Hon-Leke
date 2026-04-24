@@ -702,7 +702,17 @@ async function savePost(status) {
     const url    = editingId ? '/api/admin/posts/' + editingId : '/api/admin/posts';
     const method = editingId ? 'PUT' : 'POST';
     const res    = await fetch(url, { method, body: fd });
-    const data   = await res.json();
+
+    if (res.status === 413) {
+      toast('Post is too large. Please use smaller images and try again.', 'error');
+      return;
+    }
+
+    let data;
+    try { data = await res.json(); } catch(_) {
+      toast('Server returned an unexpected response. Please try again.', 'error');
+      return;
+    }
 
     if (data.success) {
       const label = status === 'draft' ? 'Draft saved!' : (editingId ? 'Post updated!' : 'Post published!');
@@ -728,7 +738,7 @@ async function savePost(status) {
       toast(data.message || 'Failed to save.', 'error');
     }
   } catch (e) {
-    toast('Network error: ' + e.message, 'error');
+    toast('Network problem. Please check your connection and try again.', 'error');
   } finally {
     btn.disabled = false;
     draftBtn.disabled = false;
