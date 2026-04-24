@@ -359,8 +359,22 @@ function removeTag(index) {
 
 async function loadExistingPost(id) {
   try {
-    const res  = await fetch('/api/admin/posts');
-    const data = await res.json();
+    let res;
+    try {
+      res = await fetch('/api/admin/posts');
+    } catch(e) {
+      toast('Network problem. Could not load the post. Please check your connection.', 'error');
+      return;
+    }
+    if (!res.ok) {
+      toast('Could not load post — server returned an error. Please refresh.', 'error');
+      return;
+    }
+    let data;
+    try { data = await res.json(); } catch(_) {
+      toast('Could not load post. Please refresh the page.', 'error');
+      return;
+    }
     const post = (data.posts || []).find(p => p.id === id);
     if (!post) return;
 
@@ -397,7 +411,7 @@ async function loadExistingPost(id) {
       if (post.content) addBlock('text', { text: post.content });
     }
   } catch (e) {
-    toast('Could not load post.', 'error');
+    toast('Could not load post. Please refresh the page.', 'error');
   }
 }
 
