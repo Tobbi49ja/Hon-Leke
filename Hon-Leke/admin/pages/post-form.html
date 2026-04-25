@@ -180,6 +180,16 @@
     .md-preview-box pre code{background:none;padding:0;color:inherit;}
     .md-preview-box hr{border:none;border-top:2px solid var(--border);margin:20px 0;}
     .md-preview-box a{color:var(--primary);text-decoration:underline;}
+
+    /* Category select with add-new option */
+    .cat-wrap { display: flex; gap: 8px; align-items: center; }
+    .cat-wrap select { flex: 1; }
+    #new-cat-wrap { display: none; margin-top: 8px; }
+    #new-cat-wrap.show { display: flex; gap: 8px; }
+    #new-cat-wrap input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; }
+    #new-cat-wrap input:focus { border-color: var(--primary); }
+    #new-cat-wrap button { padding: 8px 14px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    #new-cat-wrap button:hover { background: #2d5f8a; }
   </style>
 </head>
 <body>
@@ -188,13 +198,14 @@
   <aside class="sidebar">
     <div class="sidebar-brand"><i class="bi bi-person-badge"></i> Admin Panel</div>
     <a href="/admin/dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/admin/about"><i class="bi bi-person-lines-fill"></i> About Page</a>
     <a href="/admin/posts" class="active"><i class="bi bi-file-earmark-text"></i> Posts</a>
+    <a href="/admin/posts/new"><i class="bi bi-plus-circle"></i> New Post</a>
     <a href="/admin/comments"><i class="bi bi-chat-left-text"></i> Comments</a>
     <a href="/admin/messages"><i class="bi bi-envelope"></i> Messages</a>
     <a href="/admin/subscribers"><i class="bi bi-people"></i> Subscribers</a>
     <a href="/admin/tags"><i class="bi bi-tags"></i> Tags</a>
     <a href="/admin/settings"><i class="bi bi-gear"></i> Settings</a>
-    <a href="/admin/about"><i class="bi bi-person"></i> About Page</a>
     <a href="/" target="_blank"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
   </aside>
 
@@ -219,7 +230,18 @@
       </div>
       <div class="form-group">
         <label>Category *</label>
-        <input type="text" id="post-category" placeholder="e.g. Legislation, Community…">
+        <div class="cat-wrap">
+          <select id="post-category">
+            <option value="">Loading categories…</option>
+          </select>
+        </div>
+        <div id="new-cat-wrap">
+          <input type="text" id="new-cat-input" placeholder="New category name…">
+          <button type="button" onclick="addNewCategory()"><i class="bi bi-plus"></i> Add</button>
+        </div>
+        <div class="form-hint">
+          Choose a category or select <strong>+ Add new category</strong> at the bottom of the list.
+        </div>
       </div>
       <div class="form-group">
         <label>Date (leave blank for today)</label>
@@ -304,6 +326,77 @@ function updateSlugPreview(val) {
   document.getElementById('slug-preview').textContent = slugify(val) || 'your-post-title';
 }
 
+// ── Category dropdown ──────────────────────────────────────────────────────────
+async function loadCategories(selectedValue) {
+  try {
+    const res = await fetch('/api/admin/categories');
+    if (!res.ok) throw new Error('Failed');
+    const data = await res.json();
+    const cats = data.categories || [];
+    const sel  = document.getElementById('post-category');
+    sel.innerHTML = '<option value="">— Select category —</option>';
+    cats.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      if (c === selectedValue) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    // Add "new category" sentinel at bottom
+    const addOpt = document.createElement('option');
+    addOpt.value = '__new__';
+    addOpt.textContent = '+ Add new category…';
+    sel.appendChild(addOpt);
+    sel.addEventListener('change', onCategoryChange);
+  } catch (e) {
+    const sel = document.getElementById('post-category');
+    sel.innerHTML = '<option value="">— Type category manually —</option>';
+    // Fallback: replace select with text input
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.id = 'post-category';
+    input.placeholder = 'e.g. Legislation, Community…';
+    if (selectedValue) input.value = selectedValue;
+    sel.parentNode.replaceChild(input, sel);
+  }
+}
+
+function onCategoryChange() {
+  const sel  = document.getElementById('post-category');
+  const wrap = document.getElementById('new-cat-wrap');
+  if (sel.value === '__new__') {
+    wrap.classList.add('show');
+    document.getElementById('new-cat-input').focus();
+  } else {
+    wrap.classList.remove('show');
+  }
+}
+
+async function addNewCategory() {
+  const input = document.getElementById('new-cat-input');
+  const name  = input.value.trim();
+  if (!name) { toast('Enter a category name.', 'error'); return; }
+
+  try {
+    const res  = await fetch('/api/admin/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast(`Category "${name}" added!`, 'success');
+      input.value = '';
+      document.getElementById('new-cat-wrap').classList.remove('show');
+      await loadCategories(name); // reload and pre-select new category
+    } else {
+      toast(data.message || 'Failed to add category.', 'error');
+    }
+  } catch (e) {
+    toast('Network error. Could not add category.', 'error');
+  }
+}
+
 // ── Tags input ─────────────────────────────────────────────────────────────────
 function handleTagInput(e) {
   const input = e.target;
@@ -324,7 +417,6 @@ function handleTagInput(e) {
 
 function renderTagChips() {
   const wrap = document.getElementById('tags-wrap');
-  // Remove existing chips
   wrap.querySelectorAll('.tag-chip').forEach(c => c.remove());
   const input = document.getElementById('tag-input-field');
   postTags.forEach((tag, i) => {
@@ -350,6 +442,7 @@ function removeTag(index) {
     document.getElementById('save-btn').innerHTML   = '<i class="bi bi-cloud-upload"></i> Update Post';
     await loadExistingPost(editingId);
   } else {
+    await loadCategories('');
     addBlock('text');
   }
   document.getElementById('cover-file').addEventListener('change', function () {
@@ -376,13 +469,18 @@ async function loadExistingPost(id) {
       return;
     }
     const post = (data.posts || []).find(p => p.id === id);
-    if (!post) return;
+    if (!post) {
+      toast('Post not found. It may have been deleted.', 'error');
+      return;
+    }
 
     document.getElementById('post-title').value    = post.title    || '';
     document.getElementById('post-excerpt').value  = post.excerpt  || '';
-    document.getElementById('post-category').value = post.category || '';
     document.getElementById('post-date').value     = post.date     || '';
     updateSlugPreview(post.title || '');
+
+    // Load categories and pre-select this post's category
+    await loadCategories(post.category || '');
 
     // Load tags
     if (post.tags && post.tags.length) {
@@ -409,6 +507,7 @@ async function loadExistingPost(id) {
       post.blocks.forEach(b => addBlock(b.type, b));
     } else {
       if (post.content) addBlock('text', { text: post.content });
+      else addBlock('text');
     }
   } catch (e) {
     toast('Could not load post. Please refresh the page.', 'error');
@@ -666,18 +765,28 @@ function collectBlocks() {
   });
 }
 
-// ── Save post — accepts status param ('published' or 'draft') ──────────────────
+// ── Get selected category value (handles both select and fallback input) ───────
+function getCategoryValue() {
+  const sel = document.getElementById('post-category');
+  if (!sel) return '';
+  if (sel.tagName === 'SELECT') {
+    return sel.value === '__new__' ? '' : sel.value;
+  }
+  return sel.value.trim();
+}
+
+// ── Save post ──────────────────────────────────────────────────────────────────
 async function savePost(status) {
   const title    = document.getElementById('post-title').value.trim();
   const excerpt  = document.getElementById('post-excerpt').value.trim();
-  const category = document.getElementById('post-category').value.trim();
+  const category = getCategoryValue();
   const date     = document.getElementById('post-date').value.trim();
 
   if (!title || !excerpt || !category) {
     toast('Title, excerpt and category are required.', 'error'); return;
   }
 
-  const btn    = document.getElementById('save-btn');
+  const btn      = document.getElementById('save-btn');
   const draftBtn = document.getElementById('draft-btn');
   const activeBtn = status === 'draft' ? draftBtn : btn;
   activeBtn.disabled = true;
@@ -691,7 +800,7 @@ async function savePost(status) {
     fd.append('date',     date);
     fd.append('featured', featured);
     fd.append('status',   status);
-    fd.append('tags',     JSON.stringify(postTags));   // ← send tags array
+    fd.append('tags',     JSON.stringify(postTags));
 
     const coverFile = document.getElementById('cover-file').files[0];
     if (coverFile) fd.append('image', coverFile);
@@ -733,7 +842,6 @@ async function savePost(status) {
       toast(label, 'success');
       document.getElementById('save-status').textContent = status === 'draft' ? 'Draft ✓' : 'Published ✓';
 
-      // Update draft button appearance
       if (status === 'draft') {
         draftBtn.classList.add('on');
         draftBtn.innerHTML = '<i class="bi bi-file-earmark-check"></i> Saved as Draft';

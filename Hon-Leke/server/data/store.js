@@ -81,14 +81,15 @@ function toPlain(doc) {
 // POSTS
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Sort: manually-ordered posts (order > 0) first by order DESC, then unordered by date DESC
 async function getAllPosts() {
   const docs = await Post.find({ status: { $ne: 'draft' } })
-    .sort({ createdAt: -1 }).lean();
+    .sort({ order: -1, createdAt: -1 }).lean();
   return toPlain(docs);
 }
 
 async function getAllPostsAdmin() {
-  const docs = await Post.find().sort({ createdAt: -1 }).lean();
+  const docs = await Post.find().sort({ order: -1, createdAt: -1 }).lean();
   return toPlain(docs);
 }
 
@@ -189,9 +190,20 @@ async function toggleFeatured(id) {
   }
 }
 
+// Reorder posts: orderedIds is an array of post IDs in desired display order (index 0 = top of page)
+async function reorderPosts(orderedIds) {
+  if (!Array.isArray(orderedIds) || !orderedIds.length) return;
+  const total = orderedIds.length;
+  // Assign order values: first ID gets highest order value (appears first on sort DESC)
+  const ops = orderedIds.map((id, index) =>
+    Post.findByIdAndUpdate(id, { order: total - index }, { new: false }).lean()
+  );
+  await Promise.all(ops);
+}
+
 async function getSliderPosts() {
   const docs = await Post.find({ featured: true, status: { $ne: 'draft' } })
-    .sort({ createdAt: -1 }).lean();
+    .sort({ order: -1, createdAt: -1 }).lean();
   return toPlain(docs).map(p => ({
     id:    p.id,
     image: p.image,
@@ -237,18 +249,19 @@ async function addCategory(name) {
   cats.push(trimmed);
   cats.sort((a, b) => a.localeCompare(b));
 
-  await updateSettings({ ...current, categories: cats }); 
+  await updateSettings({ ...current, categories: cats });
   return cats;
 }
 
 async function renameCategory(oldName, newName) {
-  const old     = (oldName || '').trim();
-  const next    = (newName || '').trim();
+  const old  = (oldName || '').trim();
+  const next = (newName || '').trim();
   if (!old || !next) throw new Error('Both old and new names are required.');
-  if (old.toLowerCase() === next.toLowerCase()) return; // no-op
 
   const current = await getSettings();
   const cats    = current.categories ? [...current.categories] : await getCategories();
+
+  if (old.toLowerCase() === next.toLowerCase()) return cats; // no-op, return current list
 
   const idx = cats.findIndex(c => c.toLowerCase() === old.toLowerCase());
   if (idx === -1) throw new Error(`Category "${old}" not found.`);
@@ -261,7 +274,6 @@ async function renameCategory(oldName, newName) {
   cats.sort((a, b) => a.localeCompare(b));
 
   // Bulk-update all posts that had the old category name
-  const Post = require('../models/post'); // NOTE: lowercase 'post' matches your existing requires
   await Post.updateMany(
     { category: { $regex: new RegExp(`^${escapeRegex(old)}$`, 'i') } },
     { $set: { category: next } }
@@ -284,7 +296,6 @@ async function deleteCategory(name, { force = false } = {}) {
   cats.splice(idx, 1);
 
   if (force) {
-    const Post = require('../models/post'); // NOTE: lowercase 'post'
     await Post.updateMany(
       { category: { $regex: new RegExp(`^${escapeRegex(trimmed)}$`, 'i') } },
       { $set: { category: '' } }
@@ -513,8 +524,9 @@ module.exports = {
   updatePost,
   deletePost,
   toggleFeatured,
-  
-  // Categories (Updated)
+  reorderPosts,
+
+  // Categories
   getCategories,
   addCategory,
   renameCategory,

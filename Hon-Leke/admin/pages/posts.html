@@ -6,6 +6,81 @@
   <title>Posts — Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="/admin/assets/css/admin.css" rel="stylesheet">
+  <style>
+    /* Drag-and-drop styles */
+    .drag-handle {
+      cursor: grab;
+      color: #aaa;
+      font-size: 1.2rem;
+      padding: 0 4px;
+      user-select: none;
+    }
+    .drag-handle:active { cursor: grabbing; }
+    tr[draggable] { transition: background 0.15s; }
+    tr.dragging { opacity: 0.4; background: #e8f0fe !important; }
+    tr.drag-over-top { border-top: 3px solid #1a3c5e !important; }
+    tr.drag-over-bottom { border-bottom: 3px solid #1a3c5e !important; }
+
+    .badge-draft {
+      background: #fff3cd;
+      color: #856404;
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      border: 1px solid #ffc107;
+    }
+    .badge-published {
+      background: #d4edda;
+      color: #155724;
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      border: 1px solid #28a745;
+    }
+
+    .order-info {
+      font-size: 0.78rem;
+      color: #888;
+      margin-top: 6px;
+      display: none;
+    }
+    .order-info.show { display: block; }
+
+    #drag-hint {
+      font-size: 0.82rem;
+      color: #666;
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: #f0f7ff;
+      border: 1px solid #bee3f8;
+      border-radius: 8px;
+    }
+    #drag-hint.hidden { display: none; }
+    #filter-hint {
+      font-size: 0.82rem;
+      color: #856404;
+      margin-bottom: 0;
+      padding: 8px 12px;
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      display: none;
+    }
+    #filter-hint.show { display: flex; align-items: center; gap: 6px; }
+
+    .order-badge {
+      font-size: 0.7rem;
+      color: #999;
+      background: #f0f0f0;
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+  </style>
 </head>
 <body>
 <aside class="sidebar">
@@ -15,7 +90,7 @@
     <a href="/admin/dashboard" class="nav-link" data-page="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
     <div class="nav-section">Content</div>
     <div class="nav-section">Pages</div>
-<a href="/admin/about" class="nav-link" data-page="about"><i class="bi bi-person-lines-fill"></i> About Page</a>
+    <a href="/admin/about" class="nav-link" data-page="about"><i class="bi bi-person-lines-fill"></i> About Page</a>
     <a href="/admin/posts" class="nav-link" data-page="posts"><i class="bi bi-newspaper"></i> Blog Posts</a>
     <a href="/admin/posts/new" class="nav-link" data-page="new-post"><i class="bi bi-plus-circle"></i> New Post</a>
     <div class="nav-section">Engagement</div>
@@ -46,24 +121,29 @@
 
   <div class="page-body">
     <div class="card">
-      <div class="card-header">
+      <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
         <h3><i class="bi bi-newspaper"></i> All Posts <span id="posts-count" style="font-weight:400;color:var(--muted)"></span></h3>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div id="drag-hint"><i class="bi bi-grip-vertical"></i> Drag rows to reorder how posts appear on the site</div>
+          <div id="filter-hint"><i class="bi bi-exclamation-triangle"></i> Clear filters to enable drag-and-drop reordering</div>
+        </div>
       </div>
       <div class="card-body" style="padding:0">
         <table class="admin-table">
           <thead>
             <tr>
+              <th style="width:36px"></th>
               <th>Image</th>
               <th>Title</th>
               <th>Category</th>
               <th>Date</th>
-              <th>Video</th>
+              <th>Status</th>
               <th>Featured</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody id="posts-table">
-            <tr><td colspan="7" style="text-align:center;padding:32px;color:#718096">Loading…</td></tr>
+            <tr><td colspan="8" style="text-align:center;padding:32px;color:#718096">Loading…</td></tr>
           </tbody>
         </table>
       </div>
@@ -76,25 +156,26 @@
 initAdminLayout('Blog Posts', 'posts');
 
 let allPosts = [];
+let isFiltering = false;
+let dragSrcRow = null;
 
 async function loadPosts() {
   const data = await adminAPI.get('/api/admin/posts');
   if (!data) {
     document.getElementById('posts-table').innerHTML =
-      '<tr><td colspan="7" style="text-align:center;padding:32px;color:#dc3545"><i class="bi bi-wifi-off"></i> Could not load posts. Please check your connection and refresh.</td></tr>';
+      '<tr><td colspan="8" style="text-align:center;padding:32px;color:#dc3545"><i class="bi bi-wifi-off"></i> Could not load posts. Please check your connection and refresh.</td></tr>';
     return;
   }
   if (!data.success) {
     document.getElementById('posts-table').innerHTML =
-      '<tr><td colspan="7" style="text-align:center;padding:32px;color:#dc3545">' + (data.message || 'Failed to load posts.') + '</td></tr>';
+      '<tr><td colspan="8" style="text-align:center;padding:32px;color:#dc3545">' + (data.message || 'Failed to load posts.') + '</td></tr>';
     return;
   }
   allPosts = Array.isArray(data.posts) ? data.posts : [];
 
   // Populate category filter
-  const cats = [...new Set(allPosts.map(p => p.category))];
+  const cats = [...new Set(allPosts.map(p => p.category).filter(Boolean))].sort();
   const catSelect = document.getElementById('filter-category');
-  // Clear existing options except the first "All Categories"
   while (catSelect.options.length > 1) catSelect.remove(1);
   cats.forEach(cat => {
     const opt = document.createElement('option');
@@ -111,27 +192,32 @@ function renderPosts(posts) {
   document.getElementById('posts-count').textContent = `(${posts.length})`;
 
   if (!posts.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:#718096">No posts found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:#718096">No posts found.</td></tr>';
     return;
   }
 
-  // ── KEY FIX: wrap p.id in quotes inside onclick so ObjectId strings are valid JS
-  tbody.innerHTML = posts.map(p => `
-    <tr>
-      <td>${p.image
-        ? `<img src="/${p.image}" class="post-thumb" onerror="this.parentElement.innerHTML='<div style=width:52px;height:40px;background:#eee;border-radius:6px></div>'">`
-        : '<div style="width:52px;height:40px;background:#eee;border-radius:6px"></div>'
-      }</td>
-      <td style="max-width:280px">
+  tbody.innerHTML = posts.map(p => {
+    const slug = p.slug || p.id;
+    const statusBadge = p.status === 'draft'
+      ? '<span class="badge-draft"><i class="bi bi-file-earmark"></i> Draft</span>'
+      : '<span class="badge-published"><i class="bi bi-check-circle"></i> Published</span>';
+    const imgHtml = p.image
+      ? `<img src="${p.image.startsWith('http') ? p.image : '/' + p.image}" class="post-thumb" onerror="this.parentElement.innerHTML='<div style=width:52px;height:40px;background:#eee;border-radius:6px></div>'">`
+      : '<div style="width:52px;height:40px;background:#eee;border-radius:6px"></div>';
+
+    return `
+    <tr draggable="true" data-id="${p.id}">
+      <td style="padding:0 8px;cursor:grab">
+        <i class="bi bi-grip-vertical drag-handle" title="Drag to reorder"></i>
+      </td>
+      <td>${imgHtml}</td>
+      <td style="max-width:260px">
         <span style="font-weight:500;font-size:0.875rem;display:block">${p.title.substring(0,70)}${p.title.length>70?'…':''}</span>
         <span style="font-size:0.75rem;color:#718096;display:block;margin-top:2px">${p.excerpt.substring(0,60)}…</span>
       </td>
-      <td><span class="badge badge-info">${p.category}</span></td>
-      <td style="color:#718096;font-size:0.8rem;white-space:nowrap">${p.date}</td>
-      <td>${p.hasVideo
-        ? '<span class="badge badge-success"><i class="bi bi-camera-video"></i> Yes</span>'
-        : '<span style="color:#ccc;font-size:0.75rem">—</span>'
-      }</td>
+      <td><span class="badge badge-info">${p.category || '—'}</span></td>
+      <td style="color:#718096;font-size:0.8rem;white-space:nowrap">${p.date || '—'}</td>
+      <td>${statusBadge}</td>
       <td>
         <label class="toggle">
           <input type="checkbox" ${p.featured ? 'checked' : ''} onchange="toggleFeatured('${p.id}', this)">
@@ -139,25 +225,102 @@ function renderPosts(posts) {
         </label>
       </td>
       <td style="white-space:nowrap">
-        <a href="/post/${p.id}" target="_blank" class="btn btn-outline btn-sm btn-icon" title="View"><i class="bi bi-eye"></i></a>
+        <a href="/post/${slug}" target="_blank" class="btn btn-outline btn-sm btn-icon" title="View on site"><i class="bi bi-eye"></i></a>
         <a href="/admin/posts/edit/${p.id}" class="btn btn-outline btn-sm btn-icon" title="Edit"><i class="bi bi-pencil"></i></a>
         <button class="btn btn-danger btn-sm btn-icon" onclick="deletePost('${p.id}')" title="Delete"><i class="bi bi-trash"></i></button>
       </td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
+
+  initDragDrop();
 }
 
 function filterPosts() {
-  const search   = document.getElementById('search-posts').value.toLowerCase();
+  const search   = document.getElementById('search-posts').value.toLowerCase().trim();
   const category = document.getElementById('filter-category').value;
-  let filtered   = allPosts;
-  if (search)   filtered = filtered.filter(p => p.title.toLowerCase().includes(search) || p.category.toLowerCase().includes(search));
+  isFiltering = !!(search || category);
+
+  document.getElementById('drag-hint').classList.toggle('hidden', isFiltering);
+  document.getElementById('filter-hint').classList.toggle('show', isFiltering);
+
+  let filtered = allPosts;
+  if (search)   filtered = filtered.filter(p => p.title.toLowerCase().includes(search) || (p.category || '').toLowerCase().includes(search));
   if (category) filtered = filtered.filter(p => p.category === category);
   renderPosts(filtered);
 }
 
 document.getElementById('search-posts').addEventListener('input', filterPosts);
 document.getElementById('filter-category').addEventListener('change', filterPosts);
+
+// ── Drag-and-drop reordering ───────────────────────────────────────────────────
+function initDragDrop() {
+  const tbody = document.getElementById('posts-table');
+
+  tbody.querySelectorAll('tr[draggable]').forEach(row => {
+    row.addEventListener('dragstart', e => {
+      if (isFiltering) { e.preventDefault(); return; }
+      dragSrcRow = row;
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', row.dataset.id);
+    });
+
+    row.addEventListener('dragend', () => {
+      dragSrcRow = null;
+      tbody.querySelectorAll('tr').forEach(r => {
+        r.classList.remove('dragging', 'drag-over-top', 'drag-over-bottom');
+      });
+    });
+
+    row.addEventListener('dragover', e => {
+      if (isFiltering || !dragSrcRow || dragSrcRow === row) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+
+      // Determine if we're in the top or bottom half of the target row
+      const rect = row.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over-top', 'drag-over-bottom'));
+      row.classList.add(e.clientY < midY ? 'drag-over-top' : 'drag-over-bottom');
+    });
+
+    row.addEventListener('dragleave', () => {
+      row.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+
+    row.addEventListener('drop', async e => {
+      e.preventDefault();
+      if (isFiltering || !dragSrcRow || dragSrcRow === row) return;
+
+      const rect  = row.getBoundingClientRect();
+      const midY  = rect.top + rect.height / 2;
+      const insertBefore = e.clientY < midY;
+
+      if (insertBefore) {
+        tbody.insertBefore(dragSrcRow, row);
+      } else {
+        tbody.insertBefore(dragSrcRow, row.nextSibling);
+      }
+
+      tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over-top', 'drag-over-bottom'));
+
+      // Update in-memory allPosts array to match new DOM order
+      const newOrder = [...tbody.querySelectorAll('tr[data-id]')].map(r => r.dataset.id);
+      allPosts.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
+
+      await saveOrder(newOrder);
+    });
+  });
+}
+
+async function saveOrder(orderedIds) {
+  const data = await adminAPI.patch('/api/admin/posts/reorder', { orderedIds });
+  if (data && data.success) {
+    showToast('Post order saved!', 'success');
+  } else {
+    showToast('Failed to save order. Please try again.', 'error');
+  }
+}
 
 async function toggleFeatured(id, checkbox) {
   const data = await adminAPI.patch(`/api/admin/posts/${id}/featured`);

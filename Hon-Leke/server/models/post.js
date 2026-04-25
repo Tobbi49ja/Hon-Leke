@@ -47,6 +47,9 @@ const postSchema = new mongoose.Schema({
   featured: { type: Boolean, default: false },
   status:   { type: String, enum: ['published', 'draft'], default: 'published' },
 
+  // ── Manual display order (higher value = shown first; 0 = date order) ────────
+  order:    { type: Number, default: 0, index: true },
+
 }, { timestamps: true });
 
 // ── Auto-generate slug from title before saving ───────────────

@@ -278,10 +278,9 @@ router.get("/me", requireAdmin, (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ── Categories (NEWLY ADDED) ─────────────────────────────────────────────────
+// ── Categories ───────────────────────────────────────────────────────────────
 // ─────────────────────────────────────────────────────────────────────────────
 
-// GET /api/admin/categories  — return the managed category list
 router.get('/categories', requireAdmin, async (req, res) => {
   try {
     const categories = await store.getCategories();
@@ -292,8 +291,6 @@ router.get('/categories', requireAdmin, async (req, res) => {
   }
 });
 
-// POST /api/admin/categories  — add a new category
-// Body: { name: "Sports" }
 router.post('/categories', requireAdmin, async (req, res) => {
   try {
     const { name } = req.body;
@@ -309,8 +306,6 @@ router.post('/categories', requireAdmin, async (req, res) => {
   }
 });
 
-// PUT /api/admin/categories/:name  — rename a category (updates all posts too)
-// Body: { newName: "Athletics" }
 router.put('/categories/:name', requireAdmin, async (req, res) => {
   try {
     const oldName = decodeURIComponent(req.params.name).trim();
@@ -333,8 +328,6 @@ router.put('/categories/:name', requireAdmin, async (req, res) => {
   }
 });
 
-// DELETE /api/admin/categories/:name  — remove a category from the list
-// Query param: ?force=true  → also clears the category field on affected posts
 router.delete('/categories/:name', requireAdmin, async (req, res) => {
   try {
     const name  = decodeURIComponent(req.params.name).trim();
@@ -368,9 +361,25 @@ router.get("/stats", requireAdmin, async (req, res) => {
 });
 
 // ── Posts ──────────────────────────────────────────────────────────────────────
+// NOTE: /posts/reorder MUST be declared before /posts/:id to avoid route conflict
+router.patch("/posts/reorder", requireAdmin, async (req, res) => {
+  try {
+    const { orderedIds } = req.body;
+    if (!Array.isArray(orderedIds) || !orderedIds.length) {
+      return res.status(400).json({ success: false, message: 'orderedIds must be a non-empty array.' });
+    }
+    await store.reorderPosts(orderedIds);
+    res.json({ success: true, message: 'Post order saved.' });
+  } catch (err) {
+    console.error("PATCH /admin/posts/reorder error:", err);
+    res.status(500).json({ success: false, message: "Failed to save order." });
+  }
+});
+
 router.get("/posts", requireAdmin, async (req, res) => {
   try {
-    res.json({ success: true, posts: await store.getAllPosts() });
+    // Use getAllPostsAdmin so drafts are included in the admin view
+    res.json({ success: true, posts: await store.getAllPostsAdmin() });
   } catch (err) {
     console.error("GET /admin/posts error:", err);
     res.status(500).json({ success: false, message: "Failed to load posts." });
@@ -422,7 +431,7 @@ router.post("/posts", requireAdmin, async (req, res) => {
       featured: featured === "true" || featured === true,
       image: coverImage,
       images: allImages,
-      blocks: resolvedBlocks, 
+      blocks: resolvedBlocks,
       tags,
       ...videoData,
     });
@@ -493,7 +502,7 @@ router.put("/posts/:id", requireAdmin, async (req, res) => {
       featured: featured === "true" || featured === true,
       image: coverImage,
       images: allImages,
-      blocks: resolvedBlocks, 
+      blocks: resolvedBlocks,
       tags,
       ...videoData,
     });
