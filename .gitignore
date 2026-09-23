@@ -1,1 +1,17 @@
+# Kilo Code
+.kilo/
+
+# IDE
 .idea/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
