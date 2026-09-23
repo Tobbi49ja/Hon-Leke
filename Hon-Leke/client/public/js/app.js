@@ -1,9 +1,3 @@
-/* ============================================================
-   app.js — Hon. Leke Abejide Blog
-   Global: API, theme, mobile nav, search, sticky header,
-   scroll-top, lazy images, cookie consent, blog animations,
-   reading time, reading progress bar, image lightbox
-   ============================================================ */
 
 /* ── Apply saved theme immediately to prevent flash ── */
 (() => {

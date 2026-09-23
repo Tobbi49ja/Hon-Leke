@@ -24,7 +24,9 @@
   <meta id="tw-title"       name="twitter:title"       content="Hon. Leke Abejide">
   <meta id="tw-description" name="twitter:description" content="Official blog of Rt. Hon. Leke Abejide.">
   <meta id="tw-image"       name="twitter:image"       content="/Logo.png">
-  <meta name="description"  content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives.">
+  <meta name="description" id="meta-description" content="Official blog of Rt. Hon. Leke Abejide, Member House of Representatives.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://lekejosephabejide.com/">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -349,12 +351,13 @@
     try {
       const og = await API.get('/api/posts/' + postId + '/og');
       if (!og.success) return;
-      document.title = og.title + ' — ' + og.siteName;
+      document.title = og.title + ' | ' + og.siteName;
       const setMeta = (id, val) => { const el=document.getElementById(id); if(el&&val) el.setAttribute('content',val); };
       setMeta('og-title',og.title); setMeta('og-description',og.description);
       setMeta('og-image',og.image); setMeta('og-url',og.url||window.location.href);
       setMeta('og-site',og.siteName); setMeta('tw-title',og.title);
       setMeta('tw-description',og.description); setMeta('tw-image',og.image);
+      setMeta('meta-description', og.description);
     } catch(e) {}
   }
 
@@ -421,6 +424,17 @@
       if (!data.success || !data.post) throw new Error('Not found');
       currentPost = data.post;
       const p     = currentPost;
+
+      /* Set dynamic title + meta description from loaded post data */
+      document.title = p.title + ' | ' + siteOwnerName;
+      const metaDescEl = document.getElementById('meta-description');
+      if (metaDescEl) {
+        const blocks = p.blocks || [];
+        const firstTextBlock = blocks.find(b => b.type === 'text' && b.text && b.text.trim());
+        const descSource = p.excerpt || (firstTextBlock ? firstTextBlock.text : '') || '';
+        const desc = descSource.length > 155 ? descSource.substring(0, 155) : descSource;
+        metaDescEl.setAttribute('content', desc);
+      }
 
       /* Collect all text for reading time */
       let allText = p.content || '';

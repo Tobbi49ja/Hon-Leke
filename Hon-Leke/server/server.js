@@ -121,8 +121,115 @@ app.get('/sitemap.xml', async (req, res) => {
 // ── Client Pages ───────────────────────────────────────────────────────────────
 const clientPages = path.join(__dirname, '..', 'client', 'pages');
 
-app.get('/',        (req, res) => res.sendFile(path.join(clientPages, 'home',    'index.html')));
-app.get('/about',   (req, res) => res.sendFile(path.join(clientPages, 'about',   'index.html')));
+// ── Home page — server-side OG injection from Settings ────────────────────────
+app.get('/', async (req, res) => {
+  try {
+    const htmlPath = path.join(clientPages, 'home', 'index.html');
+    let html = fs.readFileSync(htmlPath, 'utf8');
+
+    const settings = await store.getSettings();
+    const siteUrl  = process.env.SITE_URL || `${req.protocol}://${req.headers.host}`;
+    const title    = settings.heroTitle || 'Hon. Leke Abejide';
+    const desc     = settings.heroSubtitle || settings.footerAbout || 'Official blog of Rt. Hon. Leke Abejide, Member House of Representatives, Yagba Federal Constituency, Kogi State.';
+
+    const schemaLD = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type":    "Organization",
+      "name":     title,
+      "url":      siteUrl,
+      "logo":     { "@type": "ImageObject", "url": `${siteUrl}/Logo.png` },
+      "sameAs":   [settings.facebookUrl, settings.instagramUrl, settings.twitterUrl].filter(Boolean)
+    });
+
+    html = html
+      .replace(/<title[^>]*>.*?<\/title>/,
+        `<title>${escHtml(title)} — Official Blog</title>`)
+      .replace(/(<meta name="description"[^>]*content=")[^"]*"/,
+        `$1${escHtml(desc)}"`)
+      .replace(/(<meta property="og:title"[^>]*content=")[^"]*"/,
+        `$1${escHtml(title)}"`)
+      .replace(/(<meta property="og:description"[^>]*content=")[^"]*"/,
+        `$1${escHtml(desc)}"`)
+      .replace(/(<meta property="og:url"[^>]*content=")[^"]*"/,
+        `$1${siteUrl}"`)
+      .replace(/(<meta property="og:image"[^>]*content=")[^"]*"/,
+        `$1${siteUrl}/Logo.png"`)
+      .replace(/(<meta name="twitter:title"[^>]*content=")[^"]*"/,
+        `$1${escHtml(title)}"`)
+      .replace(/(<meta name="twitter:description"[^>]*content=")[^"]*"/,
+        `$1${escHtml(desc)}"`)
+      .replace(/(<meta name="twitter:image"[^>]*content=")[^"]*"/,
+        `$1${siteUrl}/Logo.png"`)
+      // Inject JSON-LD schema before </head>
+      .replace('</head>',
+        `  <script type="application/ld+json">${schemaLD}</script>\n</head>`);
+
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  } catch (err) {
+    console.error('Home OG injection error:', err);
+    res.sendFile(path.join(clientPages, 'home', 'index.html'));
+  }
+});
+
+// ── About page — server-side OG injection from Settings ───────────────────────
+app.get('/about', async (req, res) => {
+  try {
+    const htmlPath = path.join(clientPages, 'about', 'index.html');
+    let html = fs.readFileSync(htmlPath, 'utf8');
+
+    const settings = await store.getSettings();
+    const siteUrl  = process.env.SITE_URL || `${req.protocol}://${req.headers.host}`;
+    const title    = settings.heroTitle || 'Hon. Leke Abejide';
+    const about    = settings.about || {};
+    const desc     = about.heroSubtitle || about.heroTitle || settings.heroSubtitle || 'Official blog of Rt. Hon. Leke Abejide, Member House of Representatives, Yagba Federal Constituency, Kogi State.';
+
+    const schemaLD = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type":    "ProfilePage",
+      "mainEntity": {
+        "@type": "Person",
+        "name":  about.lekeName || title,
+        "jobTitle": about.lekeTitle || 'Member, House of Representatives',
+        "url":   siteUrl,
+        "image": about.lekeImage
+          ? (about.lekeImage.startsWith('http') ? about.lekeImage : `${siteUrl}/${about.lekeImage}`)
+          : `${siteUrl}/Logo.png`
+      }
+    });
+
+    html = html
+      .replace(/<title[^>]*>.*?<\/title>/,
+        `<title>About — ${escHtml(title)}</title>`)
+      .replace(/(<meta name="description"[^>]*content=")[^"]*"/,
+        `$1${escHtml(desc)}"`)
+      .replace(/(<meta property="og:title"[^>]*content=")[^"]*"/,
+        `$1About — ${escHtml(title)}"`)
+      .replace(/(<meta property="og:description"[^>]*content=")[^"]*"/,
+        `$1${escHtml(desc)}"`)
+      .replace(/(<meta property="og:url"[^>]*content=")[^"]*"/,
+        `$1${siteUrl}/about"`)
+      .replace(/(<meta property="og:image"[^>]*content=")[^"]*"/,
+        `$1${siteUrl}/Logo.png"`)
+      .replace(/(<meta name="twitter:title"[^>]*content=")[^"]*"/,
+        `$1About — ${escHtml(title)}"`)
+      .replace(/(<meta name="twitter:description"[^>]*content=")[^"]*"/,
+        `$1${escHtml(desc)}"`)
+      .replace(/(<meta name="twitter:image"[^>]*content=")[^"]*"/,
+        `$1${siteUrl}/Logo.png"`)
+      // Inject JSON-LD schema before </head>
+      .replace('</head>',
+        `  <script type="application/ld+json">${schemaLD}</script>\n</head>`);
+
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  } catch (err) {
+    console.error('About OG injection error:', err);
+    res.sendFile(path.join(clientPages, 'about', 'index.html'));
+  }
+});
+
+// ── Contact page (static OG tags already in HTML) ─────────────────────────────
 app.get('/contact', (req, res) => res.sendFile(path.join(clientPages, 'contact', 'index.html')));
 
 // ── Legal Pages ────────────────────────────────────────────────────────────────
@@ -228,6 +335,7 @@ const adminPages = path.join(__dirname, '..', 'admin', 'pages');
 
 app.get('/admin',                       (req, res) => res.redirect('/admin/login'));
 app.get('/admin/login',                 (req, res) => res.sendFile(path.join(adminPages, 'login.html')));
+app.get('/admin/audit-log',     requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'audit-log.html')));
 app.get('/admin/about',       requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'about.html')));
 app.get('/admin/dashboard',   requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'dashboard.html')));
 app.get('/admin/posts',       requireAdmin, (req, res) => res.sendFile(path.join(adminPages, 'posts.html')));

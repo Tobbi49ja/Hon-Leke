@@ -83,7 +83,25 @@ const adminAPI = {
   }
 };
 
+function ensureAuditNavLink() {
+  const nav = document.querySelector('.sidebar-nav');
+  if (!nav || nav.querySelector('a[href="/admin/audit-log"]')) return;
+
+  const link = document.createElement('a');
+  link.href = '/admin/audit-log';
+  link.className = 'nav-link';
+  link.dataset.page = 'audit-log';
+  link.innerHTML = '<i class="bi bi-shield-lock"></i> Audit Log';
+
+  const viewSite = Array.from(nav.querySelectorAll('.nav-link'))
+    .find((item) => item.getAttribute('href') === '/' && item.target === '_blank');
+  if (viewSite) nav.insertBefore(link, viewSite);
+  else nav.appendChild(link);
+}
+
 function initAdminLayout(pageTitle, activeNav) {
+  ensureAuditNavLink();
+
   const titleEl = document.getElementById('page-title');
   if (titleEl) titleEl.textContent = pageTitle;
   document.title = pageTitle + ' — Admin';

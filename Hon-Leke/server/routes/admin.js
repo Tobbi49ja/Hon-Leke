@@ -6,6 +6,7 @@ const path = require("path");
 const fs = require("fs");
 const store = require("../data/store");
 const { requireAdmin } = require("../middleware/auth");
+const { auditMutations, recordAudit } = require("../middleware/audit");
 
 // ── Cloudinary setup ───────────────────────────────────────────────────────────
 let uploadToCloud = null;
@@ -253,28 +254,59 @@ async function resolveBlocks(req, rawBlocks) {
 }
 
 // ── Auth ───────────────────────────────────────────────────────────────────────
-router.post("/login", (req, res) => {
+router.use(auditMutations);
+
+router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const admin = store.adminUser;
-  if (username === admin.username && password === admin.password) {
+  const success = username === admin.username && password === admin.password;
+
+  if (success) {
     req.session.admin = true;
     req.session.adminName = admin.name;
+    req.session.adminUsername = admin.username;
+  }
+
+  await recordAudit(
+    req,
+    "login",
+    "admin_session",
+    null,
+    { username },
+    success,
+    success ? 200 : 401,
+  );
+
+  if (success) {
     return res.json({
       success: true,
       message: "Login successful",
       name: admin.name,
     });
   }
-  res.status(401).json({ success: false, message: "Wrong username or password. Please try again." });
+
+  return res.status(401).json({ success: false, message: "Wrong username or password. Please try again." });
 });
 
-router.post("/logout", (req, res) => {
+router.post("/logout", async (req, res) => {
+  const actor = req.session?.adminName || req.session?.adminUsername || "Admin";
+  await recordAudit(req, "logout", "admin_session", null, {}, true, 200);
   req.session.destroy();
   res.json({ success: true, message: "Logged out." });
 });
 
 router.get("/me", requireAdmin, (req, res) => {
   res.json({ success: true, name: req.session.adminName || "Admin" });
+});
+
+router.get("/audit-logs", requireAdmin, async (req, res) => {
+  try {
+    const result = await store.getAuditLogs(req.query);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    console.error("GET /admin/audit-logs error:", err);
+    res.status(500).json({ success: false, message: "Failed to load audit logs." });
+  }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

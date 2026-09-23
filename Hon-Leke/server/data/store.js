@@ -7,6 +7,7 @@ const Comment    = require('../models/Comment');
 const Subscriber = require('../models/Subscriber');
 const Message    = require('../models/Message');
 const Settings   = require('../models/Settings');
+const AuditLog   = require('../models/AuditLog');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Admin credentials
@@ -466,6 +467,45 @@ async function updateSettings(data) {
   return merged;
 }
 
+async function getAuditLogs({ page = 1, limit = 50, action, resourceType, actor, success, search } = {}) {
+  const query = {};
+  if (action) query.action = action;
+  if (resourceType) query.resourceType = resourceType;
+  if (actor) query.actor = { $regex: actor, $options: 'i' };
+  if (success !== undefined && success !== '') query.success = success === true || success === 'true';
+  if (search) {
+    const escapedSearch = String(search).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    query.$or = [
+      { actor: { $regex: escapedSearch, $options: 'i' } },
+      { action: { $regex: escapedSearch, $options: 'i' } },
+      { resourceType: { $regex: escapedSearch, $options: 'i' } },
+      { resourceId: { $regex: escapedSearch, $options: 'i' } },
+    ];
+  }
+
+  const safePage = Math.max(1, parseInt(page, 10) || 1);
+  const safeLimit = Math.min(100, Math.max(1, parseInt(limit, 10) || 50));
+  const skip = (safePage - 1) * safeLimit;
+  const [logs, total, successTotal, failedTotal] = await Promise.all([
+    AuditLog.find(query).sort({ createdAt: -1 }).skip(skip).limit(safeLimit).lean(),
+    AuditLog.countDocuments(query),
+    AuditLog.countDocuments({ ...query, success: true }),
+    AuditLog.countDocuments({ ...query, success: false }),
+  ]);
+
+  return {
+    logs: toPlain(logs),
+    pagination: {
+      page: safePage,
+      limit: safeLimit,
+      total,
+      totalPages: Math.ceil(total / safeLimit),
+      successTotal,
+      failedTotal,
+    },
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // STATS — admin dashboard
 // ─────────────────────────────────────────────────────────────────────────────
@@ -558,6 +598,7 @@ module.exports = {
   // Settings
   getSettings,
   updateSettings,
+  getAuditLogs,
 
   // Stats
   getStats,

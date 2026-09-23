@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Invalid email address.' });
   }
 
-  store.addContactMessage(name, email, subject, message);
+  await store.addContactMessage(name, email, subject, message);
 
   // Send email via Resend if API key is configured
   if (process.env.RESEND_API_KEY) {
@@ -45,13 +45,13 @@ router.post('/', async (req, res) => {
 });
 
 // POST /api/subscribe
-router.post('/subscribe', (req, res) => {
+router.post('/subscribe', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ success: false, message: 'Email is required.' });
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) return res.status(400).json({ success: false, message: 'Invalid email.' });
 
-  const result = store.addSubscriber(email);
+  const result = await store.addSubscriber(email);
   if (result.exists) return res.json({ success: true, message: 'You are already subscribed!' });
   res.json({ success: true, message: 'Thank you for subscribing!' });
 });

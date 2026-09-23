@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audit Log — Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/admin/assets/css/admin.css" rel="stylesheet">
+  <style>
+    .audit-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .audit-summary .stat-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .audit-summary .summary-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .audit-summary .stat-number {
+      font-size: 1.45rem;
+      margin-bottom: 2px;
+    }
+
+    .audit-summary .stat-label {
+      font-size: 0.75rem;
+    }
+
+    .audit-toolbar {
+      display: flex;
+      align-items: end;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .audit-toolbar .form-group {
+      min-width: 150px;
+      margin-bottom: 0;
+      flex: 1;
+    }
+
+    .audit-toolbar .form-group.search-field {
+      flex: 2;
+      min-width: 220px;
+    }
+
+    .audit-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--white);
+    }
+
+    .audit-table {
+      min-width: 980px;
+    }
+
+    .audit-table th,
+    .audit-table td {
+      white-space: nowrap;
+    }
+
+    .audit-details {
+      max-width: 260px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .audit-result {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .audit-result.success { color: var(--success); }
+    .audit-result.failure { color: var(--danger); }
+
+    .audit-empty {
+      padding: 48px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .audit-empty i {
+      display: block;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: var(--sidebar);
+    }
+
+    .audit-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .audit-pagination-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .audit-summary { grid-template-columns: 1fr; }
+      .audit-toolbar .form-group { min-width: calc(50% - 6px); }
+      .audit-toolbar .form-group.search-field { min-width: 100%; }
+      .audit-pagination { align-items: stretch; flex-direction: column; }
+      .audit-pagination-actions { justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-brand"><h2>Hon. Leke Abejide</h2><p>Admin Panel</p></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a href="/admin/dashboard" class="nav-link" data-page="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <div class="nav-section">Content</div>
+      <div class="nav-section">Pages</div>
+      <a href="/admin/about" class="nav-link" data-page="about"><i class="bi bi-person-lines-fill"></i> About Page</a>
+      <a href="/admin/posts" class="nav-link" data-page="posts"><i class="bi bi-newspaper"></i> Blog Posts</a>
+      <a href="/admin/posts/new" class="nav-link" data-page="new-post"><i class="bi bi-plus-circle"></i> New Post</a>
+      <div class="nav-section">Engagement</div>
+      <a href="/admin/comments" class="nav-link" data-page="comments"><i class="bi bi-chat-left-text"></i> Comments</a>
+      <a href="/admin/messages" class="nav-link" data-page="messages"><i class="bi bi-envelope"></i> Messages</a>
+      <a href="/admin/subscribers" class="nav-link" data-page="subscribers"><i class="bi bi-people"></i> Subscribers</a>
+      <div class="nav-section">Site</div>
+      <a href="/admin/settings" class="nav-link" data-page="settings"><i class="bi bi-gear"></i> Settings</a>
+      <a href="/admin/audit-log" class="nav-link" data-page="audit-log"><i class="bi bi-shield-lock"></i> Audit Log</a>
+      <a href="/" target="_blank" class="nav-link"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
+    </nav>
+    <div class="sidebar-footer"><span id="admin-name">Admin</span> &nbsp;·&nbsp; <a href="#" id="logout-btn">Logout</a></div>
+  </aside>
+
+  <div class="main-content">
+    <div class="topbar">
+      <h1 id="page-title">Audit Log</h1>
+      <div class="topbar-actions">
+        <button class="btn btn-outline btn-sm" id="refresh-audit"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+        <div class="admin-avatar" id="admin-avatar">A</div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div class="audit-summary">
+        <div class="stat-card">
+          <div class="summary-icon" style="background:#e8f0f8;color:#1a3c5e"><i class="bi bi-list-task"></i></div>
+          <div><div class="stat-number" id="audit-total">—</div><div class="stat-label">Total Events</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="summary-icon" style="background:#e8f8ec;color:#28a745"><i class="bi bi-check-circle"></i></div>
+          <div><div class="stat-number" id="audit-success">—</div><div class="stat-label">Successful</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="summary-icon" style="background:#fde8e8;color:#dc3545"><i class="bi bi-exclamation-circle"></i></div>
+          <div><div class="stat-number" id="audit-failed">—</div><div class="stat-label">Failed</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="bi bi-shield-lock"></i> Administrative Activity</h3>
+          <span class="badge badge-info" id="audit-count-label">Loading…</span>
+        </div>
+        <div class="card-body">
+          <div class="audit-toolbar">
+            <div class="form-group search-field">
+              <label class="form-label" for="audit-search">Search actor, action, or resource</label>
+              <input class="form-control" id="audit-search" type="search" placeholder="Search audit events…">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="audit-action">Action</label>
+              <select class="form-control" id="audit-action">
+                <option value="">All actions</option>
+                <option value="login">Login</option>
+                <option value="logout">Logout</option>
+                <option value="create">Create</option>
+                <option value="update">Update</option>
+                <option value="delete">Delete</option>
+                <option value="reply">Reply</option>
+                <option value="mark_read">Mark read</option>
+                <option value="reorder">Reorder</option>
+                <option value="toggle_featured">Toggle featured</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="audit-resource">Resource</label>
+              <select class="form-control" id="audit-resource">
+                <option value="">All resources</option>
+                <option value="admin_session">Admin session</option>
+                <option value="post">Post</option>
+                <option value="category">Category</option>
+                <option value="tag">Tag</option>
+                <option value="comment">Comment</option>
+                <option value="message">Message</option>
+                <option value="subscriber">Subscriber</option>
+                <option value="setting">Setting</option>
+                <option value="about_page">About page</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="audit-result">Result</label>
+              <select class="form-control" id="audit-result">
+                <option value="">All results</option>
+                <option value="true">Successful</option>
+                <option value="false">Failed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="audit-table-wrap">
+            <table class="admin-table audit-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Admin</th>
+                  <th>Action</th>
+                  <th>Resource</th>
+                  <th>Details</th>
+                  <th>IP Address</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody id="audit-rows">
+                <tr><td colspan="7" class="audit-empty"><i class="bi bi-hourglass-split"></i>Loading audit events…</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="audit-pagination">
+            <span id="audit-page-info">No events</span>
+            <div class="audit-pagination-actions">
+              <button class="btn btn-outline btn-sm" id="audit-prev" type="button"><i class="bi bi-chevron-left"></i> Previous</button>
+              <button class="btn btn-outline btn-sm" id="audit-next" type="button">Next <i class="bi bi-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/admin/assets/js/layout.js"></script>
+  <script>
+    initAdminLayout('Audit Log', 'audit-log');
+
+    const auditState = {
+      page: 1,
+      limit: 25,
+      search: '',
+      action: '',
+      resource: '',
+      result: '',
+      totalPages: 0,
+      total: 0,
+      success: 0,
+      failed: 0,
+    };
+
+    const auditRows = document.getElementById('audit-rows');
+    const auditSearch = document.getElementById('audit-search');
+    const auditAction = document.getElementById('audit-action');
+    const auditResource = document.getElementById('audit-resource');
+    const auditResult = document.getElementById('audit-result');
+
+    function escHTML(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function formatValue(value) {
+      if (value === null || value === undefined || value === '') return '—';
+      if (typeof value === 'object') {
+        try { return JSON.stringify(value); } catch (_) { return String(value); }
+      }
+      return String(value);
+    }
+
+    function formatDetails(details) {
+      const text = formatValue(details);
+      return text.length > 180 ? text.slice(0, 177) + '…' : text;
+    }
+
+    function formatTime(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '—';
+      return date.toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+
+    function humanize(value) {
+      return String(value || '—').replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+    }
+
+    function renderAudit(data) {
+      const logs = data.logs || [];
+      const pagination = data.pagination || {};
+      auditState.total = pagination.total || 0;
+      auditState.totalPages = pagination.totalPages || 0;
+      auditState.success = pagination.successTotal || 0;
+      auditState.failed = pagination.failedTotal || 0;
+
+      document.getElementById('audit-total').textContent = auditState.total.toLocaleString();
+      document.getElementById('audit-success').textContent = auditState.success.toLocaleString();
+      document.getElementById('audit-failed').textContent = auditState.failed.toLocaleString();
+      document.getElementById('audit-count-label').textContent = auditState.total + (auditState.total === 1 ? ' event' : ' events');
+
+      if (!logs.length) {
+        auditRows.innerHTML = '<tr><td colspan="7" class="audit-empty"><i class="bi bi-shield-exclamation"></i>No audit events found.</td></tr>';
+      } else {
+        auditRows.innerHTML = logs.map((log) => {
+          const details = formatDetails(log.details);
+          const resultClass = log.success ? 'success' : 'failure';
+          const resultIcon = log.success ? 'check-circle' : 'x-circle';
+          return `<tr>
+            <td title="${escHTML(log.createdAt || '')}">${escHTML(formatTime(log.createdAt))}</td>
+            <td><strong>${escHTML(log.actor || 'Unknown')}</strong></td>
+            <td><span class="badge badge-info">${escHTML(humanize(log.action))}</span></td>
+            <td><span class="badge badge-secondary">${escHTML(humanize(log.resourceType))}${log.resourceId ? ' #' + escHTML(log.resourceId) : ''}</span></td>
+            <td class="audit-details" title="${escHTML(formatValue(log.details))}">${escHTML(details)}</td>
+            <td>${escHTML(log.ipAddress || '—')}</td>
+            <td><span class="audit-result ${resultClass}"><i class="bi bi-${resultIcon}"></i>${log.success ? 'Success' : 'Failed'}</span></td>
+          </tr>`;
+        }).join('');
+      }
+
+      const page = pagination.page || 1;
+      const limit = pagination.limit || auditState.limit;
+      const start = auditState.total ? (page - 1) * limit + 1 : 0;
+      const end = Math.min(page * limit, auditState.total);
+      document.getElementById('audit-page-info').textContent = auditState.total
+        ? `Showing ${start}–${end} of ${auditState.total.toLocaleString()} events`
+        : 'No events';
+      document.getElementById('audit-prev').disabled = page <= 1;
+      document.getElementById('audit-next').disabled = page >= auditState.totalPages;
+    }
+
+    async function loadAuditLogs() {
+      const params = new URLSearchParams({ page: String(auditState.page), limit: String(auditState.limit) });
+      if (auditState.search) params.set('search', auditState.search);
+      if (auditState.action) params.set('action', auditState.action);
+      if (auditState.resource) params.set('resourceType', auditState.resource);
+      if (auditState.result) params.set('success', auditState.result);
+
+      const data = await adminAPI.get('/api/admin/audit-logs?' + params.toString());
+      if (data) renderAudit(data);
+    }
+
+    let searchTimer;
+    auditSearch.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        auditState.search = auditSearch.value.trim();
+        auditState.page = 1;
+        loadAuditLogs();
+      }, 350);
+    });
+
+    auditAction.addEventListener('change', () => {
+      auditState.action = auditAction.value;
+      auditState.page = 1;
+      loadAuditLogs();
+    });
+
+    auditResource.addEventListener('change', () => {
+      auditState.resource = auditResource.value;
+      auditState.page = 1;
+      loadAuditLogs();
+    });
+
+    auditResult.addEventListener('change', () => {
+      auditState.result = auditResult.value;
+      auditState.page = 1;
+      loadAuditLogs();
+    });
+
+    document.getElementById('audit-prev').addEventListener('click', () => {
+      if (auditState.page > 1) { auditState.page -= 1; loadAuditLogs(); }
+    });
+
+    document.getElementById('audit-next').addEventListener('click', () => {
+      if (auditState.page < auditState.totalPages) { auditState.page += 1; loadAuditLogs(); }
+    });
+
+    document.getElementById('refresh-audit').addEventListener('click', loadAuditLogs);
+    loadAuditLogs();
+  </script>
+</body>
+</html>
