@@ -24,6 +24,7 @@
     <a href="/admin/subscribers" class="nav-link" data-page="subscribers"><i class="bi bi-people"></i> Subscribers</a>
     <div class="nav-section">Site</div>
     <a href="/admin/settings" class="nav-link" data-page="settings"><i class="bi bi-gear"></i> Settings</a>
+    <a href="/admin/audit-log" class="nav-link" data-page="audit-log"><i class="bi bi-shield-lock"></i> Audit Log</a>
     <a href="/" target="_blank" class="nav-link"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
   </nav>
   <div class="sidebar-footer"><span id="admin-name">Admin</span> &nbsp;·&nbsp; <a href="#" id="logout-btn">Logout</a></div>
@@ -54,7 +55,7 @@
         <a href="/admin/posts" class="btn btn-outline btn-sm">View All</a>
       </div>
       <div class="card-body" style="padding:0">
-        <table class="admin-table">
+        <table class="admin-table stack-mobile">
           <thead><tr><th>Image</th><th>Title</th><th>Category</th><th>Date</th><th>Featured</th><th>Actions</th></tr></thead>
           <tbody id="recent-posts-table">
             <tr><td colspan="6" style="text-align:center;padding:24px;color:#718096">Loading…</td></tr>
@@ -104,20 +105,20 @@ async function loadDashboard() {
   // ── KEY FIX: quote '${p.id}' in onclick so ObjectId strings are valid JS
   tbody.innerHTML = posts.map(p => `
     <tr>
-      <td>${p.image
+      <td data-label="Image">${p.image
         ? `<img src="/${p.image}" class="post-thumb" onerror="this.style.display='none'">`
         : '<div style="width:52px;height:40px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center"><i class="bi bi-image text-muted"></i></div>'
       }</td>
-      <td style="max-width:260px"><span style="font-weight:500;font-size:0.875rem">${p.title.substring(0,65)}${p.title.length>65?'…':''}</span></td>
-      <td><span class="badge badge-info">${p.category}</span></td>
-      <td style="color:#718096;font-size:0.8rem;white-space:nowrap">${p.date}</td>
-      <td>
+      <td data-label="Title"><span style="font-weight:500;font-size:0.875rem">${p.title.substring(0,65)}${p.title.length>65?'…':''}</span></td>
+      <td data-label="Category"><span class="badge badge-info">${p.category}</span></td>
+      <td data-label="Date" style="color:#718096;font-size:0.8rem;white-space:nowrap">${p.date}</td>
+      <td data-label="Featured">
         <label class="toggle">
           <input type="checkbox" ${p.featured ? 'checked' : ''} onchange="toggleFeatured('${p.id}', this)">
           <span class="toggle-slider"></span>
         </label>
       </td>
-      <td>
+      <td data-label="Actions">
         <a href="/admin/posts/edit/${p.id}" class="btn btn-outline btn-sm btn-icon" title="Edit"><i class="bi bi-pencil"></i></a>
         <button class="btn btn-danger btn-sm btn-icon" onclick="deletePost('${p.id}')" title="Delete"><i class="bi bi-trash"></i></button>
       </td>

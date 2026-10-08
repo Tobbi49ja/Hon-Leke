@@ -70,11 +70,6 @@
       min-width: 980px;
     }
 
-    .audit-table th,
-    .audit-table td {
-      white-space: nowrap;
-    }
-
     .audit-details {
       max-width: 260px;
       overflow: hidden;
@@ -125,8 +120,17 @@
 
     @media (max-width: 768px) {
       .audit-summary { grid-template-columns: 1fr; }
-      .audit-toolbar .form-group { min-width: calc(50% - 6px); }
-      .audit-toolbar .form-group.search-field { min-width: 100%; }
+      .audit-table { min-width: 0; }
+      .audit-table-wrap { overflow-x: visible; }
+      .audit-details { max-width: none; white-space: normal; text-overflow: unset; }
+      .audit-toolbar {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+      .audit-toolbar .form-group { min-width: 0; margin-bottom: 0; }
+      .audit-toolbar .form-group.search-field { grid-column: 1 / -1; min-width: 0; }
+      .audit-toolbar .form-group > .form-control { width: 100%; }
       .audit-pagination { align-items: stretch; flex-direction: column; }
       .audit-pagination-actions { justify-content: space-between; }
     }
@@ -232,7 +236,7 @@
           </div>
 
           <div class="audit-table-wrap">
-            <table class="admin-table audit-table">
+            <table class="admin-table audit-table stack-mobile">
               <thead>
                 <tr>
                   <th>Time</th>
@@ -344,13 +348,13 @@
           const resultClass = log.success ? 'success' : 'failure';
           const resultIcon = log.success ? 'check-circle' : 'x-circle';
           return `<tr>
-            <td title="${escHTML(log.createdAt || '')}">${escHTML(formatTime(log.createdAt))}</td>
-            <td><strong>${escHTML(log.actor || 'Unknown')}</strong></td>
-            <td><span class="badge badge-info">${escHTML(humanize(log.action))}</span></td>
-            <td><span class="badge badge-secondary">${escHTML(humanize(log.resourceType))}${log.resourceId ? ' #' + escHTML(log.resourceId) : ''}</span></td>
-            <td class="audit-details" title="${escHTML(formatValue(log.details))}">${escHTML(details)}</td>
-            <td>${escHTML(log.ipAddress || '—')}</td>
-            <td><span class="audit-result ${resultClass}"><i class="bi bi-${resultIcon}"></i>${log.success ? 'Success' : 'Failed'}</span></td>
+            <td data-label="Time" title="${escHTML(log.createdAt || '')}">${escHTML(formatTime(log.createdAt))}</td>
+            <td data-label="Admin"><strong>${escHTML(log.actor || 'Unknown')}</strong></td>
+            <td data-label="Action"><span class="badge badge-info">${escHTML(humanize(log.action))}</span></td>
+            <td data-label="Resource"><span class="badge badge-secondary">${escHTML(humanize(log.resourceType))}${log.resourceId ? ' #' + escHTML(log.resourceId) : ''}</span></td>
+            <td data-label="Details" class="audit-details" title="${escHTML(formatValue(log.details))}">${escHTML(details)}</td>
+            <td data-label="IP Address">${escHTML(log.ipAddress || '—')}</td>
+            <td data-label="Result"><span class="audit-result ${resultClass}"><i class="bi bi-${resultIcon}"></i>${log.success ? 'Success' : 'Failed'}</span></td>
           </tr>`;
         }).join('');
       }

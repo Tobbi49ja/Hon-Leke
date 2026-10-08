@@ -6,6 +6,12 @@
   <title>Subscribers — Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="/admin/assets/css/admin.css" rel="stylesheet">
+  <style>
+    @media (max-width: 480px) {
+      #export-btn { font-size: 0; padding: 0 12px; justify-content: center; }
+      #export-btn i { font-size: 1rem; }
+    }
+  </style>
 </head>
 <body>
 <aside class="sidebar">
@@ -24,6 +30,7 @@
     <a href="/admin/subscribers" class="nav-link" data-page="subscribers"><i class="bi bi-people"></i> Subscribers</a>
     <div class="nav-section">Site</div>
     <a href="/admin/settings" class="nav-link" data-page="settings"><i class="bi bi-gear"></i> Settings</a>
+    <a href="/admin/audit-log" class="nav-link" data-page="audit-log"><i class="bi bi-shield-lock"></i> Audit Log</a>
     <a href="/" target="_blank" class="nav-link"><i class="bi bi-box-arrow-up-right"></i> View Site</a>
   </nav>
   <div class="sidebar-footer"><span id="admin-name">Admin</span> &nbsp;·&nbsp; <a href="#" id="logout-btn">Logout</a></div>
@@ -44,7 +51,7 @@
         <h3><i class="bi bi-people"></i> Newsletter Subscribers <span id="sub-count" style="font-weight:400;color:var(--muted)"></span></h3>
       </div>
       <div class="card-body" style="padding:0">
-        <table class="admin-table">
+        <table class="admin-table stack-mobile">
           <thead>
             <tr>
               <th>#</th>
@@ -85,10 +92,10 @@ async function loadSubscribers() {
 
   tbody.innerHTML = allSubs.map((s, i) => `
     <tr>
-      <td style="color:#718096;font-size:0.8rem">${i + 1}</td>
-      <td><strong style="font-size:0.875rem">${s.email}</strong></td>
-      <td style="color:#718096;font-size:0.8rem">${s.date}</td>
-      <td>
+      <td data-label="#" style="color:#718096;font-size:0.8rem">${i + 1}</td>
+      <td data-label="Email"><strong style="font-size:0.875rem">${s.email}</strong></td>
+      <td data-label="Subscribed" style="color:#718096;font-size:0.8rem">${s.date}</td>
+      <td data-label="Actions">
         <button class="btn btn-danger btn-sm btn-icon" onclick="deleteSubscriber(${s.id})" title="Remove"><i class="bi bi-person-x"></i></button>
       </td>
     </tr>
