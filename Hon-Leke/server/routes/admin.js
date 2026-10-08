@@ -21,21 +21,16 @@ if (process.env.CLOUDINARY_CLOUD_NAME) {
     });
 
     uploadToCloud = async (filePath, resourceType = "image") => {
-      const result = await cloudinary.uploader.upload(filePath, {
-        folder: "hon-leke-blog",
-        resource_type: resourceType,
-        transformation:
-          resourceType === "image"
-            ? [
-                {
-                  width: 1200,
-                  crop: "limit",
-                  quality: "auto",
-                  fetch_format: "auto",
-                },
-              ]
-            : undefined,
-      });
+      const result = resourceType === "video"
+        ? await cloudinary.uploader.upload_large(filePath, {
+            folder: "hon-leke-blog",
+            resource_type: "video",
+            chunk_size: 20000000,
+          })
+        : await cloudinary.uploader.upload(filePath, {
+            folder: "hon-leke-blog",
+            resource_type: "image",
+          });
       try {
         fs.unlinkSync(filePath);
       } catch (e) {}
