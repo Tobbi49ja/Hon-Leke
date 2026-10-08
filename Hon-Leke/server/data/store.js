@@ -316,10 +316,14 @@ function escapeRegex(str) {
 // ─────────────────────────────────────────────────────────────────────────────
 async function incrementViews(postId) {
   try {
-    const doc = await Post.findByIdAndUpdate(
-      postId,
+    const mongoose = require('mongoose');
+    const query = mongoose.Types.ObjectId.isValid(postId)
+      ? { _id: postId }
+      : { slug: postId };
+    const doc = await Post.findOneAndUpdate(
+      query,
       { $inc: { views: 1 } },
-      { new: true }
+      { returnDocument: 'after' }
     ).lean();
     return toPlain(doc);
   } catch (e) {
