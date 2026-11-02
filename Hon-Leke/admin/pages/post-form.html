@@ -828,7 +828,9 @@ async function savePost(status) {
     const res    = await fetch(url, { method, body: fd });
 
     if (res.status === 413) {
-      toast('Post is too large. Please use smaller images and try again.', 'error');
+      let msg = 'Post is too large. Please use smaller images and try again.';
+      try { const j = await res.clone().json(); if (j.error) msg = j.error; } catch(_) { msg += ' (blocked before reaching the app)'; }
+      toast(msg, 'error');
       return;
     }
 

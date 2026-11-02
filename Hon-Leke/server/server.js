@@ -2,6 +2,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const multer  = require('multer');
 const session = require('express-session');
 const path    = require('path');
 const fs      = require('fs');
@@ -21,8 +22,8 @@ const PORT = process.env.PORT || 3000;
 app.set('trust proxy', 1); // trust Nginx reverse proxy
 
 // ── Middleware ─────────────────────────────────────────────────────────────────
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 app.use(session({
   secret:            process.env.SESSION_SECRET,
   resave:            false,
@@ -351,6 +352,20 @@ app.get('/admin/tags',        requireAdmin, (req, res) => res.sendFile(path.join
 // ── 404 ────────────────────────────────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).sendFile(path.join(clientPages, '404', 'index.html'));
+});
+
+// ── Error Handler ───────────────────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    console.error('MULTER ERROR:', err.code, err.field);
+    return res.status(413).json({ error: 'Upload rejected (' + err.code + (err.field ? ' on ' + err.field : '') + ').' });
+  }
+  if (err.type === 'entity.too.large') {
+    console.error('413 source: entity.too.large', req.originalUrl);
+    return res.status(413).json({ error: 'Post is too large. Please use smaller images and try again.' });
+  }
+  console.error(err);
+  res.status(err.status || 500).json({ error: err.message || 'Server error' });
 });
 
 // ── Start ──────────────────────────────────────────────────────────────────────
