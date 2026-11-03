@@ -4,6 +4,7 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
 const store = require("../data/store");
 const { requireAdmin } = require("../middleware/auth");
 const { auditMutations, recordAudit } = require("../middleware/audit");
@@ -20,20 +21,24 @@ if (process.env.CLOUDINARY_CLOUD_NAME) {
       api_secret: process.env.CLOUDINARY_API_SECRET,
     });
 
-    uploadToCloud = async (filePath, resourceType = "image") => {
-      const result = resourceType === "video"
-        ? await cloudinary.uploader.upload_large(filePath, {
-            folder: "hon-leke-blog",
-            resource_type: "video",
-            chunk_size: 20000000,
-          })
-        : await cloudinary.uploader.upload(filePath, {
-            folder: "hon-leke-blog",
-            resource_type: "image",
-          });
+uploadToCloud = async (filePath, resourceType = "image") => {
+      let result;
       try {
-        fs.unlinkSync(filePath);
-      } catch (e) {}
+        result = resourceType === "video"
+          ? await cloudinary.uploader.upload_large(filePath, {
+              folder: "hon-leke-blog",
+              resource_type: "video",
+              chunk_size: 20000000,
+            })
+          : await cloudinary.uploader.upload(filePath, {
+              folder: "hon-leke-blog",
+              resource_type: "image",
+            });
+      } catch (e) {
+        throw Object.assign(new Error("Media upload failed"), { code: "MEDIA_UPLOAD_FAILED" });
+      } finally {
+        fs.promises.unlink(filePath).catch(() => {});
+      }
       return result.secure_url;
     };
     console.log("✅ Cloudinary configured — media stored in the cloud.");
@@ -47,23 +52,13 @@ if (process.env.CLOUDINARY_CLOUD_NAME) {
 }
 
 // ── Multer ─────────────────────────────────────────────────────────────────────
-const imageDir = path.join(__dirname, "..", "..", "client", "public", "image");
-const videoDir = path.join(__dirname, "..", "..", "client", "public", "video");
-
-[imageDir, videoDir].forEach((dir) => {
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-});
+// Stage all uploads in the system temp dir — never inside client/public.
+const tmpDir = path.join(os.tmpdir(), "hon-leke-uploads");
+if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    if (
-      file.fieldname === "video" ||
-      file.fieldname.startsWith("block_video_")
-    ) {
-      cb(null, videoDir);
-    } else {
-      cb(null, imageDir);
-    }
+    cb(null, tmpDir);
   },
   filename: (req, file, cb) => {
     const unique = Date.now() + "-" + Math.round(Math.random() * 1e6);
@@ -470,6 +465,9 @@ router.post("/posts", requireAdmin, async (req, res) => {
       postId: post.id,
     });
   } catch (err) {
+    if (err.code === "MEDIA_UPLOAD_FAILED") {
+      return res.status(500).json({ error: "Media upload failed" });
+    }
     console.error("POST /admin/posts error:", err);
     res.status(500).json({
       success: false,
@@ -536,6 +534,9 @@ router.put("/posts/:id", requireAdmin, async (req, res) => {
 
     res.json({ success: true, message: "Post updated successfully!", post });
   } catch (err) {
+    if (err.code === "MEDIA_UPLOAD_FAILED") {
+      return res.status(500).json({ error: "Media upload failed" });
+    }
     console.error("PUT /admin/posts/:id error:", err);
     res.status(500).json({
       success: false,

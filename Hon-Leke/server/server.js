@@ -16,6 +16,9 @@ const postsRouter   = require('./routes/posts');
 const contactRouter = require('./routes/contact');
 const adminRouter   = require('./routes/admin');
 
+process.on('unhandledRejection', (e) => console.error('unhandledRejection:', e));
+process.on('uncaughtException', (e) => console.error('uncaughtException:', e));
+
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
