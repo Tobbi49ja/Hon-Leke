@@ -21,26 +21,71 @@ if (process.env.CLOUDINARY_CLOUD_NAME) {
       api_secret: process.env.CLOUDINARY_API_SECRET,
     });
 
+const uploadCache = new Map();
 uploadToCloud = async (filePath, resourceType = "image") => {
-      let result;
-      try {
-        result = resourceType === "video"
-          ? await cloudinary.uploader.upload_large(filePath, {
-              folder: "hon-leke-blog",
-              resource_type: "video",
-              chunk_size: 20000000,
-            })
-          : await cloudinary.uploader.upload(filePath, {
+      if (uploadCache.has(filePath)) {
+        return uploadCache.get(filePath);
+      }
+
+      const p = (async () => {
+        let result;
+        try {
+          if (resourceType === "video") {
+            result = await new Promise((resolve, reject) => {
+              const timer = setTimeout(() => {
+                reject(
+                  Object.assign(new Error("Media upload failed"), {
+                    code: "MEDIA_UPLOAD_FAILED",
+                  }),
+                );
+              }, 15 * 60 * 1000);
+              cloudinary.uploader.upload_large(
+                filePath,
+                {
+                  folder: "hon-leke-blog",
+                  resource_type: "video",
+                  chunk_size: 20000000,
+                },
+                (err, res) => {
+                  if (err || (res && res.error)) {
+                    clearTimeout(timer);
+                    return reject(
+                      Object.assign(new Error("Media upload failed"), {
+                        code: "MEDIA_UPLOAD_FAILED",
+                      }),
+                    );
+                  }
+                  if (res && res.secure_url) {
+                    clearTimeout(timer);
+                    return resolve(res);
+                  }
+                  // partial chunk result — keep waiting for the final callback
+                },
+              );
+            });
+          } else {
+            result = await cloudinary.uploader.upload(filePath, {
               folder: "hon-leke-blog",
               resource_type: "image",
             });
-      } catch (e) {
-        console.error('CLOUDINARY UPLOAD ERROR:', filePath, resourceType, e && (e.message || e));
-        throw Object.assign(new Error("Media upload failed"), { code: "MEDIA_UPLOAD_FAILED" });
-      } finally {
-        fs.promises.unlink(filePath).catch(() => {});
-      }
-      return result.secure_url;
+          }
+        } catch (e) {
+          console.error(
+            "CLOUDINARY UPLOAD ERROR:",
+            filePath,
+            resourceType,
+            e && (e.message || e),
+          );
+          uploadCache.delete(filePath);
+          throw Object.assign(new Error("Media upload failed"), {
+            code: "MEDIA_UPLOAD_FAILED",
+          });
+        }
+        return result.secure_url;
+      })();
+
+      uploadCache.set(filePath, p);
+      return p;
     };
     console.log("✅ Cloudinary configured — media stored in the cloud.");
   } catch (e) {
