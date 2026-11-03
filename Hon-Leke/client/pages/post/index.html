@@ -303,10 +303,7 @@
   });
 
   /* ── Helpers ── */
-  function mediaUrl(src) {
-    if (!src) return '';
-    return src.startsWith('http') ? src : '/' + src;
-  }
+  const mediaUrl = (p) => !p ? '' : /^(https?:)?\/\/|^data:/.test(p) ? p : '/' + p.replace(/^\/+/, '');
   function toYouTubeEmbed(url) {
     if (!url) return '';
     if (url.includes('/embed/')) return url;

@@ -237,10 +237,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', async function () {
 
-  function mediaUrl(src) {
-    if (!src) return '';
-    return src.startsWith('http') ? src : '/' + src;
-  }
+  const mediaUrl = (p) => !p ? '' : /^(https?:)?\/\/|^data:/.test(p) ? p : '/' + p.replace(/^\/+/, '');
 
   /* ── Settings ── */
   try {

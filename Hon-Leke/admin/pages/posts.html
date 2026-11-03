@@ -202,8 +202,9 @@ function renderPosts(posts) {
     const statusBadge = p.status === 'draft'
       ? '<span class="badge-draft"><i class="bi bi-file-earmark"></i> Draft</span>'
       : '<span class="badge-published"><i class="bi bi-check-circle"></i> Published</span>';
+    const mediaUrl = (p) => !p ? '' : /^(https?:)?\/\/|^data:/.test(p) ? p : '/' + p.replace(/^\/+/, '');
     const imgHtml = p.image
-      ? `<img src="${p.image.startsWith('http') ? p.image : '/' + p.image}" class="post-thumb" onerror="this.parentElement.innerHTML='<div style=width:52px;height:40px;background:#eee;border-radius:6px></div>'">`
+      ? `<img src="${mediaUrl(p.image)}" class="post-thumb" onerror="this.parentElement.innerHTML='<div style=width:52px;height:40px;background:#eee;border-radius:6px></div>'">`
       : '<div style="width:52px;height:40px;background:#eee;border-radius:6px"></div>';
 
     return `

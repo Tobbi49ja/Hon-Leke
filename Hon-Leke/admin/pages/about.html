@@ -254,10 +254,7 @@ async function loadAbout() {
   renderTeam();
 }
 
-function mediaUrl(src) {
-  if (!src) return '';
-  return src.startsWith('http') ? src : '/' + src;
-}
+const mediaUrl = (p) => !p ? '' : /^(https?:)?\/\/|^data:/.test(p) ? p : '/' + p.replace(/^\/+/, '');
 
 // ── Defaults ───────────────────────────────────────────────────
 function defaultAchievements() {

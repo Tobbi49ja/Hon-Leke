@@ -4,6 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const multer  = require('multer');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const path    = require('path');
 const fs      = require('fs');
 const crypto  = require('crypto');
@@ -31,7 +32,12 @@ app.use(session({
   secret:            process.env.SESSION_SECRET,
   resave:            false,
   saveUninitialized: false,
-  cookie:            { maxAge: 24 * 60 * 60 * 1000 }
+  cookie:            { maxAge: 24 * 60 * 60 * 1000 },
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    collectionName: 'sessions',
+    ttl: 14 * 24 * 60 * 60
+  })
 }));
 
 // ── Static Files ───────────────────────────────────────────────────────────────

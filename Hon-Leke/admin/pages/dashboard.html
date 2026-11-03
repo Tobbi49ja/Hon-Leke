@@ -94,6 +94,7 @@ async function loadDashboard() {
   document.getElementById('stat-subscribers').textContent = s.totalSubscribers;
   document.getElementById('stat-categories').textContent  = s.categories;
 
+  const mediaUrl = (p) => !p ? '' : /^(https?:)?\/\/|^data:/.test(p) ? p : '/' + p.replace(/^\/+/, '');
   const tbody = document.getElementById('recent-posts-table');
   const posts = Array.isArray(postsRes.posts) ? postsRes.posts.slice(0, 8) : [];
 
@@ -106,7 +107,7 @@ async function loadDashboard() {
   tbody.innerHTML = posts.map(p => `
     <tr>
       <td data-label="Image">${p.image
-        ? `<img src="/${p.image}" class="post-thumb" onerror="this.style.display='none'">`
+        ? `<img src="${mediaUrl(p.image)}" class="post-thumb" onerror="this.style.display='none'">`
         : '<div style="width:52px;height:40px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center"><i class="bi bi-image text-muted"></i></div>'
       }</td>
       <td data-label="Title"><span style="font-weight:500;font-size:0.875rem">${p.title.substring(0,65)}${p.title.length>65?'…':''}</span></td>

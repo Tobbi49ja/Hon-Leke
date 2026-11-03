@@ -455,7 +455,7 @@ async function loadExistingPost(id) {
   try {
     let res;
     try {
-      res = await fetch('/api/admin/posts');
+      res = await fetch('/api/admin/posts/' + id);
     } catch(e) {
       toast('Network problem. Could not load the post. Please check your connection.', 'error');
       return;
@@ -469,7 +469,7 @@ async function loadExistingPost(id) {
       toast('Could not load post. Please refresh the page.', 'error');
       return;
     }
-    const post = (data.posts || []).find(p => p.id === id);
+    const post = data.post;
     if (!post) {
       toast('Post not found. It may have been deleted.', 'error');
       return;
@@ -500,7 +500,8 @@ async function loadExistingPost(id) {
 
     if (post.image) {
       const prev = document.getElementById('cover-preview');
-      prev.src = post.image.startsWith('http') ? post.image : '/' + post.image;
+      const mediaUrl = (p) => !p ? '' : /^(https?:)?\/\/|^data:/.test(p) ? p : '/' + p.replace(/^\/+/, '');
+      prev.src = mediaUrl(post.image);
       prev.style.display = 'block';
     }
 
@@ -656,6 +657,7 @@ function mdTab(id, tab) {
 
 function imageBlockBody(b) {
   const hasImg = b.image && b.image.trim();
+  const mediaUrl = (p) => !p ? '' : /^(https?:)?\/\/|^data:/.test(p) ? p : '/' + p.replace(/^\/+/, '');
   return `
     <div class="img-upload-area" id="drop-${b.id}">
       <input type="file" id="imgfile-${b.id}" accept="image/*">
@@ -663,7 +665,7 @@ function imageBlockBody(b) {
       <p>Click to upload an image</p>
     </div>
     <img class="img-preview" id="imgprev-${b.id}"
-      src="${hasImg ? (b.image.startsWith('http') ? b.image : '/' + b.image) : ''}"
+      src="${hasImg ? mediaUrl(b.image) : ''}"
       style="${hasImg ? 'display:block' : 'display:none'}" alt="">
     <input class="img-caption-input" id="caption-${b.id}" placeholder="Optional caption…" value="${esc(b.caption||'')}">
     <input type="hidden" id="imgpath-${b.id}" value="${esc(b.image||'')}">`;

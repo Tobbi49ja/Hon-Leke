@@ -459,10 +459,37 @@ router.patch("/posts/reorder", requireAdmin, async (req, res) => {
 router.get("/posts", requireAdmin, async (req, res) => {
   try {
     // Use getAllPostsAdmin so drafts are included in the admin view
-    res.json({ success: true, posts: await store.getAllPostsAdmin() });
+    const posts = await store.getAllPostsAdmin();
+    const list = posts.map(p => ({
+      id: p.id || p._id,
+      slug: p.slug,
+      title: p.title,
+      category: p.category,
+      date: p.date,
+      status: p.status,
+      featured: p.featured,
+      image: p.image,
+      tags: p.tags,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt
+    }));
+    res.json({ success: true, posts: list });
   } catch (err) {
     console.error("GET /admin/posts error:", err);
     res.status(500).json({ success: false, message: "Failed to load posts." });
+  }
+});
+
+router.get("/posts/:id", requireAdmin, async (req, res) => {
+  try {
+    const post = await store.getPostBySlugOrId(req.params.id);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    res.json({ success: true, post });
+  } catch (err) {
+    console.error("GET /admin/posts/:id error:", err);
+    res.status(500).json({ success: false, message: "Failed to load post." });
   }
 });
 
