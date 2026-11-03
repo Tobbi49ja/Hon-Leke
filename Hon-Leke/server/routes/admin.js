@@ -35,6 +35,7 @@ uploadToCloud = async (filePath, resourceType = "image") => {
               resource_type: "image",
             });
       } catch (e) {
+        console.error('CLOUDINARY UPLOAD ERROR:', filePath, resourceType, e && (e.message || e));
         throw Object.assign(new Error("Media upload failed"), { code: "MEDIA_UPLOAD_FAILED" });
       } finally {
         fs.promises.unlink(filePath).catch(() => {});
