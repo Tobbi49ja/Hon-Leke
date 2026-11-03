@@ -9,6 +9,8 @@ const store = require("../data/store");
 const { requireAdmin } = require("../middleware/auth");
 const { auditMutations, recordAudit } = require("../middleware/audit");
 
+const uploadCache = new Map();
+
 // ── Cloudinary setup ───────────────────────────────────────────────────────────
 let uploadToCloud = null;
 
@@ -21,7 +23,6 @@ if (process.env.CLOUDINARY_CLOUD_NAME) {
       api_secret: process.env.CLOUDINARY_API_SECRET,
     });
 
-const uploadCache = new Map();
 uploadToCloud = async (filePath, resourceType = "image") => {
       if (uploadCache.has(filePath)) {
         return uploadCache.get(filePath);
@@ -290,6 +291,17 @@ async function resolveBlocks(req, rawBlocks) {
 }
 
 // ── Auth ───────────────────────────────────────────────────────────────────────
+router.use((req, res, next) => {
+  res.on('close', () => {
+    const groups = req.files ? (Array.isArray(req.files) ? [req.files] : Object.values(req.files)) : [];
+    for (const g of groups) for (const f of g) {
+      if (f && f.path) { uploadCache.delete(f.path); fs.promises.unlink(f.path).catch(() => {}); }
+    }
+    if (req.file && req.file.path) { uploadCache.delete(req.file.path); fs.promises.unlink(req.file.path).catch(() => {}); }
+  });
+  next();
+});
+
 router.use(auditMutations);
 
 router.post("/login", async (req, res) => {
